@@ -1,0 +1,177 @@
+name: Ani Doctor - Host-ready ZIP
+
+on:
+  push:
+    branches:
+      - '**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ani-doctor-package-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify-and-package:
+    name: Verify documentation and package Laravel
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Validate documents and detect Laravel app
+        id: detect
+        shell: bash
+        run: |
+          set -euo pipefail
+          for file in AI_RULES.md ARCHITECTURE.md UI_GUIDELINES.md COMPONENTS.md SECURITY.md PRD.md DEPLOYMENT.md; do
+            if [[ ! -s "$file" ]]; then
+              echo "::error::Missing or empty documentation: $file"
+              exit 1
+            fi
+          done
+
+          if [[ -e composer.json || -e composer.lock || -e artisan || -e public/index.php ]]; then
+            for file in composer.json composer.lock artisan public/index.php; do
+              if [[ ! -f "$file" ]]; then
+                echo "::error::Incomplete Laravel app: $file missing. No unsafe or incomplete ZIP will be produced."
+                exit 1
+              fi
+            done
+            echo "app=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "app=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Documentation-only status
+        if: steps.detect.outputs.app == 'false'
+        shell: bash
+        run: |
+          echo "### Ani Doctor - documentation phase (P0)" >> "$GITHUB_STEP_SUMMARY"
+          echo "No Laravel source is present yet. Documentation validation passed; installable ZIP intentionally skipped." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Set up PHP 8.4 and Composer
+        if: steps.detect.outputs.app == 'true'
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, curl, dom, fileinfo, pdo_mysql, pdo_sqlite, xml, bcmath, intl, zip, gd
+          tools: composer:v2
+          coverage: none
+
+      - name: Validate Composer lockfile
+        if: steps.detect.outputs.app == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          composer validate --no-check-publish
+          composer install --dry-run --no-interaction --no-progress
+
+      - name: Install dependencies for tests
+        if: steps.detect.outputs.app == 'true'
+        run: composer install --no-interaction --prefer-dist --no-progress --optimize-autoloader
+
+      - name: Create ephemeral test key
+        if: steps.detect.outputs.app == 'true'
+        shell: bash
+        run: |
+          echo "APP_KEY=base64:$(php -r 'echo base64_encode(random_bytes(32));')" >> "$GITHUB_ENV"
+
+      - name: Run automated PHP tests
+        if: steps.detect.outputs.app == 'true'
+        shell: bash
+        env:
+          APP_ENV: testing
+          APP_DEBUG: 'false'
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ':memory:'
+          SESSION_DRIVER: array
+          CACHE_STORE: array
+          QUEUE_CONNECTION: sync
+          MAIL_MAILER: log
+        run: |
+          set -euo pipefail
+          if [[ ! -f phpunit.xml && ! -f phpunit.xml.dist ]]; then
+            echo "::error::Laravel application must ship phpunit.xml (or phpunit.xml.dist) and automated tests."
+            exit 1
+          fi
+          php artisan test --without-tty
+
+      - name: Verify frontend assets are prebuilt
+        if: steps.detect.outputs.app == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -d resources/views ]] && grep -R -q --include='*.blade.php' '@vite' resources/views; then
+            echo "::error::Blade references @vite; buildless deploy requires prebuilt CSS/JS in public/assets and asset() references."
+            exit 1
+          fi
+
+      - name: Check production dependencies
+        if: steps.detect.outputs.app == 'true'
+        run: composer audit --locked --no-dev --no-interaction
+
+      - name: Install production-only dependencies
+        if: steps.detect.outputs.app == 'true'
+        run: composer install --no-dev --no-interaction --prefer-dist --no-progress --optimize-autoloader
+
+      - name: Create secure host-ready ZIP
+        if: steps.detect.outputs.app == 'true'
+        id: bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          stage="$RUNNER_TEMP/ani-doctor-host-ready"
+          mkdir -p "$stage"
+          for item in app bootstrap config database lang public resources routes artisan composer.json composer.lock .env.example vendor DEPLOYMENT.md; do
+            if [[ -e "$item" ]]; then
+              cp -a "$item" "$stage/"
+            fi
+          done
+
+          # Runtime state from CI must never be included in an installation package.
+          rm -rf "$stage/bootstrap/cache"
+          mkdir -p "$stage/bootstrap/cache"
+          mkdir -p "$stage/storage/app/private" "$stage/storage/framework/cache/data"
+          mkdir -p "$stage/storage/framework/sessions" "$stage/storage/framework/views"
+          mkdir -p "$stage/storage/logs"
+
+          # Refuse to publish accidentally committed environment files or keys.
+          if find "$stage" -type f \( -name '.env' -o -name '.env.*' -o -name '*.pem' -o -name '*.key' -o -name '*.sql' -o -name '*.sqlite' \) ! -name '.env.example' -print | grep -q .; then
+            echo "::error::Potential secret or private database file found inside release. Aborting."
+            exit 1
+          fi
+
+          cat > "$stage/INSTALL.txt" <<'EOF'
+          ANI DOCTOR - secure Laravel deployment
+          1. Extract outside public_html; point domain DocumentRoot to public/.
+          2. Create production .env on server from .env.example; never reuse CI keys.
+          3. Configure production APP_KEY, database, gateways and SMS credentials on server.
+          4. Make storage/ and bootstrap/cache/ writable; use HTTPS.
+          5. Review migrations, run php artisan migrate --force and optimize on server.
+          6. Configure Laravel scheduler and queue worker or compatible cron.
+          Full instructions: DEPLOYMENT.md.
+          EOF
+
+          short_sha="${GITHUB_SHA:0:7}"
+          package="ani-doctor-${short_sha}.zip"
+          (cd "$stage" && zip -q -r "$GITHUB_WORKSPACE/$package" .)
+          echo "file=$package" >> "$GITHUB_OUTPUT"
+          echo "### Installable Laravel ZIP created: $package" >> "$GITHUB_STEP_SUMMARY"
+          echo "DocumentRoot must point to Laravel public/. .env and database are deliberately excluded." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload host-ready artifact
+        if: steps.detect.outputs.app == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ani-doctor-host-ready-${{ github.run_number }}
+          path: ${{ steps.bundle.outputs.file }}
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
