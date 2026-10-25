@@ -1,6 +1,12 @@
 <?php
 
 return [
+    'accepted' => 'تأیید :attribute لازم است.',
+    'numeric' => ':attribute باید عدد باشد.',
+    'distinct' => ':attribute نباید تکراری باشد.',
+    'exists' => ':attribute در دسترس نیست.',
+    'required_with' => 'واردکردن :attribute برای این شرط لازم است.',
+    'required_if' => 'واردکردن :attribute برای این حالت لازم است.',
     'uuid' => 'شناسه درخواست معتبر نیست.',
     'date' => 'تاریخ و ساعت معتبر نیست.',
     'required_without' => 'برای بیمار جدید، نام و نام خانوادگی را وارد کنید.',

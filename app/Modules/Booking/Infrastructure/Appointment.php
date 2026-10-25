@@ -7,10 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 final class Appointment extends Model
 {
     protected $guarded = [];
-    protected $hidden = ['booker_mobile_hash','override_reason'];
+    protected $hidden = ['booker_mobile_hash','override_reason', 'notification_mobile'];
     protected function casts(): array
     {
-        return ['start_at' => 'immutable_datetime','end_at' => 'immutable_datetime','occupied_until' => 'immutable_datetime','hold_expires_at' => 'immutable_datetime', 'arrived_at' => 'immutable_datetime', 'completed_at' => 'immutable_datetime', 'no_show_at' => 'immutable_datetime','is_override' => 'boolean','price_irr' => 'integer','balance_due_irr' => 'integer','version' => 'integer'];
+        return ['notification_mobile' => 'encrypted', 'start_at' => 'immutable_datetime','end_at' => 'immutable_datetime','occupied_until' => 'immutable_datetime','hold_expires_at' => 'immutable_datetime', 'arrived_at' => 'immutable_datetime', 'completed_at' => 'immutable_datetime', 'no_show_at' => 'immutable_datetime','is_override' => 'boolean','price_irr' => 'integer','balance_due_irr' => 'integer','version' => 'integer'];
     }
     public function getRouteKeyName(): string
     {

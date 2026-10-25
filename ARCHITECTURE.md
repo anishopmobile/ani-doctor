@@ -160,3 +160,8 @@ P3 reader واقعی Booking، قفل‌های هویت/بیمار/روز، curr
 ## افزوده P5
 
 P5: Booking هماهنگ‌کننده DeskBookingService، DeskReadService و AttendanceService است؛ Patients فهرست و پیوند صریح بیمار را مدیریت می‌کند؛ Billing تنها مالک رسید و تسویه است. ترتیب قفل P3/P4 حفظ شده است.
+
+
+## افزوده P6
+
+DynamicForms مالک انتشار نسخه و پاسخ رمزگذاری‌شده است؛ Notifications مالک outbox تراکنشی و ارسال پس از commit است. قرارداد OTP P1 مستقل می‌ماند؛ شبکه بیرون قفل رزرو/ارسال است. قراردادها و محدودیت exactly-once در docs/P6.md.

@@ -117,3 +117,8 @@ Threat modeling، بررسی امنیت کتابخانه‌های Third Party، 
 ## افزوده P5
 
 P5: مجوزهای مستقل desk.view/book، patients.manage، appointments.urgent و attendance.manage؛ ثبت حضور نسخه‌دار و idempotent با audit؛ جستجوی اطلاعات بیمار POST خصوصی و بدون نام/شماره در URL؛ بدون ادغام خودکار بیماران یا اثر مالی خودکار حضور. آزمون منفی و رقابت در docs/P5-VALIDATION.md.
+
+
+## افزوده P6
+
+P6 پاسخ فرم، مقصد و پارامتر outbox با APP_KEY رمزگذاری می‌شوند؛ مجوز forms.answers.view/write از forms.manage و مشاهده نوبت جداست و منشی پیش‌فرض ندارد. پاسخ و schema در flash، SMS، URL و لاگ نمی‌روند. فرم عمومی ناشناس/فایل پزشکی وجود ندارد؛ nonce پاسخ، revision و outbox یکتا تست شده‌اند. جزئیات و محدودیت ارسال نامشخص: docs/P6.md.

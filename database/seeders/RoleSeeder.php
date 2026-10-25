@@ -13,7 +13,7 @@ final class RoleSeeder extends Seeder
         foreach (['patient' => ['panel.patient'], 'secretary' => ['panel.secretary', 'schedules.manage', 'appointments.manage', 'appointments.override_capacity', 'appointments.override_window'], 'admin' => ['panel.admin', 'catalog.manage', 'schedules.manage', 'schedules.settings', 'appointments.manage', 'appointments.override_capacity', 'appointments.override_window', 'booking.settings']] as $name => $permissions) {
             $permissions = array_merge($permissions, match ($name) {
                 'secretary' => ['payments.collect'],
-                'admin' => ['payments.settings', 'payments.review', 'refunds.manage'],
+                'admin' => ['payments.settings', 'payments.review', 'refunds.manage', 'forms.manage', 'forms.answers.view', 'forms.answers.write', 'notifications.manage'],
                 default => [],
             });
             if (in_array($name, ['secretary', 'admin'], true)) {

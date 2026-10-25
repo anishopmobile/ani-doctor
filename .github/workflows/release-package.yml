@@ -121,7 +121,7 @@ jobs:
           fi
           php artisan test --without-tty
 
-      - name: MySQL features, booking/payment/attendance concurrency, migration rollback
+      - name: MySQL features, booking/payment/attendance/forms/SMS concurrency, migration rollback
         if: steps.detect.outputs.app == 'true'
         env:
           APP_ENV: testing
@@ -187,7 +187,7 @@ jobs:
 
           cat > "$stage/INSTALL.txt" <<'EOF'
           ANI DOCTOR - secure Laravel deployment
-          P5: clinic desk, telephone/urgent bookings, full clinic receipts and audited attendance, on P1-P4. Gateway defaults to disabled. No live payment or deployment certification.
+          P6: versioned encrypted private forms and transactional event SMS/reminders, on P1-P5. Event SMS and payment gateway default to disabled. No live SMS/payment or deployment certification.
           1. Extract outside public_html; point domain DocumentRoot to public/.
           2. Create production .env on server from .env.example; never reuse CI keys.
           3. Configure production APP_KEY, database, gateways and SMS credentials on server.

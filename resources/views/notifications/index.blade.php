@@ -1,0 +1,15 @@
+@extends('layouts.app')
+@section('content')
+<h1 class="h4">اعلان‌های پیامکی</h1><p>ارسال رویداد: {{ config('notifications.enabled') ? 'فعال' : 'غیرفعال در تنظیمات امن سرور' }}. OTP مستقل است. فقط قالب تأییدشده با متن عمومی و پارامتر تاریخ، ساعت و کد پیگیری مجاز است؛ نام بیمار، خدمت، تشخیص و پاسخ پزشکی نباید در متن قالب باشد.</p>
+@foreach($events as $event)@php($template=$templates->get($event))
+<details class="border rounded p-3 mb-3"><summary>{{ ['confirmed'=>'قطعی‌شدن','rescheduled'=>'تغییر زمان','cancelled'=>'لغو','reminder'=>'یادآوری','secretary'=>'اعلان به منشی'][$event] }} — {{ $template?->enabled ? 'فعال' : 'غیرفعال' }}</summary>
+<form method="post" action="{{ route('notifications.save') }}" class="mt-3">@csrf<input type="hidden" name="event" value="{{ $event }}">
+<label class="form-label d-block">شناسه قالب تأییدشده SMS.ir<input class="form-control" name="provider_template_id" type="number" min="1" max="2147483647" value="{{ $template?->provider_template_id }}" required></label>
+<label class="form-label d-block">وضعیت<select class="form-select" name="enabled"><option value="0">غیرفعال</option><option value="1" @selected($template?->enabled)>فعال</option></select></label>
+<label class="form-label d-block">فاصله یادآوری تا نوبت (دقیقه؛ ۵ تا ۱۴۴۰)<input class="form-control" type="number" name="reminder_minutes" min="5" max="1440" value="{{ $template?->reminder_minutes ?? 1440 }}" required></label>
+@if($event==='secretary')<label class="form-label d-block">منشی دریافت‌کننده<select class="form-select" name="secretary_id" required><option value="">انتخاب کنید</option>@foreach($secretaries as $secretary)<option value="{{ $secretary->id }}" @selected($template?->secretary_id === $secretary->id)>منشی شماره {{ $secretary->id }}</option>@endforeach</select></label>@endif
+<label class="form-label d-block">دلیل تغییر<input class="form-control" name="reason" maxlength="500" required></label><label class="d-block"><input type="checkbox" name="reviewed" value="1" required> متن قالب را بررسی کرده‌ام؛ فقط اعلان عمومی و DATE / TIME / REFERENCE دارد.</label><button class="btn btn-primary mt-3">ذخیره تنظیم</button></form></details>@endforeach
+<h2 class="h5">وضعیت ارسال‌ها</h2><p>پذیرفته‌شده به معنی تحویل به گوشی نیست. نتیجه نامشخص خودکار تکرار نمی‌شود؛ ابتدا با ارائه‌دهنده بررسی کنید. شناسه داخلی بدون متن، شماره و پاسخ خصوصی نمایش داده می‌شود.</p>
+@forelse($messages as $message)<div class="border rounded p-3 mb-2"><p>شماره {{ $message->id }} — {{ ['confirmed'=>'قطعی‌شدن','rescheduled'=>'تغییر','cancelled'=>'لغو','reminder'=>'یادآوری','secretary'=>'منشی'][$message->event] }}</p><p>{{ ['queued'=>'در صف','retry'=>'در انتظار تلاش محدود','sending'=>'در حال ارسال','accepted'=>'پذیرفته‌شده توسط ارائه‌دهنده','failed'=>'ردشده؛ سقف تلاش تکمیل','uncertain'=>'نتیجه نامشخص؛ نیازمند بررسی','superseded'=>'ارسال متوقف؛ نوبت یا تنظیم تغییر کرده'][$message->state] }} — تلاش {{ $message->attempts }} — کد تحویل ارائه‌دهنده: {{ $message->delivery_code ?? 'نامشخص' }}</p><small>{{ $message->updated_at }} UTC</small></div>@empty<p>اعلانی در صف ثبت نشده است.</p>@endforelse
+{{ $messages->links() }}
+@endsection
