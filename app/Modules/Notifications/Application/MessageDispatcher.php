@@ -64,7 +64,15 @@ final class MessageDispatcher
     public function run(): void
     {
         // A crashed process may have sent: timeout is uncertain, never returned to the queue.
-        DB::table('message_outbox')->where('state', 'sending')->where('claimed_at', '<=', now()->subMinutes(5))->update(['state' => 'uncertain', 'updated_at' => now()]);
+        $stale = DB::table('message_outbox')->where('state', 'sending')->where('claimed_at', '<=', now()->subMinutes(5))->limit(100)->pluck('id');
+        foreach ($stale as $id) {
+            DB::transaction(function () use ($id): void {
+                $row = DB::table('message_outbox')->where('id', $id)->lockForUpdate()->first();
+                if ($row?->state === 'sending' && now()->subMinutes(5)->greaterThanOrEqualTo($row->claimed_at)) {
+                    $this->state($id, 'uncertain');
+                }
+            }, 3);
+        }
         $ids = DB::table('message_outbox')->whereIn('state', ['queued', 'retry'])->where('available_at', '<=', now())->orderBy('id')->limit(100)->pluck('id');
         foreach ($ids as $id) {
             $this->dispatch($id);
@@ -75,7 +83,7 @@ final class MessageDispatcher
         if (!config('notifications.enabled')) {
             return;
         }
-        $rows = DB::table('message_outbox')->where('state', 'accepted')->where('created_at', '>', now()->subDays(2))->where(fn ($q) => $q->whereNull('last_polled_at')->orWhere('last_polled_at', '<=', now()->subMinutes(15)))->limit(100)->get();
+        $rows = DB::table('message_outbox')->where('state', 'accepted')->where('created_at', '>', now()->subDays(2))->where(fn ($q) => $q->whereNull('last_polled_at')->orWhere('last_polled_at', '<=', now()->subMinutes(15)))->orderBy('last_polled_at')->orderBy('id')->limit(100)->get();
         foreach ($rows as $row) {
             $code = $this->provider->queryDelivery($row->provider_message_id);
             DB::transaction(function () use ($row, $code): void {

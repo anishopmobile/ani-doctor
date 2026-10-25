@@ -34,7 +34,7 @@ final class SmsIrEventProvider implements EventSmsProviderInterface
         try {
             $response = Http::acceptJson()->withHeaders(['X-API-KEY' => config('identity.sms_ir.api_key')])->connectTimeout(3)->timeout(8)->get('https://api.sms.ir/v1/send/'.$messageId);
             $code = $response->json('data.deliveryState');
-            return $response->successful() && is_scalar($code) && ctype_digit((string) $code) ? (string) $code : null;
+            return $response->successful() && $response->json('status') === 1 && is_scalar($code) && ctype_digit((string) $code) ? (string) $code : null;
         } catch (\Throwable) {
             return null;
         }

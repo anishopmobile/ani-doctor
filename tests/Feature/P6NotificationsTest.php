@@ -142,6 +142,7 @@ final class P6NotificationsTest extends TestCase
         DB::table('message_outbox')->where('id', $reminder->id)->update(['state' => 'sending', 'claimed_at' => now()->subMinutes(6), 'attempts' => 1]);
         $dispatcher->run();
         $this->assertDatabaseHas('message_outbox', ['id' => $reminder->id, 'state' => 'uncertain', 'attempts' => 1]);
+        $this->assertDatabaseHas('sms_delivery_logs', ['message_id' => $reminder->id, 'state' => 'uncertain']);
     }
     public function test_reschedule_cancels_stale_reminder_and_cancel_suppresses_all_pending_notifications(): void
     {
@@ -227,5 +228,22 @@ final class P6NotificationsTest extends TestCase
             $this->assertFalse($error->retryable);
             $this->assertStringNotContainsString('sensitive', $error->getMessage());
         }
+    }
+    public function test_delivery_poll_does_not_starve_messages_beyond_the_first_batch(): void
+    {
+        foreach (range(1, 101) as $number) {
+            DB::table('message_outbox')->insert(['event_key' => 'poll-fixture-'.$number, 'appointment_id' => $this->appointment->id, 'event' => 'confirmed', 'recipient' => Crypt::encryptString('09123456789'), 'parameters' => Crypt::encryptString('{}'), 'provider_template_id' => 123, 'appointment_start' => $this->appointment->start_at, 'state' => 'accepted', 'provider_message_id' => (string) $number, 'available_at' => now(), 'created_at' => now(), 'updated_at' => now()]);
+        }
+        $this->dispatcher()->poll();
+        $this->assertSame(100, DB::table('message_outbox')->whereNotNull('last_polled_at')->count());
+        $this->travel(15)->minutes();
+        $this->dispatcher()->poll();
+        $this->assertNotNull(DB::table('message_outbox')->where('event_key', 'poll-fixture-101')->value('last_polled_at'));
+    }
+    public function test_failed_delivery_report_cannot_supply_a_success_code(): void
+    {
+        config(['identity.sms_ir.api_key' => 'test-only-key']);
+        Http::fake(['*' => Http::response(['status' => 0, 'data' => ['deliveryState' => 1]])]);
+        $this->assertNull(app(SmsIrEventProvider::class)->queryDelivery('777'));
     }
 }
