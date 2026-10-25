@@ -103,6 +103,7 @@ ani-doctor/
 برای ظرفیت متغیر و رزرو‌های با طول متفاوت، منطق شمارش صرفاً overlap count ساده بدون بررسی نقاط تغییر کافی نیست؛ از sweep-line/segmentation روی مرزهای بازه‌ها استفاده شود. قفل‌های روزانه فقط یک روش ابتدایی مناسب نسخه تک‌پزشک‌اند و با benchmark تأیید شوند.
 
 ## 7. وضعیت‌ها و گردش پرداخت (ADR-003)
+اجرای P4: PaymentService مرز تسویه، FinancialBookingService مالک تغییر نوبت و BookingFinanceInterface اتصال لغو است. WalletService دفترکل و رزرو اعتبار، RefundService مسیر دستی بانکی و OfflinePaymentService حالت اضطراری/دریافت حضوری را پیاده می‌کنند. قفل و قرارداد جاری، به‌جای guard مالی موقت P3: [docs/P4.md](docs/P4.md).
 **Booking lifecycle:** `pending_payment → confirmed` یا `pending_payment → expired`، `confirmed → cancelled/completed/no_show` با guardها. `confirmed_unpaid` به‌صورت `confirmed` + `balance_due>0` در حالت مجاز ثبت شود؛ از ضرب حالت‌های نامنسجم جلوگیری شود.
 
 **Payment attempt lifecycle:** `created → redirected → verified` یا `failed/expired/requires_reconciliation`. نتیجه callback صرفاً ورودی غیرقابل‌اعتماد است؛ verify سرور-به-سرور/استعلام و قفل رکورد شرط نهایی‌سازی است.

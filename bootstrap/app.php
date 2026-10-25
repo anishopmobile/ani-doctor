@@ -17,16 +17,17 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->append(SecurityHeaders::class);
         $middleware->redirectUsersTo('/dashboard');
+        $middleware->validateCsrfTokens(except: ['payments/zarinpal/callback/*']);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->report(function (\Illuminate\Database\QueryException $error) {
-            if (request()->is('appointments*', 'api/v1/appointments*')) {
+            if (request()->is('appointments*', 'api/v1/appointments*', 'payments*', 'api/v1/payments*', 'wallet*', 'admin/finance*')) {
                 \Illuminate\Support\Facades\Log::error('booking.database_error', ['sql_state' => $error->errorInfo[0] ?? 'unknown']);
                 return false;
             }
         });
         $exceptions->render(function (\Illuminate\Database\QueryException $error, Request $request) {
-            if ($request->is('appointments*', 'api/v1/appointments*')) {
+            if ($request->is('appointments*', 'api/v1/appointments*', 'payments*', 'api/v1/payments*', 'wallet*', 'admin/finance*')) {
                 $message = 'ثبت یا دریافت نوبت فعلاً انجام نشد. همان درخواست را دوباره بررسی کنید.';
                 if ($request->expectsJson() || $request->is('api/v1/*')) {
                     return response()->json(['success' => false,'data' => null,'error' => ['code' => 'BOOKING_TEMPORARILY_UNAVAILABLE','message' => $message],'meta' => (object)[]], 503);
@@ -46,6 +47,11 @@ return Application::configure(basePath: dirname(__DIR__))
                 'STALE_APPOINTMENT' => 'این نوبت تغییر کرده است؛ صفحه را تازه کنید.',
                 'IDEMPOTENCY_CONFLICT' => 'این درخواست قبلاً برای اقدام دیگری استفاده شده است؛ صفحه را تازه کنید.',
                 'FINANCIAL_SETTLEMENT_REQUIRED' => 'لغو این نوبت نیازمند تسویه مالی است؛ با مطب تماس بگیرید.',
+                'GATEWAY_UNCERTAIN' => 'نتیجه درگاه هنوز مشخص نیست؛ از پرداخت تکراری خودداری کنید و وضعیت را پیگیری کنید.',
+                'GATEWAY_DISABLED' => 'پرداخت آنلاین فعلاً فعال نیست؛ کمی بعد دوباره بررسی کنید.',
+                'PAYMENT_IN_PROGRESS' => 'یک تلاش پرداخت باز وجود دارد؛ ابتدا وضعیت همان پرداخت را پیگیری کنید.',
+                'INSUFFICIENT_CREDIT' => 'اعتبار قابل مصرف کافی نیست.',
+                'EMERGENCY_DISABLED' => 'حالت پرداخت در مطب فعال نیست یا مهلت آن گذشته است.',
                 'SERVICE_UNAVAILABLE' => 'خدمت در دسترس نیست.',
                 default => 'این اقدام مجاز نیست یا وضعیت نوبت اجازه آن را نمی‌دهد.',
             };
@@ -61,7 +67,10 @@ return Application::configure(basePath: dirname(__DIR__))
             if ($error->status === 403) {
                 return response()->view('errors.403', [], 403);
             }
-            return back()->withInput($request->except('_token'))->withErrors(['booking' => $message]);
+            if ($request->is('payments/zarinpal/callback/*')) {
+                return response()->view('errors.message', ['message' => $message], $error->status);
+            }
+            return back()->withInput($request->except('_token', 'Authority', 'Status'))->withErrors(['booking' => $message]);
         });
         $exceptions->shouldRenderJsonWhen(fn (Request $request, \Throwable $e) => $request->is('api/v1/*') || $request->expectsJson());
         $exceptions->render(function (\Illuminate\Validation\ValidationException $error, Request $request) {
@@ -74,7 +83,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 return response()->json(['success' => false, 'data' => null, 'error' => ['code' => 'NOT_FOUND', 'message' => 'خدمت در دسترس نیست.'], 'meta' => (object) []], 404);
             }
         });
-        $exceptions->dontFlash(['code', 'mobile']);
+        $exceptions->dontFlash(['code', 'mobile', 'Authority', 'Status']);
         $exceptions->dontReport([OtpFailure::class]);
         $exceptions->render(function (OtpFailure $error, Request $request) {
             $message = match ($error->errorCode) {

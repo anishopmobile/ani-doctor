@@ -30,3 +30,15 @@ Artisan::command('booking:expire-holds', function (\App\Modules\Booking\Applicat
     });
 });
 Schedule::command('booking:expire-holds')->everyMinute()->withoutOverlapping();
+Artisan::command('payments:reconcile', function (\App\Modules\Payments\Application\PaymentService $payments): void {
+    $attempts = \App\Modules\Payments\Infrastructure\PaymentAttempt::whereIn('state', ['redirected', 'uncertain', 'failed'])->whereNotNull('authority')->where('updated_at', '<=', now()->subMinutes(2))->orderBy('updated_at')->limit(100)->get();
+    foreach ($attempts as $attempt) {
+        try {
+            $payments->verify($attempt);
+        } catch (\App\Modules\Booking\Domain\BookingFailure) {
+            // Retry a later run without logging callback, authority or secrets.
+        }
+    }
+    $this->info('تلاش‌های دارای شناسه درگاه بررسی شدند؛ نتیجه در مدیریت مالی قابل پیگیری است.');
+});
+Schedule::command('payments:reconcile')->everyFiveMinutes()->withoutOverlapping();

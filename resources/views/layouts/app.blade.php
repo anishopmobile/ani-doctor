@@ -17,6 +17,8 @@
 <a class="visually-hidden-focusable" href="#main">رفتن به محتوای اصلی</a>
 <header class="site-header"><div class="container"><a href="{{ route('calendar') }}" class="brand">آنی دکتر</a><nav class="d-flex gap-3 flex-wrap" aria-label="دسترسی اصلی"><a href="{{ route('calendar') }}">تقویم خدمات</a><a href="{{ route('dashboard') }}">حساب من</a><a href="{{ route('appointments.index') }}">نوبت‌ها</a>@can('booking.settings')<a href="{{ route('booking.settings') }}">سیاست رزرو</a>@endcan @can('catalog.manage')<a href="{{ route('services.index') }}">خدمات</a>@endcan @can('schedules.manage')<a href="{{ route('schedule.index') }}">برنامه کاری</a>@endcan</nav></div></header>
 <main id="main" class="container py-4">
+    @if($clinicEmergencyActive)<p class="alert alert-warning" role="status">حالت اضطراری پرداخت در مطب فعال است؛ نوبت‌های این حالت بدهکار ثبت می‌شوند.</p>@endif
+    <nav class="d-flex gap-3 mb-3" aria-label="پیگیری مالی"><a href="{{ route('wallet') }}">اعتبار و استرداد</a>@can('payments.review')<a href="{{ route('finance') }}">مدیریت مالی</a>@endcan</nav>
     <div class="{{ request()->is('login', 'dashboard', 'patient', 'secretary', 'admin') ? 'auth-card' : 'work-card' }} card shadow-sm mx-auto"><div class="card-body p-3 p-md-4">
         @if(session('status'))<p class="alert alert-success" role="status">{{ session('status') }}</p>@endif
         @if($errors->any())

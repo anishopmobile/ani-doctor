@@ -73,6 +73,7 @@ pricing_snapshot_id: string
 همواره: `total = service_amount - discount_amount` و `amount_due = total - credit_applied`، مقدارها غیرمنفی، rounding به‌طور یکنواخت؛ استرداد و مانده در دفترکل مستقل.
 
 ### 3.4 GatewayPort
+در P4، PaymentGatewayInterface دارای createPayment/verifyPayment/queryPayment/redirectUrl/capabilities و adapter زرین‌پال است؛ مبلغ IRR صحیح است. نتیجه inquiry به‌تنهایی قطعی‌سازی نمی‌کند. receipt/attempt/credit/refund و مالکیت شماره رزروکننده در [قرارداد P4](docs/P4.md) مشخص‌اند؛ لغو پرداخت‌شده اکنون با رسید معتبر در همان تراکنش به اعتبار برمی‌گردد.
 ```text
 createPayment(PaymentRequest): PaymentRedirect
 verifyPayment(VerifiedCallbackContext): GatewayVerification

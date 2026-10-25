@@ -28,7 +28,11 @@ final class AppointmentController extends Controller
         $actor = $this->actors->resolve($request);
         $appointment = $this->access->query($actor)->where('reference', $reference)->with('patient')->firstOrFail();
         Gate::authorize('view', $appointment);
-        return view('booking.show', compact('appointment', 'actor', 'jalali'));
+        $wallet = app(\App\Modules\Wallet\Application\WalletService::class)->summary($actor->mobileHash);
+        $attempts = \App\Modules\Payments\Infrastructure\PaymentAttempt::where('appointment_id', $appointment->id)->orderByDesc('id')->limit(20)->get();
+        $emergency = \Illuminate\Support\Facades\DB::table('payment_settings')->where('id', 1)->value('emergency_until');
+        $emergencyActive = $emergency && now()->lessThan($emergency);
+        return view('booking.show', compact('appointment', 'actor', 'jalali', 'wallet', 'attempts', 'emergencyActive'));
     }
     public function store(BookingRequest $request, BookingService $bookings)
     {
