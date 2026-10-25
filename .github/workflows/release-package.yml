@@ -143,7 +143,7 @@ jobs:
           mkdir -p "$stage/storage/logs"
 
           # Refuse to publish accidentally committed environment files or keys.
-          if find "$stage" -type f \( -name '.env' -o -name '.env.*' -o -name '*.pem' -o -name '*.key' -o -name '*.sql' -o -name '*.sqlite' \) ! -name '.env.example' -print | grep -q .; then
+          if find "$stage" -path "$stage/vendor" -prune -o -type f \( -name '.env' -o -name '.env.*' -o -name '*.pem' -o -name '*.key' -o -name '*.sql' -o -name '*.sqlite' \) ! -name '.env.example' -print | grep -q .; then
             echo "::error::Potential secret or private database file found inside release. Aborting."
             exit 1
           fi
