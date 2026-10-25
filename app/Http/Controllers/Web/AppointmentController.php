@@ -61,6 +61,6 @@ final class AppointmentController extends Controller
                     'version' => $appointment->version,'amount_irr' => $appointment->price_irr],'error' => null,'meta' => ['server_now' => now()->toIso8601String()],
             ], $status);
         }
-        return redirect()->route('appointments.show',$appointment->reference)->with('status','درخواست ثبت شد؛ وضعیت نوبت را در این صفحه بررسی کنید.');
+        return redirect()->route('appointments.show', $appointment->reference)->with('status', 'درخواست ثبت شد؛ وضعیت نوبت را در این صفحه بررسی کنید.');
     }
 }
