@@ -11,3 +11,12 @@ body{font-family:Vazirmatn,Tahoma,sans-serif;background:#f7fafb;color:#22323c;li
 :focus-visible{outline:3px solid #184dad!important;outline-offset:3px}
 .form-check{min-height:44px;padding-top:8px}.form-check-input{width:22px;height:22px}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
+.work-card { max-width: 1100px; }
+.field-grid, .shift-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
+    gap: 12px;
+}
+.field-grid label, .shift-row label { display: block; min-width: 0; }
+.shift-row legend { float: none; width: auto; }
+summary { cursor: pointer; min-height: 44px; }

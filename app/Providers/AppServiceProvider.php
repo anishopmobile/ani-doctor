@@ -22,6 +22,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(SmsProviderInterface::class, SmsIrProvider::class);
+        $this->app->bind(\App\Modules\Scheduling\Domain\BookingReadInterface::class, \App\Modules\Scheduling\Infrastructure\NoBookingsYet::class);
     }
 
     /**
@@ -39,5 +40,9 @@ class AppServiceProvider extends ServiceProvider
             return [Limit::perMinute(10)->by('ip:'.$request->ip()), Limit::perHour(5)->by('mobile:'.$key)];
         });
         RateLimiter::for('otp-verify', fn (Request $request) => Limit::perMinute(20)->by('verify:'.$request->ip()));
+        foreach (['catalog.manage', 'schedules.manage', 'schedules.settings'] as $permission) {
+            Gate::define($permission, fn (User $user) => $user->hasPermission($permission));
+        }
+        RateLimiter::for('calendar', fn (Request $request) => Limit::perMinute(60)->by('calendar:'.$request->ip()));
     }
 }

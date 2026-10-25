@@ -30,6 +30,8 @@ Component دو نوع دارد: **ماژول backend** با مسئولیت مش�
 
 ## 3. قراردادهای کلیدی داده
 ### 3.1 AvailabilitySlot (DTO)
+اجرای P2: AvailabilityService، SlotCalculator و BookingReadInterface در ماژول Scheduling؛ [قراردادهای اجرایی](docs/P2.md). فیلد end_at_utc پایان خدمت است؛ طول اشغال برای کنترل ظرفیت شامل buffer است.
+
 ```text
 start_at_utc: ISO8601
 end_at_utc: ISO8601

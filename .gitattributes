@@ -5,6 +5,7 @@
 *.html diff=html
 *.md diff=markdown
 *.php diff=php
+public/assets/vendor/pardis* -whitespace
 
 /.github export-ignore
 CHANGELOG.md export-ignore

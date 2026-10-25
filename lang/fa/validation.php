@@ -1,9 +1,18 @@
 <?php
 
 return [
+    'integer' => ':attribute باید عدد صحیح باشد.',
+    'boolean' => ':attribute معتبر نیست.',
+    'array' => ':attribute باید فهرست باشد.',
+    'max' => ['numeric' => ':attribute بیشتر از :max نباشد.', 'string' => ':attribute بیشتر از :max نویسه نباشد.', 'array' => 'تعداد :attribute بیشتر از :max نباشد.'],
+    'min' => ['numeric' => ':attribute حداقل :min باشد.'],
+    'between' => ['numeric' => ':attribute بین :min و :max باشد.'],
+    'date_format' => 'قالب :attribute معتبر نیست.',
+    'prohibited' => ':attribute در این درخواست مجاز نیست.',
+    'present' => ':attribute در درخواست لازم است.',
     'required' => 'واردکردن :attribute الزامی است.',
     'string' => ':attribute باید متن باشد.',
     'in' => ':attribute معتبر نیست.',
     'regex' => 'قالب :attribute معتبر نیست.',
-    'attributes' => ['mobile' => 'شماره موبایل', 'code' => 'کد تأیید', 'purpose' => 'نوع درخواست'],
+    'attributes' => ['mobile' => 'شماره موبایل', 'code' => 'کد تأیید', 'purpose' => 'نوع درخواست', 'name' => 'نام خدمت', 'price_irr' => 'تعرفه ریالی', 'duration_minutes' => 'مدت خدمت', 'buffer_minutes' => 'فاصله خدمت', 'capacity' => 'ظرفیت', 'is_active' => 'وضعیت فعالیت', 'is_online' => 'نمایش اینترنتی', 'shifts' => 'شیفت‌ها', 'shifts.*.start' => 'شروع شیفت', 'shifts.*.end' => 'پایان شیفت', 'shifts.*.step_minutes' => 'گام زمانی', 'shifts.*.capacity' => 'ظرفیت شیفت', 'horizon_days' => 'افق رزرو', 'weekday' => 'روز هفته', 'is_closed' => 'وضعیت تعطیلی', 'kind' => 'نوع استثنا', 'reason' => 'دلیل داخلی', 'start_jalali' => 'تاریخ شروع', 'end_jalali' => 'تاریخ پایان', 'month' => 'ماه', 'date' => 'تاریخ', 'service_id' => 'خدمت'],
 ];

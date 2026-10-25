@@ -11,12 +11,13 @@
     @endauth
     <link rel="stylesheet" href="{{ asset('assets/app.css') }}">
     <script src="{{ asset('assets/auth.js') }}" defer></script>
+    @stack('assets')
 </head>
 <body>
 <a class="visually-hidden-focusable" href="#main">رفتن به محتوای اصلی</a>
-<header class="site-header"><div class="container"><a href="{{ route('dashboard') }}" class="brand">آنی دکتر</a><span>سامانه مطب</span></div></header>
+<header class="site-header"><div class="container"><a href="{{ route('calendar') }}" class="brand">آنی دکتر</a><nav class="d-flex gap-3 flex-wrap" aria-label="دسترسی اصلی"><a href="{{ route('calendar') }}">تقویم خدمات</a><a href="{{ route('dashboard') }}">حساب من</a>@can('catalog.manage')<a href="{{ route('services.index') }}">خدمات</a>@endcan @can('schedules.manage')<a href="{{ route('schedule.index') }}">برنامه کاری</a>@endcan</nav></div></header>
 <main id="main" class="container py-4">
-    <div class="auth-card card shadow-sm mx-auto"><div class="card-body p-4">
+    <div class="{{ request()->is('login', 'dashboard', 'patient', 'secretary', 'admin') ? 'auth-card' : 'work-card' }} card shadow-sm mx-auto"><div class="card-body p-3 p-md-4">
         @if(session('status'))<p class="alert alert-success" role="status">{{ session('status') }}</p>@endif
         @if($errors->any())
             <div class="alert alert-danger" role="alert" tabindex="-1" data-errors>

@@ -1,4 +1,9 @@
 'use strict';
+document.querySelectorAll('form[data-confirm]').forEach(form => {
+    form.addEventListener('submit', event => {
+        if (!window.confirm(form.dataset.confirm)) event.preventDefault();
+    });
+});
 document.querySelector('[data-errors]')?.focus();
 document.querySelectorAll('form[data-submit-message]').forEach(form => {
     form.addEventListener('submit', () => {

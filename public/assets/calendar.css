@@ -1,0 +1,49 @@
+.calendar-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 24px;
+}
+.slot-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(95px, 1fr));
+    gap: 8px;
+}
+.calendar-legend {
+    font-size: 14px;
+    margin-top: 12px;
+}
+.pardis-inline-host {
+    max-width: 100%;
+    --pardis-font: Vazirmatn, Tahoma, sans-serif;
+}
+.pardis-calendar {
+    width: 100%;
+    max-width: 420px;
+}
+.pardis-day {
+    flex-direction: column;
+    min-height: 50px;
+    padding: 2px !important;
+    gap: 2px !important;
+    font-size: 14px;
+    line-height: 1.2 !important;
+    border-radius: 8px !important;
+}
+.pardis-day.day-available { box-shadow: inset 0 -3px #177245; }
+.pardis-day.day-full { box-shadow: inset 0 -3px #9c6515; }
+.pardis-day.day-holiday { box-shadow: inset 0 -3px #b83c4c; }
+.pardis-day.day-outside_window,
+.pardis-day.day-past { opacity: .55; }
+.day-state {
+    display: block;
+    font-size: 10px;
+    white-space: normal;
+    line-height: 1.25;
+}
+.pardis-weekdays,
+.pardis-days { gap: 2px !important; }
+.calendar-layout [aria-busy=true] { opacity: .6; }
+@media (max-width: 767px) {
+    .calendar-layout { grid-template-columns: minmax(0, 1fr); }
+    .work-card .card-body { padding: 12px !important; }
+}
