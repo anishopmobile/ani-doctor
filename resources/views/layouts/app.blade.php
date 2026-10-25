@@ -15,7 +15,7 @@
 </head>
 <body>
 <a class="visually-hidden-focusable" href="#main">رفتن به محتوای اصلی</a>
-<header class="site-header"><div class="container"><a href="{{ route('calendar') }}" class="brand">آنی دکتر</a><nav class="d-flex gap-3 flex-wrap" aria-label="دسترسی اصلی"><a href="{{ route('calendar') }}">تقویم خدمات</a><a href="{{ route('dashboard') }}">حساب من</a>@can('catalog.manage')<a href="{{ route('services.index') }}">خدمات</a>@endcan @can('schedules.manage')<a href="{{ route('schedule.index') }}">برنامه کاری</a>@endcan</nav></div></header>
+<header class="site-header"><div class="container"><a href="{{ route('calendar') }}" class="brand">آنی دکتر</a><nav class="d-flex gap-3 flex-wrap" aria-label="دسترسی اصلی"><a href="{{ route('calendar') }}">تقویم خدمات</a><a href="{{ route('dashboard') }}">حساب من</a><a href="{{ route('appointments.index') }}">نوبت‌ها</a>@can('booking.settings')<a href="{{ route('booking.settings') }}">سیاست رزرو</a>@endcan @can('catalog.manage')<a href="{{ route('services.index') }}">خدمات</a>@endcan @can('schedules.manage')<a href="{{ route('schedule.index') }}">برنامه کاری</a>@endcan</nav></div></header>
 <main id="main" class="container py-4">
     <div class="{{ request()->is('login', 'dashboard', 'patient', 'secretary', 'admin') ? 'auth-card' : 'work-card' }} card shadow-sm mx-auto"><div class="card-body p-3 p-md-4">
         @if(session('status'))<p class="alert alert-success" role="status">{{ session('status') }}</p>@endif
@@ -28,6 +28,7 @@
         @yield('content')
     </div></div>
 </main>
+<x-confirm-dialog/>
 <footer class="container text-center text-secondary pb-4">اطلاعات ورود خود را در اختیار دیگران نگذارید.</footer>
 </body>
 </html>

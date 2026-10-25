@@ -9,6 +9,8 @@ if (root) {
     const slots = root.querySelector('#slots');
     const selection = root.querySelector('#slot-selection');
     const retry = root.querySelector('#calendar-retry');
+    const overrideChoice = root.querySelector('input[type="checkbox"][name="override_capacity"]');
+    const canChooseDay = state => state === 'available' || (overrideChoice?.checked && state === 'full');
     const labels = { available: 'آزاد', full: 'تکمیل', holiday: 'تعطیل', closed: 'بسته', past: 'گذشته', outside_window: 'خارج افق' };
     const pad = value => String(value).padStart(2, '0');
     const key = (year, month, day) => `${year}-${pad(month)}-${pad(day)}`;
@@ -22,7 +24,7 @@ if (root) {
 
     const picker = new PardisDatepicker(host, {
         inline: true, initialYear: year, initialMonth: month,
-        disabledDates: (y, m, d) => states.get(key(y, m, d))?.status !== 'available',
+        disabledDates: (y, m, d) => !canChooseDay(states.get(key(y, m, d))?.status),
         onChange: payload => {
             selectedDate = payload.iso;
             loadDay();
@@ -39,6 +41,11 @@ if (root) {
         slots.replaceChildren();
         selection.textContent = '';
         slotStatus.textContent = 'یک روز قابل رزرو انتخاب کنید.';
+        const form = root.querySelector('[data-booking-form]');
+        if (form) {
+            form.querySelector('[data-booking-start]').value = '';
+            form.querySelector('[data-booking-submit]').disabled = true;
+        }
     }
 
     async function get(url, parameters, signal) {
@@ -88,10 +95,10 @@ if (root) {
             const data = await get(root.dataset.monthUrl, { month: `${info.year}-${pad(info.month)}` }, monthAbort.signal);
             if (current !== revision) return;
             states = new Map(data.days.map(day => [day.jalali, day]));
-            picker.setOption('disabledDates', (y, m, d) => states.get(key(y, m, d))?.status !== 'available');
+            picker.setOption('disabledDates', (y, m, d) => !canChooseDay(states.get(key(y, m, d))?.status));
             decorate();
             status.textContent = 'وضعیت روزها به‌روز شد. روزهای آزاد قابل انتخاب‌اند.';
-            if (selectedDate && data.days.some(day => day.date === selectedDate && day.status === 'available')) {
+            if (selectedDate && data.days.some(day => day.date === selectedDate && canChooseDay(day.status))) {
                 await loadDay();
             } else selectedDate = null;
         } catch (error) {
@@ -122,13 +129,23 @@ if (root) {
                 const button = document.createElement('button');
                 button.type = 'button';
                 button.className = 'btn btn-outline-primary';
-                button.disabled = !slot.is_bookable;
+                button.disabled = !slot.is_bookable && !(overrideChoice?.checked && slot.unavailable_reason === 'full');
                 button.textContent = slot.local_start_time;
                 button.setAttribute('aria-label', `${slot.local_start_time} — ${slot.is_bookable ? 'آزاد' : labels[slot.unavailable_reason]}`);
                 button.addEventListener('click', () => {
                     slots.querySelectorAll('button').forEach(item => item.setAttribute('aria-pressed', 'false'));
                     button.setAttribute('aria-pressed', 'true');
                     selection.textContent = `زمان انتخابی: ${slot.local_start_time}؛ هنوز نوبتی ثبت نشده است.`;
+                    const form = root.querySelector('[data-booking-form]');
+                    if (form) {
+                        form.querySelector('[data-booking-start]').value = slot.start_at_utc;
+                        const serviceField = form.querySelector('[data-booking-service]');
+                        if (serviceField) {
+                            serviceField.value = service.value;
+                            form.querySelector('[data-booking-price]').value = service.selectedOptions[0].dataset.price;
+                        }
+                        form.querySelector('[data-booking-submit]').disabled = false;
+                    }
                 });
                 slots.append(button);
             });
@@ -143,6 +160,11 @@ if (root) {
     }
     picker.engine.on('viewChange', () => { selectedDate = null; loadMonth(); });
     service.addEventListener('change', loadMonth);
+    overrideChoice?.addEventListener('change', loadMonth);
     retry.addEventListener('click', () => retryAction?.());
     loadMonth();
+    const patientChoice = root.querySelector('[data-patient-choice]');
+    patientChoice?.addEventListener('change', () => {
+        root.querySelector('[data-patient-name]').required = !patientChoice.value;
+    });
 }

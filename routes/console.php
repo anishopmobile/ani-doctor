@@ -22,3 +22,11 @@ Artisan::command('identity:prune-otp', function (): void {
     DB::table('otp_challenges')->where('expires_at', '<=', now())->update(['code_hash' => null, 'status' => 'expired']);
 });
 Schedule::command('identity:prune-otp')->hourly()->withoutOverlapping();
+Artisan::command('booking:expire-holds', function (\App\Modules\Booking\Application\BookingService $bookings): void {
+    \App\Modules\Booking\Infrastructure\Appointment::where('status', 'pending_payment')->where('hold_expires_at', '<=', now())->select('id')->chunkById(100, function ($items) use ($bookings): void {
+        foreach ($items as $item) {
+            $bookings->expire($item->id);
+        }
+    });
+});
+Schedule::command('booking:expire-holds')->everyMinute()->withoutOverlapping();

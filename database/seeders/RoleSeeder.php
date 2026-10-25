@@ -10,7 +10,7 @@ final class RoleSeeder extends Seeder
 {
     public function run(): void
     {
-        foreach (['patient' => ['panel.patient'], 'secretary' => ['panel.secretary', 'schedules.manage'], 'admin' => ['panel.admin', 'catalog.manage', 'schedules.manage', 'schedules.settings']] as $name => $permissions) {
+        foreach (['patient' => ['panel.patient'], 'secretary' => ['panel.secretary', 'schedules.manage', 'appointments.manage', 'appointments.override_capacity', 'appointments.override_window'], 'admin' => ['panel.admin', 'catalog.manage', 'schedules.manage', 'schedules.settings', 'appointments.manage', 'appointments.override_capacity', 'appointments.override_window', 'booking.settings']] as $name => $permissions) {
             $role = Role::firstOrCreate(['name' => $name]);
             $role->permissions()->sync(array_map(fn ($permission) => Permission::firstOrCreate(['name' => $permission])->id, $permissions));
         }

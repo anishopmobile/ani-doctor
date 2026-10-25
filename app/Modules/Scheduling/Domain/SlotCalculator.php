@@ -37,7 +37,7 @@ final class SlotCalculator
                     }
                     $remaining = min($remaining, max(0, $limit - count($active)));
                 }
-                $slots[] = ['start' => $start, 'end' => $start + $duration * 60, 'occupied_until' => $end, 'available_capacity' => $remaining];
+                $slots[] = ['start' => $start, 'end' => $start + $duration * 60, 'occupied_until' => $end, 'available_capacity' => $remaining, 'capacity_limit' => min($serviceCapacity, $shift['capacity'])];
             }
         }
         return $slots;

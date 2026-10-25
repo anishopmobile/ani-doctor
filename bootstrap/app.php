@@ -19,6 +19,50 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->redirectUsersTo('/dashboard');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        $exceptions->report(function (\Illuminate\Database\QueryException $error) {
+            if (request()->is('appointments*', 'api/v1/appointments*')) {
+                \Illuminate\Support\Facades\Log::error('booking.database_error', ['sql_state' => $error->errorInfo[0] ?? 'unknown']);
+                return false;
+            }
+        });
+        $exceptions->render(function (\Illuminate\Database\QueryException $error, Request $request) {
+            if ($request->is('appointments*', 'api/v1/appointments*')) {
+                $message = 'ثبت یا دریافت نوبت فعلاً انجام نشد. همان درخواست را دوباره بررسی کنید.';
+                if ($request->expectsJson() || $request->is('api/v1/*')) {
+                    return response()->json(['success' => false,'data' => null,'error' => ['code' => 'BOOKING_TEMPORARILY_UNAVAILABLE','message' => $message],'meta' => (object)[]], 503);
+                }
+                return response()->view('errors.message', ['message' => $message], 503);
+            }
+        });
+        $exceptions->dontReport([\App\Modules\Booking\Domain\BookingFailure::class]);
+        $exceptions->render(function (\App\Modules\Booking\Domain\BookingFailure $error, Request $request) {
+            $message = match ($error->errorCode) {
+                'VERIFICATION_REQUIRED' => 'ابتدا با OTP وارد شوید یا شماره مهمان را تأیید کنید.',
+                'SLOT_UNAVAILABLE' => 'این ساعت دیگر آزاد نیست. ساعت دیگری انتخاب کنید؛ اطلاعات فرم حفظ شده است.',
+                'PRICE_CHANGED' => 'تعرفه تغییر کرده است. صفحه را تازه کنید و مبلغ جدید را بررسی کنید.',
+                'HOLD_EXPIRED' => 'مهلت رزرو موقت تمام شده است؛ دوباره از تقویم زمان انتخاب کنید.',
+                'BOOKING_LIMIT_REACHED' => 'سقف نوبت فعال بیمار یا رزروکننده تکمیل شده است.',
+                'EDIT_WINDOW_CLOSED' => 'مهلت تغییر یا لغو این نوبت گذشته است؛ با مطب تماس بگیرید.',
+                'STALE_APPOINTMENT' => 'این نوبت تغییر کرده است؛ صفحه را تازه کنید.',
+                'IDEMPOTENCY_CONFLICT' => 'این درخواست قبلاً برای اقدام دیگری استفاده شده است؛ صفحه را تازه کنید.',
+                'FINANCIAL_SETTLEMENT_REQUIRED' => 'لغو این نوبت نیازمند تسویه مالی است؛ با مطب تماس بگیرید.',
+                'SERVICE_UNAVAILABLE' => 'خدمت در دسترس نیست.',
+                default => 'این اقدام مجاز نیست یا وضعیت نوبت اجازه آن را نمی‌دهد.',
+            };
+            if ($request->expectsJson() || $request->is('api/v1/*')) {
+                return response()->json(['success' => false,'data' => null,'error' => ['code' => $error->errorCode,'message' => $message],'meta' => ['server_now' => now()->toIso8601String()]], $error->status);
+            }
+            if ($error->status === 401) {
+                return redirect()->route('login')->withErrors(['booking' => $message]);
+            }
+            if ($error->status === 404) {
+                abort(404);
+            }
+            if ($error->status === 403) {
+                return response()->view('errors.403', [], 403);
+            }
+            return back()->withInput($request->except('_token'))->withErrors(['booking' => $message]);
+        });
         $exceptions->shouldRenderJsonWhen(fn (Request $request, \Throwable $e) => $request->is('api/v1/*') || $request->expectsJson());
         $exceptions->render(function (\Illuminate\Validation\ValidationException $error, Request $request) {
             if ($request->is('api/v1/*')) {

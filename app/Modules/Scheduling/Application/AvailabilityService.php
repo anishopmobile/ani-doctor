@@ -14,7 +14,7 @@ final class AvailabilityService
     {
     }
 
-    public function days(Service $service, CarbonImmutable $from, CarbonImmutable $to): array
+    public function days(Service $service, CarbonImmutable $from, CarbonImmutable $to, ?string $excludeReference = null): array
     {
         $today = CarbonImmutable::now('Asia/Tehran')->startOfDay();
         $now = now()->timestamp;
@@ -22,6 +22,9 @@ final class AvailabilityService
         $schedules = $this->schedule->range($from, $to);
         $busy = [];
         foreach ($this->bookings->between($from->utc(), $to->addDay()->utc()) as $item) {
+            if ($excludeReference !== null && ($item['reference'] ?? null) === $excludeReference) {
+                continue;
+            }
             if ($item['status'] !== 'confirmed' && !($item['status'] === 'pending_payment' && !empty($item['hold_expires_at']) && CarbonImmutable::parse($item['hold_expires_at'])->timestamp > $now)) {
                 continue;
             }
@@ -38,7 +41,7 @@ final class AvailabilityService
                 foreach ($this->calculator->calculate($shifts, $service->duration_minutes, $service->buffer_minutes, $service->capacity, $busy) as $slot) {
                     $start = CarbonImmutable::createFromTimestamp($slot['start'], 'UTC');
                     $bookable = $slot['available_capacity'] > 0 && $slot['start'] > $now;
-                    $slots[] = ['start_at_utc' => $start->toIso8601String(), 'end_at_utc' => CarbonImmutable::createFromTimestamp($slot['end'], 'UTC')->toIso8601String(), 'local_date_jalali' => $jalaliDate, 'local_start_time' => $start->setTimezone('Asia/Tehran')->format('H:i'), 'available_capacity' => $slot['start'] > $now ? $slot['available_capacity'] : 0, 'is_bookable' => $bookable, 'unavailable_reason' => $bookable ? null : ($slot['start'] <= $now ? 'past' : 'full')];
+                    $slots[] = ['capacity_limit' => $slot['capacity_limit'], 'start_at_utc' => $start->toIso8601String(), 'end_at_utc' => CarbonImmutable::createFromTimestamp($slot['end'], 'UTC')->toIso8601String(), 'local_date_jalali' => $jalaliDate, 'local_start_time' => $start->setTimezone('Asia/Tehran')->format('H:i'), 'available_capacity' => $slot['start'] > $now ? $slot['available_capacity'] : 0, 'is_bookable' => $bookable, 'unavailable_reason' => $bookable ? null : ($slot['start'] <= $now ? 'past' : 'full')];
                 }
                 $reason = array_filter($slots, fn ($slot) => $slot['is_bookable']) ? null : ($slots ? 'full' : 'closed');
             }
