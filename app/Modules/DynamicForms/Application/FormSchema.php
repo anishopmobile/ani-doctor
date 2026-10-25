@@ -84,6 +84,13 @@ final class FormSchema
             if (is_string($value) && in_array($field['type'], ['number', 'date'], true)) {
                 $value = \App\Modules\Identity\Domain\MobileNumber::normalize($value);
             }
+            if ($field['type'] === 'date' && is_string($value) && preg_match('/\A1[34][0-9]{2}-/', $value)) {
+                try {
+                    $value = app(\App\Modules\Scheduling\Application\JalaliDate::class)->parse($value)->toDateString();
+                } catch (\InvalidArgumentException) {
+                    throw ValidationException::withMessages([$key => $field['label'].' باید تاریخ شمسی معتبر باشد.']);
+                }
+            }
             Validator::make([$key => $value], $validation, [], [$key => $field['label']])->validate();
             if ($value !== null) {
                 $clean[$key] = $field['type'] === 'checkbox' ? (bool) $value : $value;

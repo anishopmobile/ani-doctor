@@ -2,7 +2,7 @@
 @push('assets')<script src="{{ asset('assets/forms.js') }}" defer></script>@endpush
 @section('content')
 <h1 class="h4">{{ $definition ? 'انتشار نسخه جدید فرم' : 'فرم جدید' }}</h1>
-<p>پاسخ‌های قبلی با ساختار قبلی حفظ می‌شوند. اطلاعات درمانی غیرضروری و فایل پزشکی جمع‌آوری نکنید. تاریخ این فرم با برچسب میلادی دریافت می‌شود.</p>
+<p>پاسخ‌های قبلی با ساختار قبلی حفظ می‌شوند. اطلاعات درمانی غیرضروری و فایل پزشکی جمع‌آوری نکنید. تاریخ در فرم به‌صورت شمسی دریافت می‌شود.</p>
 <form method="post" action="{{ $definition ? route('forms.update', $definition->id) : route('forms.store') }}" data-form-builder data-confirm="نسخه تازه منتشر شود؟ پاسخ‌های قبلی حفظ می‌شوند.">
 @csrf<input type="hidden" name="expected_version" value="{{ $definition?->published_version ?? 0 }}">
 <div class="row g-3 mb-3"><div class="col-md-6"><label class="form-label">عنوان<input class="form-control" name="title" value="{{ $definition?->title }}" required maxlength="150"></label></div>

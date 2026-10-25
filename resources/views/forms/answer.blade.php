@@ -14,6 +14,9 @@
 @foreach($field['options'] as $option)<option @selected(in_array($option, (array)($answers[$field['key']] ?? []), true))>{{ $option }}</option>@endforeach</select>
 @elseif($field['type']==='checkbox')
 <select class="form-select" id="answer-{{ $field['key'] }}" name="answers[{{ $field['key'] }}]" data-answer @disabled(!$canWrite) @if($field['required']) data-required @endif><option value="">انتخاب کنید</option><option value="1" @selected(($answers[$field['key']] ?? null) === true)>بله</option><option value="0" @selected(($answers[$field['key']] ?? null) === false)>خیر</option></select>
+@elseif($field['type']==='date')
+<input class="form-control" id="answer-{{ $field['key'] }}" name="answers[{{ $field['key'] }}]" value="{{ isset($answers[$field['key']]) ? app(App\Modules\Scheduling\Application\JalaliDate::class)->format(Carbon\CarbonImmutable::parse($answers[$field['key']], 'Asia/Tehran')) : '' }}" type="text" inputmode="numeric" placeholder="۱۴۰۵-۰۸-۰۳" pattern="[1۱١][3۳٣4۴٤][0-9۰-۹٠-٩]{2}-[0-9۰-۹٠-٩]{2}-[0-9۰-۹٠-٩]{2}" maxlength="10" aria-describedby="date-help-{{ $field['key'] }}" data-answer @if($field['required']) data-required @endif @disabled(!$canWrite)>
+<small id="date-help-{{ $field['key'] }}">تاریخ شمسی؛ سال-ماه-روز، مانند ۱۴۰۵-۰۸-۰۳</small>
 @else
 <input class="form-control" id="answer-{{ $field['key'] }}" name="answers[{{ $field['key'] }}]" value="{{ $answers[$field['key']] ?? '' }}" type="{{ ['number'=>'number','date'=>'date','text'=>'text'][$field['type']] }}" @if($field['type']==='number') step="any" min="{{ $field['min'] ?? -1000000 }}" max="{{ $field['max'] ?? 1000000 }}" @else maxlength="2000" @endif data-answer @if($field['required']) data-required @endif @disabled(!$canWrite)>
 @endif

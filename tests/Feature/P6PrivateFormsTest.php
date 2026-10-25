@@ -187,6 +187,15 @@ final class P6PrivateFormsTest extends TestCase
             }
         }
     }
+    public function test_jalali_date_is_normalized_to_iso_and_invalid_jalali_date_is_rejected(): void
+    {
+        $schema = [['key' => 'day', 'label' => 'روز هماهنگی', 'type' => 'date', 'required' => true]];
+        $this->assertSame(['day' => '2026-10-25'], app(FormSchema::class)->answers($schema, ['day' => '۱۴۰۵-۰۸-۰۳']));
+        $id = $this->publish(['schema' => $schema]);
+        $this->actingAs($this->patient)->postJson($this->url($id), $this->payload($id, ['answers' => ['day' => '۱۴۰۵-۱۳-۰۱']]))->assertUnprocessable();
+        $this->post($this->url($id), $this->payload($id, ['answers' => ['day' => '۱۴۰۵-۰۸-۰۳']]))->assertRedirect();
+        $this->get($this->url($id))->assertOk()->assertSee('value="1405-08-03"', false);
+    }
     public function test_invalid_schema_cycles_file_type_and_duplicate_keys_are_rejected(): void
     {
         foreach ([['type' => 'file'], ['key' => 'Invalid Key'], ['condition' => ['field' => 'detail', 'equals' => 'x']]] as $change) {
