@@ -83,7 +83,7 @@ final class MessageDispatcher
         if (!config('notifications.enabled')) {
             return;
         }
-        $rows = DB::table('message_outbox')->where('state', 'accepted')->where('created_at', '>', now()->subDays(2))->where(fn ($q) => $q->whereNull('last_polled_at')->orWhere('last_polled_at', '<=', now()->subMinutes(15)))->orderBy('last_polled_at')->orderBy('id')->limit(100)->get();
+        $rows = DB::table('message_outbox')->where('state', 'accepted')->where('claimed_at', '>', now()->subDays(2))->where(fn ($q) => $q->whereNull('last_polled_at')->orWhere('last_polled_at', '<=', now()->subMinutes(15)))->orderBy('last_polled_at')->orderBy('id')->limit(100)->get();
         foreach ($rows as $row) {
             $code = $this->provider->queryDelivery($row->provider_message_id);
             DB::transaction(function () use ($row, $code): void {

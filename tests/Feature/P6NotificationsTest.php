@@ -29,6 +29,7 @@ final class P6NotificationsTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        $this->travelTo(\Carbon\CarbonImmutable::parse('2026-10-26 00:01', 'Asia/Tehran'));
         $this->seed();
         $this->admin = $this->booker('09120000001', 'admin');
         $this->secretary = $this->booker('09120000002', 'secretary');
@@ -105,6 +106,7 @@ final class P6NotificationsTest extends TestCase
         $dispatcher->dispatch($id);
         $dispatcher->dispatch($id);
         $this->assertDatabaseHas('message_outbox', ['id' => $id, 'state' => 'accepted', 'attempts' => 1, 'provider_message_id' => '123456']);
+        $dispatcher->poll();
         $reminder = DB::table('message_outbox')->where('event', 'reminder')->sole();
         $dispatcher->dispatch($reminder->id);
         $this->assertDatabaseHas('message_outbox', ['id' => $reminder->id, 'state' => 'queued', 'attempts' => 0]);
@@ -113,6 +115,7 @@ final class P6NotificationsTest extends TestCase
         $this->assertDatabaseHas('message_outbox', ['id' => $reminder->id, 'state' => 'accepted']);
         $dispatcher->poll();
         $this->assertDatabaseHas('message_outbox', ['id' => $id, 'delivery_code' => '1']);
+        $this->assertDatabaseHas('message_outbox', ['id' => $reminder->id, 'delivery_code' => '1']);
         $this->assertDatabaseHas('sms_delivery_logs', ['message_id' => $id, 'state' => 'delivery_reported']);
     }
     public function test_explicit_rejection_retries_with_delay_but_stops_at_three(): void
@@ -232,7 +235,7 @@ final class P6NotificationsTest extends TestCase
     public function test_delivery_poll_does_not_starve_messages_beyond_the_first_batch(): void
     {
         foreach (range(1, 101) as $number) {
-            DB::table('message_outbox')->insert(['event_key' => 'poll-fixture-'.$number, 'appointment_id' => $this->appointment->id, 'event' => 'confirmed', 'recipient' => Crypt::encryptString('09123456789'), 'parameters' => Crypt::encryptString('{}'), 'provider_template_id' => 123, 'appointment_start' => $this->appointment->start_at, 'state' => 'accepted', 'provider_message_id' => (string) $number, 'available_at' => now(), 'created_at' => now(), 'updated_at' => now()]);
+            DB::table('message_outbox')->insert(['event_key' => 'poll-fixture-'.$number, 'appointment_id' => $this->appointment->id, 'event' => 'confirmed', 'recipient' => Crypt::encryptString('09123456789'), 'parameters' => Crypt::encryptString('{}'), 'provider_template_id' => 123, 'appointment_start' => $this->appointment->start_at, 'state' => 'accepted', 'provider_message_id' => (string) $number, 'available_at' => now(), 'claimed_at' => now(), 'created_at' => now(), 'updated_at' => now()]);
         }
         $this->dispatcher()->poll();
         $this->assertSame(100, DB::table('message_outbox')->whereNotNull('last_polled_at')->count());
