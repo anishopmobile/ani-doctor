@@ -36,13 +36,8 @@ final class FinancialBookingService
             return false;
         }
         $service->forceFill(['duration_minutes' => $appointment->duration_minutes, 'buffer_minutes' => $appointment->buffer_minutes, 'capacity' => $appointment->capacity_limit]);
-        $date = $appointment->start_at->setTimezone('Asia/Tehran')->startOfDay();
-        foreach ($this->availability->days($service, $date, $date, $appointment->reference)[0]['slots'] as $slot) {
-            if (\Carbon\CarbonImmutable::parse($slot['start_at_utc'])->timestamp === $appointment->start_at->timestamp && ($slot['is_bookable'] || ($appointment->is_override && $appointment->start_at->isFuture()))) {
-                return true;
-            }
-        }
-        return false;
+        $slot = $this->availability->candidate($service, $appointment->start_at, $appointment->reference, $appointment->channel === 'urgent');
+        return $slot && ($slot['is_bookable'] || ($appointment->is_override && $appointment->start_at->isFuture()));
     }
     public function confirm(Appointment $appointment, string $paymentStatus, int $due, ?int $actorId, string $reason, ?string $actorHash = null): void
     {

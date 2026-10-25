@@ -21,13 +21,13 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->report(function (\Illuminate\Database\QueryException $error) {
-            if (request()->is('appointments*', 'api/v1/appointments*', 'payments*', 'api/v1/payments*', 'wallet*', 'admin/finance*')) {
+            if (request()->is('appointments*', 'api/v1/appointments*', 'payments*', 'api/v1/payments*', 'wallet*', 'admin/finance*', 'management/desk*', 'management/bookings*', 'management/patients*', 'management/appointments*', 'secretary', 'admin', 'dashboard', 'patient')) {
                 \Illuminate\Support\Facades\Log::error('booking.database_error', ['sql_state' => $error->errorInfo[0] ?? 'unknown']);
                 return false;
             }
         });
         $exceptions->render(function (\Illuminate\Database\QueryException $error, Request $request) {
-            if ($request->is('appointments*', 'api/v1/appointments*', 'payments*', 'api/v1/payments*', 'wallet*', 'admin/finance*')) {
+            if ($request->is('appointments*', 'api/v1/appointments*', 'payments*', 'api/v1/payments*', 'wallet*', 'admin/finance*', 'management/desk*', 'management/bookings*', 'management/patients*', 'management/appointments*', 'secretary', 'admin', 'dashboard', 'patient')) {
                 $message = 'ثبت یا دریافت نوبت فعلاً انجام نشد. همان درخواست را دوباره بررسی کنید.';
                 if ($request->expectsJson() || $request->is('api/v1/*')) {
                     return response()->json(['success' => false,'data' => null,'error' => ['code' => 'BOOKING_TEMPORARILY_UNAVAILABLE','message' => $message],'meta' => (object)[]], 503);
@@ -52,6 +52,9 @@ return Application::configure(basePath: dirname(__DIR__))
                 'PAYMENT_IN_PROGRESS' => 'یک تلاش پرداخت باز وجود دارد؛ ابتدا وضعیت همان پرداخت را پیگیری کنید.',
                 'INSUFFICIENT_CREDIT' => 'اعتبار قابل مصرف کافی نیست.',
                 'EMERGENCY_DISABLED' => 'حالت پرداخت در مطب فعال نیست یا مهلت آن گذشته است.',
+                'ATTENDANCE_INVALID_STATE' => 'این تغییر حضور با وضعیت یا زمان نوبت سازگار نیست؛ صفحه را تازه کنید.',
+                'ATTENDANCE_IN_PROGRESS' => 'برای این نوبت مراجعه ثبت شده است؛ ابتدا وضعیت حضور را بررسی کنید.',
+                'URGENT_NOT_ALLOWED' => 'نوبت فوری به مجوز، دلیل و ساعت آینده در شیفت باز امروز نیاز دارد.',
                 'SERVICE_UNAVAILABLE' => 'خدمت در دسترس نیست.',
                 default => 'این اقدام مجاز نیست یا وضعیت نوبت اجازه آن را نمی‌دهد.',
             };
@@ -83,7 +86,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 return response()->json(['success' => false, 'data' => null, 'error' => ['code' => 'NOT_FOUND', 'message' => 'خدمت در دسترس نیست.'], 'meta' => (object) []], 404);
             }
         });
-        $exceptions->dontFlash(['code', 'mobile', 'Authority', 'Status']);
+        $exceptions->dontFlash(['code', 'mobile', 'Authority', 'Status', 'query']);
         $exceptions->dontReport([OtpFailure::class]);
         $exceptions->render(function (OtpFailure $error, Request $request) {
             $message = match ($error->errorCode) {

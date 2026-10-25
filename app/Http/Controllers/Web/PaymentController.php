@@ -37,6 +37,8 @@ final class PaymentController extends Controller
         $data = $request->validated();
         if ($request->route('finance_action') === 'emergency') {
             $payments->confirmEmergency($actor, $appointment, (int) $data['expected_version'], $data['reason']);
+        } elseif ($request->route('finance_action') === 'collect_hold') {
+            $payments->confirmCollectedHold($actor, $appointment, (int) $data['amount_irr'], $data['receipt'], $data['reason'], $data['method']);
         } else {
             $payments->collect($actor, $appointment, (int) $data['amount_irr'], $data['receipt'], $data['reason'], $data['method']);
         }

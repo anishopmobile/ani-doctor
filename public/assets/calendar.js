@@ -46,6 +46,7 @@ if (root) {
             form.querySelector('[data-booking-start]').value = '';
             form.querySelector('[data-booking-submit]').disabled = true;
         }
+        root.dispatchEvent(new CustomEvent('booking:selection-reset'));
     }
 
     async function get(url, parameters, signal) {
@@ -133,6 +134,11 @@ if (root) {
                 button.textContent = slot.local_start_time;
                 button.setAttribute('aria-label', `${slot.local_start_time} — ${slot.is_bookable ? 'آزاد' : labels[slot.unavailable_reason]}`);
                 button.addEventListener('click', () => {
+                    const deskMode = root.querySelector('[name="booking_kind"]:checked');
+                    if (deskMode?.value === 'urgent') {
+                        selection.textContent = 'برای نوبت فوری ساعت امروز را در فرم پایین تعیین کنید؛ این ساعت تقویم انتخاب نشد.';
+                        return;
+                    }
                     slots.querySelectorAll('button').forEach(item => item.setAttribute('aria-pressed', 'false'));
                     button.setAttribute('aria-pressed', 'true');
                     selection.textContent = `زمان انتخابی: ${slot.local_start_time}؛ هنوز نوبتی ثبت نشده است.`;

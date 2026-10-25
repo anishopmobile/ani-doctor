@@ -93,3 +93,8 @@ Triggerها: هر `push` به شاخه‌ها و اجرای دستی از `Actio
 - https://docs.github.com/en/actions
 - https://github.com/actions/upload-artifact
 - https://github.com/shivammathur/setup-php
+
+
+## افزوده P5
+
+P5: پیش از ارتقا بکاپ، توقف درخواست‌های نوشتنی و بازبینی migration حضور لازم است؛ سپس migrate و RoleSeeder اجرا شوند. rollback حضور تاریخچه جدید را حذف می‌کند ولی نوبت و داده مالی را نگه می‌دارد. ناسازگاری reader قدیمی برای completed را در docs/P5.md بررسی کنید. استقرار واقعی این فاز انجام نشده است.

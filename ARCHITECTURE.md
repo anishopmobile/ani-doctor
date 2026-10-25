@@ -155,3 +155,8 @@ P3 reader واقعی Booking، قفل‌های هویت/بیمار/روز، curr
 - ADR-003 جداسازی مالی از وضعیت رزرو و دفترکل اعتبار.
 - ADR-004 تقویم جلالی فقط presentation، منبع حقیقت UTC.
 - ADR-005 build بدون npm؛ assets از قبل آماده در public/assets.
+
+
+## افزوده P5
+
+P5: Booking هماهنگ‌کننده DeskBookingService، DeskReadService و AttendanceService است؛ Patients فهرست و پیوند صریح بیمار را مدیریت می‌کند؛ Billing تنها مالک رسید و تسویه است. ترتیب قفل P3/P4 حفظ شده است.

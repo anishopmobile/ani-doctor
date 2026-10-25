@@ -21,7 +21,7 @@
 <input type="hidden" name="override_capacity" value="0"><label class="form-check"><input class="form-check-input" type="checkbox" name="override_capacity" value="1"> ثبت استثنایی خارج از ظرفیت با مسئولیت اپراتور</label>
 @endif
 @if($actor->staff())<label class="d-block mb-2">دلیل استثنا یا تغییر (برای استثنا الزامی)<input class="form-control" name="reason" maxlength="500" value="{{ old('reason') }}"></label>@endif
-<p class="form-text">این درخواست فقط زمان را موقت نگه می‌دارد. پرداخت آنلاین فعلاً در دسترس نیست و تا تکمیل آن نوبت قطعی نمی‌شود.</p>
+<p class="form-text">این درخواست فقط زمان را موقت نگه می‌دارد. برای قطعی‌شدن، از صفحه نوبت تسویه کامل را انجام دهید یا سیاست اضطراری فعال مطب را بررسی کنید.</p>
 <button class="btn btn-primary" type="submit" data-booking-submit disabled>{{ $editing ? 'ثبت تغییر زمان' : 'ثبت رزرو موقت' }}</button>
 <p data-form-status role="status" aria-live="polite"></p>
 </form>

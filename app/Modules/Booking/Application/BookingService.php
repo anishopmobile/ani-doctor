@@ -30,6 +30,14 @@ final class BookingService
             if ($existing = $this->replay($actor, $data, 'create')) {
                 return $existing;
             }
+            if (isset($data['booking_kind'])) {
+                if (!$actor->staff() || !$actor->userId || !$actor->can('desk.book') || !in_array($data['booking_kind'], ['phone', 'urgent'], true)) {
+                    throw new BookingFailure('FORBIDDEN', 403);
+                }
+                if ($data['booking_kind'] === 'urgent' && (!$actor->can('appointments.urgent') || empty($data['reason']) || $date !== now('Asia/Tehran')->toDateString())) {
+                    throw new BookingFailure('URGENT_NOT_ALLOWED');
+                }
+            }
             if (!$service || !$service->is_active || (!$actor->staff() && !$service->is_online)) {
                 throw new BookingFailure('SERVICE_UNAVAILABLE', 404);
             }
@@ -53,7 +61,7 @@ final class BookingService
                 'capacity_limit' => $slot['capacity_limit'],'local_date' => $date,'start_at' => $start,
                 'end_at' => $start->addMinutes($service->duration_minutes),'occupied_until' => $start->addMinutes($service->duration_minutes + $service->buffer_minutes),
                 'status' => 'pending_payment','payment_status' => 'unpaid','balance_due_irr' => $service->price_irr,'hold_expires_at' => now()->addMinutes($settings->hold_minutes),
-                'channel' => $actor->staff() ? 'secretary' : ($actor->userId ? 'user' : 'guest'),
+                'channel' => $data['booking_kind'] ?? ($actor->staff() ? 'secretary' : ($actor->userId ? 'user' : 'guest')),
                 'is_override' => !empty($data['override_capacity']),'override_reason' => $data['reason'] ?? null,'created_by' => $actor->userId,'version' => 1,
             ]);
             $this->event($appointment, $actor, 'held', null, $data['reason'] ?? null);
@@ -92,6 +100,9 @@ final class BookingService
                 $appointment->booker_user_id = $actor->userId;
                 $this->patients->claim($appointment->patient_id, $actor->userId);
             } else {
+                if ($appointment->attendance_status !== 'scheduled') {
+                    throw new BookingFailure('ATTENDANCE_IN_PROGRESS');
+                }
                 if (!$appointment->active()) {
                     throw new BookingFailure($appointment->effectiveStatus() === 'expired' ? 'HOLD_EXPIRED' : 'INVALID_STATE');
                 }
@@ -175,12 +186,9 @@ final class BookingService
         if ($override && (!$actor->can('appointments.override_capacity') || empty($data['reason']))) {
             throw new BookingFailure('FORBIDDEN', 403);
         }
-        $date = $start->setTimezone('Asia/Tehran')->startOfDay();
-        $day = $this->availability->days($service, $date, $date, $exclude)[0];
-        foreach ($day['slots'] as $slot) {
-            if (CarbonImmutable::parse($slot['start_at_utc'])->timestamp === $start->timestamp && ($slot['is_bookable'] || ($override && $start->isFuture()))) {
-                return ['capacity_limit' => $slot['capacity_limit']];
-            }
+        $slot = $this->availability->candidate($service, $start, $exclude, ($data['booking_kind'] ?? '') === 'urgent');
+        if ($slot && ($slot['is_bookable'] || ($override && $start->isFuture()))) {
+            return ['capacity_limit' => $slot['capacity_limit']];
         }
         throw new BookingFailure('SLOT_UNAVAILABLE');
     }

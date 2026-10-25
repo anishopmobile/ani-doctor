@@ -16,8 +16,8 @@
 @endif
 @endif
 @can('payments.collect')
-@if($appointment->status === 'confirmed' && $appointment->payment_status === 'unpaid' && $appointment->balance_due_irr > 0)
-<form method="post" action="{{ route('payments.collect', $appointment->reference) }}" class="mt-3" data-confirm="دریافت حضوری کل بدهی ثبت شود؟">@csrf
+@if(in_array($appointment->effectiveStatus(), ['pending_payment', 'confirmed', 'completed', 'no_show'], true) && $appointment->payment_status === 'unpaid' && ($appointment->balance_due_irr > 0 || $appointment->effectiveStatus() === 'pending_payment'))
+<form method="post" action="{{ $appointment->effectiveStatus() === 'pending_payment' ? route('desk.collect-hold', $appointment->reference) : route('payments.collect', $appointment->reference) }}" class="mt-3" data-confirm="دریافت واقعی کل مبلغ ثبت شود؟ رزرو موقت معتبر پس از ثبت، قطعی می‌شود.">@csrf
 <input type="hidden" name="receipt" value="{{ (string)\Illuminate\Support\Str::uuid() }}"><input type="hidden" name="amount_irr" value="{{ $appointment->balance_due_irr }}">
 <label>روش دریافت<select class="form-select" name="method"><option value="cash">نقدی</option><option value="card">کارت‌خوان</option><option value="transfer">انتقال بانکی</option></select></label>
 <label>توضیح و شماره رسید اختیاری<input class="form-control" name="reason" maxlength="500" required></label>

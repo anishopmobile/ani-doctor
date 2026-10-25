@@ -15,7 +15,7 @@ final class ActorResolver
             if (!$user->is_active || !$user->mobile_verified_at) {
                 throw new BookingFailure('FORBIDDEN', 403);
             }
-            $permissions = array_values(array_filter(['appointments.manage','appointments.override_capacity','appointments.override_window','booking.settings', 'payments.settings', 'payments.collect', 'refunds.manage', 'payments.review'], fn ($permission) => $user->hasPermission($permission)));
+            $permissions = array_values(array_filter(['appointments.manage','appointments.override_capacity','appointments.override_window','booking.settings', 'payments.settings', 'payments.collect', 'refunds.manage', 'payments.review', 'desk.view', 'desk.book', 'appointments.urgent', 'attendance.manage', 'patients.manage'], fn ($permission) => $user->hasPermission($permission)));
             return new BookingActor($user->id, $user->mobile, $permissions, (string)config('app.key'));
         }
         $guest = $request->session()->get('guest_identity');

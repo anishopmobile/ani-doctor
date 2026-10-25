@@ -9,7 +9,7 @@ final class AppointmentReader implements BookingReadInterface
 {
     public function between(DateTimeImmutable $fromUtc, DateTimeImmutable $toUtc): array
     {
-        $query = Appointment::where('start_at', '<', $toUtc)->where('occupied_until', '>', $fromUtc)->whereIn('status', ['confirmed','pending_payment']);
+        $query = Appointment::where('start_at', '<', $toUtc)->where('occupied_until', '>', $fromUtc)->whereIn('status', ['confirmed','pending_payment', 'completed', 'no_show']);
         // Locking reads avoid an old REPEATABLE READ snapshot after waiting for a day lock.
         if (\Illuminate\Support\Facades\DB::transactionLevel() > 0) {
             $query->lockForUpdate();

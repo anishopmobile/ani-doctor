@@ -20,16 +20,7 @@ final class AvailabilityService
         $now = now()->timestamp;
         $max = $today->addDays((int) DB::table('schedule_state')->where('id', 1)->value('horizon_days') - 1);
         $schedules = $this->schedule->range($from, $to);
-        $busy = [];
-        foreach ($this->bookings->between($from->utc(), $to->addDay()->utc()) as $item) {
-            if ($excludeReference !== null && ($item['reference'] ?? null) === $excludeReference) {
-                continue;
-            }
-            if ($item['status'] !== 'confirmed' && !($item['status'] === 'pending_payment' && !empty($item['hold_expires_at']) && CarbonImmutable::parse($item['hold_expires_at'])->timestamp > $now)) {
-                continue;
-            }
-            $busy[] = ['start' => CarbonImmutable::parse($item['start_at'])->timestamp, 'end' => CarbonImmutable::parse($item['end_at'])->timestamp, 'capacity_limit' => $item['capacity_limit'] ?? PHP_INT_MAX];
-        }
+        $busy = $this->busy($from, $to, $excludeReference);
         $days = [];
         for ($date = $from; $date <= $to; $date = $date->addDay()) {
             $iso = $date->toDateString();
@@ -48,5 +39,52 @@ final class AvailabilityService
             $days[] = ['date' => $iso, 'jalali' => $jalaliDate, 'status' => $reason ?? 'available', 'slots' => $slots];
         }
         return $days;
+    }
+
+    /** A trusted staff use case may request an off-grid start, still entirely inside an open shift. */
+    public function candidate(Service $service, CarbonImmutable $start, ?string $excludeReference = null, bool $offGrid = false): ?array
+    {
+        $date = $start->setTimezone('Asia/Tehran')->startOfDay();
+        if (!$offGrid) {
+            foreach ($this->days($service, $date, $date, $excludeReference)[0]['slots'] as $slot) {
+                if (CarbonImmutable::parse($slot['start_at_utc'])->timestamp === $start->timestamp) {
+                    return $slot;
+                }
+            }
+            return null;
+        }
+        $today = CarbonImmutable::now('Asia/Tehran')->startOfDay();
+        $max = $today->addDays((int) DB::table('schedule_state')->where('id', 1)->value('horizon_days') - 1);
+        $schedule = $this->schedule->range($date, $date)[$date->toDateString()];
+        if ($date < $today || $date > $max || $schedule['reason'] || !$start->isFuture() || $start->second !== 0) {
+            return null;
+        }
+        foreach ($schedule['shifts'] as $shift) {
+            $from = $date->addMinutes($shift['start_minute']);
+            $to = $date->addMinutes($shift['end_minute']);
+            if ($start < $from || $start->addMinutes($service->duration_minutes + $service->buffer_minutes) > $to) {
+                continue;
+            }
+            $candidateShift = ['start' => $start->timestamp, 'end' => $to->timestamp, 'step_minutes' => (int) ceil(($to->timestamp - $start->timestamp) / 60) + 1, 'capacity' => $shift['capacity']];
+            $slot = $this->calculator->calculate([$candidateShift], $service->duration_minutes, $service->buffer_minutes, $service->capacity, $this->busy($date, $date, $excludeReference))[0];
+            return ['capacity_limit' => $slot['capacity_limit'], 'is_bookable' => $slot['available_capacity'] > 0];
+        }
+        return null;
+    }
+
+    private function busy(CarbonImmutable $from, CarbonImmutable $to, ?string $excludeReference): array
+    {
+        $busy = [];
+        $now = now()->timestamp;
+        foreach ($this->bookings->between($from->utc(), $to->addDay()->utc()) as $item) {
+            if ($excludeReference !== null && ($item['reference'] ?? null) === $excludeReference) {
+                continue;
+            }
+            if (!in_array($item['status'], ['confirmed', 'completed', 'no_show'], true) && !($item['status'] === 'pending_payment' && !empty($item['hold_expires_at']) && CarbonImmutable::parse($item['hold_expires_at'])->timestamp > $now)) {
+                continue;
+            }
+            $busy[] = ['start' => CarbonImmutable::parse($item['start_at'])->timestamp, 'end' => CarbonImmutable::parse($item['end_at'])->timestamp, 'capacity_limit' => $item['capacity_limit'] ?? PHP_INT_MAX];
+        }
+        return $busy;
     }
 }

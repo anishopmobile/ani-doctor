@@ -6,7 +6,7 @@ use App\Modules\Booking\Application\ActorResolver;
 use App\Modules\Identity\Domain\MobileNumber;
 use Illuminate\Foundation\Http\FormRequest;
 
-final class BookingRequest extends FormRequest
+class BookingRequest extends FormRequest
 {
     public function authorize(): bool
     {

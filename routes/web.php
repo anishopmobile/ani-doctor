@@ -5,6 +5,19 @@ use App\Http\Controllers\Web\OtpController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/login');
+Route::middleware(['auth', \App\Http\Middleware\VerifiedBooker::class, 'throttle:desk'])->group(function (): void {
+    Route::get('/management/desk', [\App\Http\Controllers\Secretary\DeskController::class, 'index'])->middleware('can:desk.view')->name('desk');
+    Route::post('/management/desk/search', [\App\Http\Controllers\Secretary\DeskController::class, 'filter'])->middleware('can:desk.view')->name('desk.filter');
+    Route::get('/management/bookings/new', [\App\Http\Controllers\Secretary\DeskController::class, 'create'])->middleware('can:desk.book')->name('desk.create');
+    Route::post('/management/bookings', [\App\Http\Controllers\Secretary\DeskController::class, 'store'])->middleware('can:desk.book', 'throttle:booking')->defaults('booking_action', 'create')->name('desk.store');
+    Route::post('/management/appointments/{reference}/attendance', \App\Http\Controllers\Secretary\AttendanceController::class)->middleware('can:attendance.manage')->name('attendance.change');
+    Route::post('/management/appointments/{reference}/collect-hold', [\App\Http\Controllers\Web\PaymentController::class, 'offline'])->middleware('can:payments.collect')->defaults('finance_action', 'collect_hold')->name('desk.collect-hold');
+    Route::get('/management/patients', [\App\Http\Controllers\Secretary\PatientDirectoryController::class, 'index'])->middleware('can:patients.manage')->name('patients.index');
+    Route::post('/management/patients/search', [\App\Http\Controllers\Secretary\PatientDirectoryController::class, 'search'])->defaults('directory_action', 'search')->middleware('can:patients.manage')->name('patients.search');
+    Route::post('/management/patients', [\App\Http\Controllers\Secretary\PatientDirectoryController::class, 'save'])->middleware('can:patients.manage')->name('patients.store');
+    Route::get('/management/patients/{patient}', [\App\Http\Controllers\Secretary\PatientDirectoryController::class, 'show'])->middleware('can:patients.manage')->name('patients.show');
+    Route::put('/management/patients/{patient}', [\App\Http\Controllers\Secretary\PatientDirectoryController::class, 'save'])->middleware('can:patients.manage')->name('patients.update');
+});
 Route::match(['GET', 'POST'], '/payments/zarinpal/callback/{reference}', [\App\Http\Controllers\Web\PaymentController::class, 'callback'])->whereUuid('reference')->middleware('throttle:payment-callback')->name('payments.callback');
 Route::middleware([\App\Http\Middleware\VerifiedBooker::class, 'throttle:payments'])->group(function (): void {
     Route::get('/wallet', [\App\Http\Controllers\Web\WalletController::class, 'index'])->name('wallet');
@@ -62,6 +75,7 @@ Route::middleware('guest')->group(function (): void {
 });
 Route::post('/logout', [OtpController::class, 'logout'])->name('logout');
 Route::get('/dashboard', DashboardController::class)->name('dashboard');
-foreach (['patient', 'secretary', 'admin'] as $panel) {
-    Route::view('/'.$panel, 'panel', ['panel' => $panel])->middleware(['auth', 'can:panel.'.$panel])->name('panel.'.$panel);
+Route::get('/patient', DashboardController::class)->middleware(['auth', 'can:panel.patient'])->name('panel.patient');
+foreach (['secretary', 'admin'] as $panel) {
+    Route::get('/'.$panel, [\App\Http\Controllers\Secretary\DeskController::class, 'index'])->middleware(['auth', 'can:panel.'.$panel, \App\Http\Middleware\VerifiedBooker::class, 'can:desk.view', 'throttle:desk'])->name('panel.'.$panel);
 }

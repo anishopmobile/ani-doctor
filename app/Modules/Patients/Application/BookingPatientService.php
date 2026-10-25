@@ -25,9 +25,13 @@ final class BookingPatientService
             if (!$patient || (!$actor->staff() && !$linked)) {
                 throw (new ModelNotFoundException())->setModel(Patient::class);
             }
+            if ($actor->staff()) {
+                // Explicit staff selection grants the specified booker this patient link; never infer it from contact_mobile.
+                DB::table('guest_patient_links')->insertOrIgnore(['mobile_hash' => $ownerHash, 'patient_id' => $patient->id]);
+            }
             return $patient;
         }
-        $patient = Patient::create(['name' => $data['patient_name'],'contact_mobile' => $data['contact_mobile'] ?? ($actor->staff() ? $data['booker_mobile'] : $actor->mobile)]);
+        $patient = Patient::create(['name' => $data['patient_name'],'contact_mobile' => $data['contact_mobile'] ?? ($actor->staff() ? $data['booker_mobile'] : $actor->mobile), 'file_number' => $actor->can('patients.manage') ? ($data['file_number'] ?? null) : null]);
         if ($actor->userId && !$actor->staff()) {
             DB::table('patient_user_links')->insert(['user_id' => $actor->userId,'patient_id' => $patient->id,'created_at' => now()]);
         } else {

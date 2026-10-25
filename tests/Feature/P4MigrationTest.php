@@ -14,6 +14,8 @@ final class P4MigrationTest extends TestCase
     public function test_p4_rollback_reapply_preserves_p3_appointments_and_backfills_unpaid_debt(): void
     {
         $this->artisan('migrate:fresh', ['--force' => true])->assertSuccessful();
+        // Remove only P5 before testing the P4-specific rollback contract.
+        $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful();
         $this->seed();
         $user = $this->booker();
         $service = $this->bookingServiceFixture($user);
