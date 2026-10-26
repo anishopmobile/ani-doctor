@@ -53,17 +53,20 @@ final class BookingService
                 || $this->active()->where('booker_mobile_hash', $ownerHash)->lockForUpdate()->get(['id'])->count() >= $settings->max_active_booker) {
                 throw new BookingFailure('BOOKING_LIMIT_REACHED');
             }
+            $discounts = app(\App\Modules\Billing\Application\DiscountService::class);
+            $quote = $discounts->quote($data['discount_code'] ?? null, $service->id, $patient->id, $service->price_irr);
             $appointment = Appointment::create([
                 'reference' => (string)Str::uuid(),'patient_id' => $patient->id,
                 'booker_user_id' => $actor->staff() ? null : $actor->userId,'booker_mobile_hash' => $ownerHash, 'notification_mobile' => $actor->staff() ? $data['booker_mobile'] : $actor->mobile,
-                'service_id' => $service->id,'service_title' => $service->name,'price_irr' => $service->price_irr,
+                'service_id' => $service->id,'service_title' => $service->name,'price_irr' => $quote['net'], 'base_price_irr' => $quote['base'], 'discount_irr' => $quote['discount'],
                 'duration_minutes' => $service->duration_minutes,'buffer_minutes' => $service->buffer_minutes,
                 'capacity_limit' => $slot['capacity_limit'],'local_date' => $date,'start_at' => $start,
                 'end_at' => $start->addMinutes($service->duration_minutes),'occupied_until' => $start->addMinutes($service->duration_minutes + $service->buffer_minutes),
-                'status' => 'pending_payment','payment_status' => 'unpaid','balance_due_irr' => $service->price_irr,'hold_expires_at' => now()->addMinutes($settings->hold_minutes),
+                'status' => 'pending_payment','payment_status' => 'unpaid','balance_due_irr' => $quote['net'],'hold_expires_at' => now()->addMinutes($settings->hold_minutes),
                 'channel' => $data['booking_kind'] ?? ($actor->staff() ? 'secretary' : ($actor->userId ? 'user' : 'guest')),
                 'is_override' => !empty($data['override_capacity']),'override_reason' => $data['reason'] ?? null,'created_by' => $actor->userId,'version' => 1,
             ]);
+            $discounts->reserve($appointment, $quote);
             $this->event($appointment, $actor, 'held', null, $data['reason'] ?? null);
             $this->remember($actor, $data, 'create', $appointment);
             return $appointment;

@@ -23,6 +23,7 @@ final class BookingFinance implements BookingFinanceInterface
     }
     public function expire(Appointment $appointment): void
     {
+        app(DiscountService::class)->transition($appointment, 'released');
         $attempts = PaymentAttempt::where('appointment_id', $appointment->id)->where('credit_reserved', true)->orderBy('id')->lockForUpdate()->get();
         foreach ($attempts as $attempt) {
             $this->wallet->release($attempt->owner_hash, $attempt->credit_irr);

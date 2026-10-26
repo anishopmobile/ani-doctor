@@ -1,6 +1,8 @@
 @extends('layouts.app')
 @push('assets')<script src="{{ asset('assets/booking.js') }}" defer></script>@endpush
 @section('content')
+<p><a href="{{ route('tickets.print', $appointment->reference) }}">برگه چاپ نوبت</a> · <a href="{{ route('tickets.pdf', $appointment->reference) }}">PDF نوبت</a></p>
+@if($appointment->discount_irr > 0)<p>تعرفه پایه {{ number_format($appointment->base_price_irr) }} ریال؛ تخفیف {{ number_format($appointment->discount_irr) }} ریال. مبلغ کامل قابل تسویه، مبلغ نهایی زیر است.</p>@endif
 @if(!$actor->staff() || $actor->can('forms.answers.view'))<p><a href="{{ route('private-forms.index', $appointment->reference) }}">فرم‌های خصوصی این نوبت</a></p>@endif
 <h1 class="h3">جزئیات نوبت</h1>
 <p>{{ $appointment->patient->name }} — {{ $appointment->service_title }}</p>

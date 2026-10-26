@@ -12,6 +12,7 @@
 <input type="hidden" name="service_id" value="" data-booking-service>
 <input type="hidden" name="expected_price_irr" value="" data-booking-price>
 <h2 class="h5">مشخصات بیمار و رزروکننده</h2>
+@include('discounts.field')
 <label class="d-block mb-2">بیمار<select class="form-select" name="patient_id" data-patient-choice><option value="">بیمار جدید</option>@foreach($patients as $patient)<option value="{{ $patient->id }}">{{ $patient->name }}</option>@endforeach</select></label>
 <label class="d-block mb-2">نام و نام خانوادگی بیمار جدید<input class="form-control" name="patient_name" maxlength="150" value="{{ old('patient_name') }}" data-patient-name required></label>
 <label class="d-block mb-2">موبایل تماس بیمار (اختیاری)<input class="form-control" name="contact_mobile" inputmode="tel" maxlength="11" value="{{ old('contact_mobile') }}" dir="ltr"></label>

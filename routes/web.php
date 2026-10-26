@@ -5,6 +5,18 @@ use App\Http\Controllers\Web\OtpController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/login');
+Route::middleware(['auth', \App\Http\Middleware\VerifiedBooker::class, 'throttle:reports'])->group(function (): void {
+    Route::get('/management/reports', [\App\Http\Controllers\Admin\ReportController::class, 'index'])->name('reports.index');
+    Route::post('/management/reports/staff-name', \App\Http\Controllers\Admin\StaffDisplayNameController::class)->middleware('can:reports.finance')->name('reports.staff-name');
+    Route::get('/admin/discounts', [\App\Http\Controllers\Admin\DiscountController::class, 'index'])->middleware('can:discounts.manage')->name('discounts.index');
+    Route::post('/admin/discounts', [\App\Http\Controllers\Admin\DiscountController::class, 'save'])->middleware('can:discounts.manage')->name('discounts.store');
+    Route::post('/admin/discounts/{discount}', [\App\Http\Controllers\Admin\DiscountController::class, 'save'])->whereNumber('discount')->middleware('can:discounts.manage')->name('discounts.toggle');
+});
+Route::middleware([\App\Http\Middleware\VerifiedBooker::class, 'throttle:booking'])->group(function (): void {
+    Route::post('/api/v1/discount-preview', \App\Http\Controllers\Web\DiscountPreviewController::class)->name('discounts.preview');
+    Route::get('/appointments/{reference}/ticket', \App\Http\Controllers\Web\TicketController::class)->whereUuid('reference')->name('tickets.print');
+    Route::get('/appointments/{reference}/ticket.pdf', \App\Http\Controllers\Web\TicketController::class)->whereUuid('reference')->name('tickets.pdf');
+});
 Route::middleware(['auth', \App\Http\Middleware\VerifiedBooker::class, 'throttle:desk', 'can:forms.manage'])->group(function (): void {
     Route::get('/admin/forms', [\App\Http\Controllers\Admin\FormBuilderController::class, 'index'])->name('forms.manage');
     Route::get('/admin/forms/new', [\App\Http\Controllers\Admin\FormBuilderController::class, 'edit'])->name('forms.new');

@@ -21,13 +21,13 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->report(function (\Illuminate\Database\QueryException $error) {
-            if (request()->is('appointments*', 'api/v1/appointments*', 'payments*', 'api/v1/payments*', 'wallet*', 'admin/finance*', 'admin/forms*', 'admin/notifications*', 'private-forms*', 'management/desk*', 'management/bookings*', 'management/patients*', 'management/appointments*', 'secretary', 'admin', 'dashboard', 'patient')) {
+            if (request()->is('appointments*', 'api/v1/appointments*', 'payments*', 'api/v1/payments*', 'wallet*', 'admin/finance*', 'management/reports*', 'admin/discounts*', 'api/v1/discount-preview*', 'admin/forms*', 'admin/notifications*', 'private-forms*', 'management/desk*', 'management/bookings*', 'management/patients*', 'management/appointments*', 'secretary', 'admin', 'dashboard', 'patient')) {
                 \Illuminate\Support\Facades\Log::error('booking.database_error', ['sql_state' => $error->errorInfo[0] ?? 'unknown']);
                 return false;
             }
         });
         $exceptions->render(function (\Illuminate\Database\QueryException $error, Request $request) {
-            if ($request->is('appointments*', 'api/v1/appointments*', 'payments*', 'api/v1/payments*', 'wallet*', 'admin/finance*', 'admin/forms*', 'admin/notifications*', 'private-forms*', 'management/desk*', 'management/bookings*', 'management/patients*', 'management/appointments*', 'secretary', 'admin', 'dashboard', 'patient')) {
+            if ($request->is('appointments*', 'api/v1/appointments*', 'payments*', 'api/v1/payments*', 'wallet*', 'admin/finance*', 'management/reports*', 'admin/discounts*', 'api/v1/discount-preview*', 'admin/forms*', 'admin/notifications*', 'private-forms*', 'management/desk*', 'management/bookings*', 'management/patients*', 'management/appointments*', 'secretary', 'admin', 'dashboard', 'patient')) {
                 $message = 'ثبت یا دریافت نوبت فعلاً انجام نشد. همان درخواست را دوباره بررسی کنید.';
                 if ($request->expectsJson() || $request->is('api/v1/*')) {
                     return response()->json(['success' => false,'data' => null,'error' => ['code' => 'BOOKING_TEMPORARILY_UNAVAILABLE','message' => $message],'meta' => (object)[]], 503);
@@ -55,6 +55,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 'ATTENDANCE_INVALID_STATE' => 'این تغییر حضور با وضعیت یا زمان نوبت سازگار نیست؛ صفحه را تازه کنید.',
                 'ATTENDANCE_IN_PROGRESS' => 'برای این نوبت مراجعه ثبت شده است؛ ابتدا وضعیت حضور را بررسی کنید.',
                 'URGENT_NOT_ALLOWED' => 'نوبت فوری به مجوز، دلیل و ساعت آینده در شیفت باز امروز نیاز دارد.',
+                'DISCOUNT_UNAVAILABLE' => 'کد تخفیف برای این خدمت یا بیمار قابل استفاده نیست یا سهمیه آن تمام شده است.',
                 'SERVICE_UNAVAILABLE' => 'خدمت در دسترس نیست.',
                 default => 'این اقدام مجاز نیست یا وضعیت نوبت اجازه آن را نمی‌دهد.',
             };

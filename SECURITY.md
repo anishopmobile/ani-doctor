@@ -122,3 +122,6 @@ P5: مجوزهای مستقل desk.view/book، patients.manage، appointments.ur
 ## افزوده P6
 
 P6 پاسخ فرم، مقصد و پارامتر outbox با APP_KEY رمزگذاری می‌شوند؛ مجوز forms.answers.view/write از forms.manage و مشاهده نوبت جداست و منشی پیش‌فرض ندارد. پاسخ و schema در flash، SMS، URL و لاگ نمی‌روند. فرم عمومی ناشناس/فایل پزشکی وجود ندارد؛ nonce پاسخ، revision و outbox یکتا تست شده‌اند. جزئیات و محدودیت ارسال نامشخص: docs/P6.md.
+
+## خروجی خصوصی P7
+مجوز reports.finance مستقل از reports.appointments و فرم خصوصی است؛ منشی گزارش مالی ندارد. دانلود آنی حافظه‌ای با private/no-store، نام غیرحساس و rate limit؛ audit فقط فیلتر whitelist دارد. XLSX متن را صریحاً string می‌نویسد؛ فرمول و لینک از متن ورودی ساخته نمی‌شود. سقف ۱۰۰۰ ردیف/۲۵۰ PDF و ۳۶۶ روز، پاسخ 422 بدون truncation؛ جزئیات [docs/P7.md](docs/P7.md).

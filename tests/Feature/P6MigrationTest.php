@@ -20,6 +20,7 @@ final class P6MigrationTest extends TestCase
         $this->secretary = $this->booker('09123456787', 'secretary');
         $this->service = $this->bookingServiceFixture($this->secretary);
         $appointment = $this->clinicAppointment();
+        $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful(); // P7
         $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful();
         $this->assertFalse(Schema::hasTable('form_submissions'));
         $this->assertFalse(Schema::hasTable('message_outbox'));
