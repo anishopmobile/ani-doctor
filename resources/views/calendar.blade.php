@@ -1,6 +1,5 @@
 @extends('layouts.app')
 @push('assets')
-<link rel="stylesheet" href="{{ asset('assets/vendor/pardis.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/calendar.css') }}">
 <script type="module" src="{{ asset('assets/calendar.js') }}"></script>
 @if($deskBooking ?? false)<script src="{{ asset('assets/desk.js') }}" defer></script>@endif

@@ -130,3 +130,6 @@ P6 پاسخ فرم، مقصد و پارامتر outbox با APP_KEY رمزگذا
 
 ## P8
 HTTPS/Host و نشست امن در production fail-closed، اعتماد IP پراکسی صریح، خطای بدون payload خصوصی و هدر خطا؛ بکاپ authenticated encryption با کلید مستقل و بازیابی فقط DB خالی جدا، کنترل ZIP و staging موقت. فرمت/تهدیدها و گیت‌های انجام‌نشده انتشار عمومی در [docs/P8.md](docs/P8.md)، شواهد در [docs/P8-VALIDATION.md](docs/P8-VALIDATION.md). این شواهد گواه نفوذ مستقل یا انطباق حقوقی نیستند.
+
+## کنترل‌های فرم و پوسته Tabler
+فقط فایل‌های محلی با نسخه/commit ثابت و مجوز نگهداری می‌شوند؛ بدون CDN یا ارسال query/مقادیر گزینه به بیرون. HCG highlight را escape می‌کند و adapterهای اپ از textContent/DOM API استفاده می‌کنند؛ multiple پشتیبانی‌نشده به HTML خام تبدیل نمی‌شود. native field، CSRF، required/disabled، Gate/Policy و اعتبارسنجی backend پابرجا هستند. فیلد disabled/شرطی در FormData وارد نمی‌شود. تست browser شامل HTML مخرب، نقش‌ها، CSP و fieldset غیرفعال است. این بررسی گواه نفوذ مستقل نیست.

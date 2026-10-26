@@ -1,0 +1,196 @@
+.ui-field {
+    min-width: 0;
+}
+.ui-field > label {
+    margin-bottom: 6px;
+}
+.hcg-select {
+    --hcg-select-radius: 10px;
+    --hcg-select-font-family: Vazirmatn, Tahoma, sans-serif;
+    --hcg-select-font-size: 16px;
+    --hcg-select-option-font-size: 15px;
+    --hcg-select-z: 60;
+    direction: rtl;
+    margin-bottom: 8px;
+}
+.hcg-select-control {
+    min-height: 46px;
+    line-height: 1.7;
+}
+.hcg-select-panel {
+    border-radius: 12px;
+    box-shadow: 0 14px 36px #16376222;
+    max-width: calc(100vw - 40px);
+}
+.hcg-select-search {
+    text-align: right;
+    direction: rtl;
+    min-height: 44px;
+    font-size: 16px;
+}
+.hcg-select-option {
+    min-height: 44px;
+    line-height: 1.8;
+    text-align: right;
+}
+.hcg-select-label {
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+.hcg-select-native {
+    min-height: 0 !important;
+}
+.hcg-select-caret {
+    margin-inline-start: auto;
+}
+.hcg-select mark {
+    background: #d9e9ff;
+    color: #153d86;
+}
+.ui-multi {
+    position: relative;
+    margin-bottom: 8px;
+}
+.ui-multi > summary {
+    display: block;
+    min-height: 46px;
+    border: 1px solid #ccd9e9;
+    border-radius: 10px;
+    padding: 10px 12px;
+    background: #fff;
+    cursor: pointer;
+    overflow-wrap: anywhere;
+}
+.ui-multi > summary::after {
+    content: "⌄";
+    float: left;
+}
+.ui-multi [aria-disabled="true"] {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+.ui-multi-panel {
+    position: absolute;
+    z-index: 65;
+    inset-inline: 0;
+    top: 100%;
+    background: #fff;
+    border: 1px solid #ccd9e9;
+    border-radius: 12px;
+    padding: 12px;
+    box-shadow: 0 14px 36px #16376222;
+}
+.ui-multi-options {
+    max-height: 230px;
+    overflow-y: auto;
+    margin-top: 10px;
+}
+.ui-multi-options label {
+    display: flex !important;
+    gap: 10px;
+    align-items: center;
+    min-height: 44px;
+    padding: 7px;
+    cursor: pointer;
+}
+.ui-multi-options label[hidden] {
+    display: none !important;
+}
+.ui-multi-options input {
+    flex: none;
+}
+.ui-date-field {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    min-width: 0;
+}
+.ui-date-field input {
+    min-width: 0;
+    flex: 1;
+    direction: ltr;
+    text-align: center;
+    cursor: pointer;
+}
+.ui-date-field .btn {
+    padding-inline: 10px;
+    font-size: 12px;
+    flex: none;
+}
+.ui-date-dialog {
+    width: min(420px, calc(100vw - 24px));
+    padding: 18px;
+    max-height: 90dvh;
+    overflow-y: auto;
+}
+.ui-date-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+.ui-date-header h2 {
+    margin: 0;
+    font-size: 18px;
+}
+.ui-date-dialog .pardis-calendar {
+    width: 100%;
+    min-width: 0;
+}
+.ui-date-dialog .pardis-inline-host {
+    width: 100%;
+}
+.ui-date-dialog .pardis-day {
+    min-height: 40px;
+}
+.ui-date-dialog button {
+    font-family: inherit;
+}
+.ui-date-dialog .pardis-calendar {
+    --pardis-primary: #2563eb;
+}
+@media (max-width: 575px) {
+    .ui-date-field {
+        flex-wrap: wrap;
+    }
+    .ui-date-field input {
+        flex-basis: 100%;
+    }
+    .ui-date-field .btn {
+        flex: 1;
+    }
+    .ui-date-dialog {
+        padding: 12px;
+    }
+    .hcg-select-panel {
+        max-width: calc(100vw - 32px);
+    }
+}
+
+/* Compact date actions preserve the full date at narrow grid widths. */
+.ui-date-field .btn {
+    width: 36px;
+    min-height: 40px;
+    padding: 0;
+    font-size: 21px;
+    flex: 0 0 36px;
+}
+.ui-date-field input {
+    font-size: 14px;
+}
+.ui-date-field .btn[aria-label="پاک‌کردن تاریخ"] {
+    width: 28px;
+    flex-basis: 28px;
+}
+@media (max-width: 575px) {
+    .ui-date-field {
+        flex-wrap: nowrap;
+    }
+    .ui-date-field input {
+        flex-basis: auto;
+    }
+    .ui-date-field .btn {
+        flex: 0 0 36px;
+    }
+}

@@ -16,7 +16,7 @@
 <h2 class="h4 mt-4">تعطیلی یا بازگشایی استثنایی</h2>
 <p>استثنا بر برنامه هفتگی مقدم است. بازه‌های استثنا نباید هم‌پوشانی داشته باشند. برای اصلاح، استثنای قبلی را حذف و دوباره ثبت کنید.</p>
 <form class="border rounded p-3 mb-3" method="post" action="{{ route('schedule.exception') }}">@csrf
-<div class="field-grid"><label>از تاریخ شمسی<input class="form-control" name="start_jalali" value="{{ old('start_jalali',$todayJalali) }}" placeholder="1405-08-01" dir="ltr" required></label><label>تا تاریخ شمسی (شامل این روز)<input class="form-control" name="end_jalali" value="{{ old('end_jalali',$todayJalali) }}" dir="ltr" required></label></div>
+<div class="field-grid"><label>از تاریخ شمسی<input data-persian-date class="form-control" name="start_jalali" value="{{ old('start_jalali',$todayJalali) }}" placeholder="1405-08-01" dir="ltr" required></label><label>تا تاریخ شمسی (شامل این روز)<input data-persian-date class="form-control" name="end_jalali" value="{{ old('end_jalali',$todayJalali) }}" dir="ltr" required></label></div>
 <label class="d-block my-2">نوع استثنا<select class="form-select" name="kind"><option value="closed">تعطیل</option><option value="override">بازگشایی یا ساعات جایگزین</option></select></label>
 <label class="d-block">دلیل داخلی<input class="form-control" name="reason" value="{{ old('reason') }}" maxlength="500" required></label>
 <x-shift-fields/>

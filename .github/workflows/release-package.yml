@@ -121,6 +121,43 @@ jobs:
           fi
           php artisan test --without-tty
 
+      - name: Browser UI regression on isolated synthetic localhost
+        if: steps.detect.outputs.app == 'true'
+        shell: bash
+        env:
+          APP_ENV: local
+          APP_DEBUG: 'false'
+          APP_URL: http://127.0.0.1:18764
+          DB_CONNECTION: sqlite
+          DB_URL: ''
+          SESSION_DRIVER: database
+          SESSION_ENCRYPT: 'true'
+          SESSION_SECURE_COOKIE: 'false'
+          CACHE_STORE: database
+          LOCAL_OTP_PREVIEW: 'true'
+          LOCAL_PAYMENT_SIMULATOR: 'true'
+          ZARINPAL_ENABLED: 'false'
+          EVENT_SMS_ENABLED: 'false'
+          UI_SYNTHETIC_FIXTURE: '1'
+        run: |
+          set -euo pipefail
+          npm install --prefix "$RUNNER_TEMP/ui-browser" --no-save --ignore-scripts --package-lock=false playwright@1.62.1
+          node "$RUNNER_TEMP/ui-browser/node_modules/playwright/cli.js" install --with-deps chromium
+          find public/assets -name '*.js' -print0 | while IFS= read -r -d '' asset; do node --input-type=module --check < "$asset"; done
+          export DB_DATABASE="$RUNNER_TEMP/ui-preview.sqlite"
+          export UI_TEST_ORIGIN="$APP_URL"
+          export UI_TEST_FIXTURE="$RUNNER_TEMP/ui-fixture.json"
+          export UI_TEST_OUTPUT="$RUNNER_TEMP/ui-evidence"
+          export NODE_PATH="$RUNNER_TEMP/ui-browser/node_modules"
+          touch "$DB_DATABASE"
+          php artisan migrate --seed --force
+          php tests/Support/ui-fixture.php > "$UI_TEST_FIXTURE"
+          php artisan serve --host=127.0.0.1 --port=18764 --no-reload > "$RUNNER_TEMP/ui-server.log" 2>&1 &
+          ui_server_pid=$!
+          trap 'kill "$ui_server_pid" 2>/dev/null || true' EXIT
+          for attempt in $(seq 1 30); do if curl -fsS "$APP_URL/login" >/dev/null; then break; fi; sleep 1; done
+          node tests/Browser/ui-controls.cjs
+
       - name: MySQL features, booking/payment/attendance/forms/SMS/discount concurrency, migration rollback
         if: steps.detect.outputs.app == 'true'
         env:

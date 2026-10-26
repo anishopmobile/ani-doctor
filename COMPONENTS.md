@@ -182,3 +182,6 @@ DiscountService (quote/reserve/transition)، ReportService (فیلتر، snapsho
 ## P8
 ابزار توسعه لوکال: LocalPaymentMode، LocalSimulatorGateway، LocalPaymentController/Request و Blade درگاه دو نتیجه‌ای؛ فقط localhost مستقیم با flag صریح، بدون فرم کارت/شبکه بانک. مالکیت nonce نشست، CSRF، provider مستقل و گزارش با هشدار. راه روشن/خاموش و نصب patch در docs/INSTALL-LOCAL.md.
 ProductionGuard و ConfiguredProxies مرز محیط HTTP؛ Operations/ReadinessService، BackupService، PackageVerifier و Infrastructure/EncryptedArchive/MysqlSnapshot/PrivatePaths مسئول عملیات کنسولی‌اند. domain/ProxyAddresses قواعد اعتماد IP را مشترک نگه می‌دارد. هیچ API وب برای بکاپ یا restore وجود ندارد؛ [قرارداد](docs/P8.md).
+
+## کنترل‌های رابط بازطراحی‌شده
+app-navigation، app-shell و content-surface مشترک، تاریخ‌گزین dialog با موتور Pardis و select تک‌انتخابی HCG + companion چندانتخابی اضافه شدند. state اصلی native است؛ AJAX، reset، disabled و فرم شرطی همگام‌اند. جزئیات، منابع و آزمون‌ها در docs/UI-REFRESH.md.

@@ -213,3 +213,6 @@ php artisan serve --host=127.0.0.1 --port=8000
 | PDF یا Excel خراب | gd/mbstring/zip/xml، نوشتن storage و وجود TTF در resources/fonts را بررسی کنید. برای فونت Excel می‌توان Vazirmatn را روی رایانه نمایش‌دهنده نصب کرد؛ در XLSX embed نشده است. |
 
 راهنمای معتبر CA: [cURL TLS certificates](https://curl.se/docs/sslcerts.html). برای تغییر CA در PHP، مسیر واقعی فایل معتبر را در curl.cainfo و openssl.cafile همان php.ini بگذارید و سرور را دوباره اجرا کنید؛ فایل/مسیر تصادفی وارد نکنید.
+
+## بررسی نسخه بازطراحی رابط
+قالب Tabler، select دارای جستجو و تاریخ‌گزین به نسخه کامل اضافه شده‌اند. برای ارتقای نسخه P8، .env، APP_KEY و storage/DB را حفظ کنید؛ فایل‌های جدید app-navigation، ui-controls.js، controls.css و vendor/hcg-select.* نیز باید همراه قالب‌ها کپی شوند. migration یا نصب npm/Composer جدید لازم نیست. پس از کپی، view:clear و route:clear اجرا و مرورگر را refresh کامل کنید تا asset قدیمی cache نشود. روش نصب/تست نسخه شاخه در docs/UI-REFRESH.md مخزن ثبت شده است.
