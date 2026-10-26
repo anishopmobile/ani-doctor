@@ -9,7 +9,7 @@
 @can('desk.book')<a class="app-nav-link {{ request()->routeIs('desk.create') ? 'is-active' : '' }}" href="{{ route('desk.create') }}">نوبت تلفنی / فوری</a>@endcan
 @can('patients.manage')<a class="app-nav-link {{ request()->routeIs('patients.*') ? 'is-active' : '' }}" href="{{ route('patients.index') }}">بیماران و سابقه</a>@endcan
 @endcan
-@canany(['catalog.manage','schedules.manage','booking.settings','reports.appointments','payments.review','forms.manage','discounts.manage','notifications.manage'])<p class="nav-heading">مدیریت و گزارش</p>@endcanany
+@canany(['catalog.manage','schedules.manage','booking.settings','reports.appointments','payments.review','forms.manage','discounts.manage','notifications.manage'])<details class="nav-settings" @if(request()->routeIs('services.*','schedule.*','reports.*','finance*','discounts.*','forms.*','notifications.*','booking.settings*')) open @endif><summary>تنظیمات و گزارش‌ها</summary><div class="nav-settings-links">
 @can('catalog.manage')<a class="app-nav-link {{ request()->routeIs('services.*') ? 'is-active' : '' }}" href="{{ route('services.index') }}">خدمات و تعرفه‌ها</a>@endcan
 @can('schedules.manage')<a class="app-nav-link {{ request()->routeIs('schedule.*') ? 'is-active' : '' }}" href="{{ route('schedule.index') }}">شیفت‌ها و تعطیلات</a>@endcan
 @can('booking.settings')<a class="app-nav-link {{ request()->routeIs('booking.settings*') ? 'is-active' : '' }}" href="{{ route('booking.settings') }}">سیاست رزرو</a>@endcan
@@ -18,4 +18,5 @@
 @can('discounts.manage')<a class="app-nav-link {{ request()->routeIs('discounts.*') ? 'is-active' : '' }}" href="{{ route('discounts.index') }}">تخفیف خدمات</a>@endcan
 @can('forms.manage')<a class="app-nav-link {{ request()->routeIs('forms.*') ? 'is-active' : '' }}" href="{{ route('forms.manage') }}">مدیریت فرم‌های خصوصی</a>@endcan
 @can('notifications.manage')<a class="app-nav-link {{ request()->routeIs('notifications.*') ? 'is-active' : '' }}" href="{{ route('notifications.manage') }}">اعلان‌های پیامکی</a>@endcan
+</div></details>@endcanany
 </nav>

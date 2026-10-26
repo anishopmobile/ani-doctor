@@ -1,4 +1,5 @@
 import { PardisDatepicker } from "./vendor/pardis.js";
+import { jalaliInputValue } from "./date-values.js";
 
 const instances = new Map();
 let sequence = 0;
@@ -237,7 +238,7 @@ function createDateDialog() {
         numeralType: "persian",
         onChange: (payload) => {
             if (seeding || !activeDate || !enabled(activeDate)) return;
-            activeDate.value = payload.iso;
+            activeDate.value = jalaliInputValue(payload);
             notify(activeDate);
             dateDialog.close();
         },

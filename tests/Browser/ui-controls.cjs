@@ -96,6 +96,38 @@ async function main() {
             fullPage: true,
             animations: "disabled",
         });
+        await page.goto(origin + "/management/desk?date=1405-08-05");
+        await ready(page);
+        const deskDate = page.locator("input[name=date]");
+        await deskDate
+            .locator("..")
+            .getByRole("button", { name: /انتخاب تاریخ:/ })
+            .click();
+        await page
+            .locator(
+                '.ui-date-dialog[open] .pardis-day[data-year="1405"][data-month="8"][data-day="5"]',
+            )
+            .click();
+        assert.equal(await deskDate.inputValue(), "1405-08-05");
+        await page
+            .locator("[data-desk-filter]")
+            .getByRole("button", { name: "نمایش", exact: true })
+            .click();
+        await page.waitForLoadState("networkidle");
+        assert.equal(
+            new URL(page.url()).searchParams.get("date"),
+            "1405-08-05",
+        );
+        assert.equal(await page.locator("[data-errors]").count(), 0);
+        checks++;
+        await page.goto(origin + "/management/desk?date=" + fixture.desk_day);
+        await ready(page);
+        assert.equal(await page.locator(".desk-table tbody tr").count(), 3);
+        await page.screenshot({
+            path: path.join(output, "desk-workflow-desktop.png"),
+            fullPage: true,
+            animations: "disabled",
+        });
         for (const url of [
             "/admin",
             "/management/reports",
@@ -130,7 +162,7 @@ async function main() {
             )
             .first()
             .click();
-        assert.match(await from.inputValue(), /^\d{4}-\d{2}-\d{2}$/);
+        assert.match(await from.inputValue(), /^1[34]\d{2}-\d{2}-\d{2}$/);
         assert.equal(await page.locator(".ui-date-dialog[open]").count(), 0);
         checks++;
         const posted = await page
@@ -138,7 +170,13 @@ async function main() {
             .filter({ has: from })
             .evaluate((form) => Object.fromEntries(new FormData(form)));
         assert.equal(posted.kind, "finance");
-        assert.match(posted.from, /^\d{4}-\d{2}-\d{2}$/);
+        assert.match(posted.from, /^1[34]\d{2}-\d{2}-\d{2}$/);
+        checks++;
+        await page
+            .getByRole("button", { name: "نمایش گزارش", exact: true })
+            .click();
+        await page.waitForLoadState("networkidle");
+        assert.equal(await page.locator("[data-errors]").count(), 0);
         checks++;
         const sort = page
             .locator(".hcg-select")
@@ -347,6 +385,23 @@ async function main() {
             )
             .first()
             .click();
+        assert.match(
+            await patient.locator("input[data-persian-date]").inputValue(),
+            /^1[34]\d{2}-\d{2}-\d{2}$/,
+        );
+        await patient.locator("input[name=consent]").check();
+        await patient
+            .locator("form[data-private-form]")
+            .getByRole("button", { name: "ثبت پاسخ خصوصی", exact: true })
+            .click();
+        await patient.locator("#confirm-action [value=confirm]").click();
+        await patient.waitForLoadState("networkidle");
+        assert.equal(await patient.locator("[data-errors]").count(), 0);
+        assert.match(
+            await patient.locator("input[data-persian-date]").inputValue(),
+            /^1[34]\d{2}-\d{2}-\d{2}$/,
+        );
+        checks++;
         await selectSearch(
             patient,
             'select[name="answers[choice]"]',
@@ -362,6 +417,56 @@ async function main() {
             .evaluate((form) => Array.from(new FormData(form).keys()));
         assert.ok(!values.includes("answers[visit_date]"));
         checks++;
+
+        await patient.goto(origin + "/calendar");
+        await ready(patient);
+        const patientStep = patient.locator("[data-patient-step]");
+        assert.equal(await patientStep.isVisible(), false);
+        checks++;
+        await patient.waitForFunction(
+            () =>
+                document
+                    .querySelector("#inline-calendar")
+                    .getAttribute("aria-busy") === "false",
+        );
+        await patient
+            .locator("#inline-calendar .pardis-day.day-available")
+            .first()
+            .click();
+        await patient.locator("#slots button:not([disabled])").first().click();
+        assert.equal(await patientStep.isVisible(), true);
+        assert.equal(await patientStep.isDisabled(), false);
+        checks++;
+        await patient.screenshot({
+            path: path.join(output, "patient-booking-mobile.png"),
+            fullPage: true,
+            animations: "disabled",
+        });
+        await patient
+            .locator("[data-patient-name]")
+            .fill("بیمار ساختگی مسیر کامل");
+        await patient.locator("[data-booking-submit]").click();
+        await patient.waitForURL((url) =>
+            /^\/appointments\/[0-9a-f-]+$/.test(url.pathname),
+        );
+        assert.equal(await patient.locator("[data-errors]").count(), 0);
+        const appointmentUrl = patient.url();
+        checks++;
+        await patient.locator('form[action$="/initiate"] button').click();
+        await patient.waitForURL("**/payments/local-simulator/**");
+        await patient
+            .getByRole("button", { name: "پرداخت موفق آزمایشی", exact: true })
+            .click();
+        await patient.waitForURL("**/payments/zarinpal/callback/**");
+        await patient.goto(appointmentUrl);
+        assert.equal(await patient.locator(".status-confirmed").count(), 1);
+        checks++;
+        await patient.screenshot({
+            path: path.join(output, "patient-confirmed-mobile.png"),
+            fullPage: true,
+            animations: "disabled",
+        });
+
         await patientContext.close();
         const secretaryContext = await browser.newContext({
             viewport: { width: 390, height: 844 },

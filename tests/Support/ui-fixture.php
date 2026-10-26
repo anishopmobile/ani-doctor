@@ -38,4 +38,14 @@ $form = app(App\Modules\DynamicForms\Application\PrivateFormService::class)->pub
         ['key' => 'tags', 'label' => 'انتخاب چند مورد', 'type' => 'multiselect', 'required' => false, 'options' => ['گزینه اول', 'گزینه دوم', 'گزینه سوم']],
     ],
 ]);
-echo json_encode(['synthetic' => true, 'appointment' => $appointment->reference, 'form' => $form], JSON_THROW_ON_ERROR)."\n";
+$deskDay = Carbon\CarbonImmutable::now('Asia/Tehran')->addDay();
+foreach (['بیمار آزمایشی اول','بیمار آزمایشی دوم','بیمار آزمایشی سوم'] as $index => $name) {
+    $guest = new App\Modules\Identity\Domain\BookingActor(null, '0900000000'.($index + 1), [], (string) config('app.key'));
+    app(App\Modules\Booking\Application\BookingService::class)->create($guest, [
+        'service_id' => $service->id, 'expected_price_irr' => $service->price_irr,
+        'start_at' => $deskDay->setTime(9 + $index, 0)->utc()->toIso8601String(),
+        'patient_name' => $name, 'contact_mobile' => '0900000000'.($index + 1),
+        'idempotency_key' => (string) Illuminate\Support\Str::uuid(),
+    ]);
+}
+echo json_encode(['synthetic' => true, 'appointment' => $appointment->reference, 'form' => $form, 'desk_day' => app(App\Modules\Scheduling\Application\JalaliDate::class)->format($deskDay)], JSON_THROW_ON_ERROR)."\n";

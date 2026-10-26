@@ -6,11 +6,11 @@
 <link rel="stylesheet" href="{{ asset('assets/vendor/tabler.rtl.min.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/vendor/hcg-select.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/vendor/pardis.css') }}">
-<link rel="stylesheet" href="{{ asset('assets/app.css') }}">
+<link rel="stylesheet" href="{{ asset('assets/app.css') }}?v=20261027-ux2">
 <link rel="stylesheet" href="{{ asset('assets/controls.css') }}">
 <script src="{{ asset('assets/vendor/hcg-select.js') }}" defer></script>
 <script src="{{ asset('assets/auth.js') }}" defer></script>
-<script type="module" src="{{ asset('assets/ui-controls.js') }}"></script>
+<script type="module" src="{{ asset('assets/ui-controls.js') }}?v=20261027-ux2"></script>
 @stack('assets')
 </head>
 <body class="app-body {{ request()->routeIs('login') ? 'is-login' : '' }}">
