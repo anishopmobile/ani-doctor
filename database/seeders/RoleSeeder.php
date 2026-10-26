@@ -16,6 +16,9 @@ final class RoleSeeder extends Seeder
                 'admin' => ['payments.settings', 'payments.review', 'refunds.manage'],
                 default => [],
             });
+            if (in_array($name, ['secretary', 'admin'], true)) {
+                $permissions = array_merge($permissions, ['desk.view', 'desk.book', 'appointments.urgent', 'attendance.manage', 'patients.manage']);
+            }
             $role = Role::firstOrCreate(['name' => $name]);
             $role->permissions()->sync(array_map(fn ($permission) => Permission::firstOrCreate(['name' => $permission])->id, $permissions));
         }

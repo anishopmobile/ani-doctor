@@ -158,3 +158,8 @@
 - [SMS.ir PHP SDK](https://github.com/IPeCompany/smsir-php)
 - [Zarinpal documentation](https://www.zarinpal.com/docs/)
 - [Tabler](https://tabler.io/)
+
+
+## افزوده P5
+
+P5 پیاده‌سازی‌شده در شاخه مستقل: داشبورد عملیاتی، سابقه شخصی، بیمار پایه، نوبت تلفنی/فوری و حضور؛ گزارش درآمد/خروجی P7 و فرم پزشکی/پیامک P6 در این تغییر نیستند. معیارها و شواهد: docs/P5.md و docs/P5-VALIDATION.md.

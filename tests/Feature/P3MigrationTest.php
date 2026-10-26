@@ -13,7 +13,8 @@ final class P3MigrationTest extends TestCase
     public function test_rollback_of_p3_and_reapply_preserve_p1_and_p2_records(): void
     {
         $this->artisan('migrate:fresh', ['--force' => true])->assertSuccessful();
-        // Isolate the historic P3 rollback now that P4 is the newest migration.
+        // Remove P5 and P4 before testing the historic P3 rollback contract.
+        $this->artisan('migrate:rollback', ['--step' => 1,'--force' => true])->assertSuccessful();
         $this->artisan('migrate:rollback', ['--step' => 1,'--force' => true])->assertSuccessful();
         $user = User::create(['mobile' => '09120000000']);
         $patient = Patient::create(['name' => 'بیمار آزمایشی قبلی']);

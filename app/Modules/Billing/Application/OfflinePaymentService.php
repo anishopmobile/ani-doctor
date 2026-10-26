@@ -56,14 +56,10 @@ final class OfflinePaymentService
         }
         return DB::transaction(function () use ($actor, $snapshot, $amount, $receipt, $reason, $method): Appointment {
             $appointment = $this->booking->lock($snapshot);
-            $prior = DB::table('payments')->where('provider', 'clinic')->where('provider_reference', $receipt)->lockForUpdate()->first();
-            if ($prior) {
-                if ((int) $prior->appointment_id !== $appointment->id || (int) $prior->amount_irr !== $amount || (int) $prior->actor_id !== $actor->userId || $prior->reason !== $method.': '.$reason) {
-                    throw new BookingFailure('IDEMPOTENCY_CONFLICT');
-                }
+            if ($this->replayReceipt($actor, $appointment, $amount, $receipt, $reason, $method)) {
                 return $appointment;
             }
-            if ($appointment->status !== 'confirmed' || $appointment->payment_status !== 'unpaid' || $amount !== (int) $appointment->balance_due_irr || $amount <= 0) {
+            if (!in_array($appointment->status, ['confirmed', 'completed', 'no_show'], true) || $appointment->payment_status !== 'unpaid' || $amount !== (int) $appointment->balance_due_irr || $amount <= 0) {
                 throw new BookingFailure('INVALID_STATE');
             }
             DB::table('payments')->insert(['appointment_id' => $appointment->id, 'provider' => 'clinic', 'provider_reference' => $receipt, 'amount_irr' => $amount, 'credit_irr' => 0, 'allocated' => true, 'actor_id' => $actor->userId, 'reason' => $method.': '.$reason, 'created_at' => now()]);
@@ -71,5 +67,37 @@ final class OfflinePaymentService
             app(AuditService::class)->record('payment.clinic', $actor->userId, 'appointment', (string) $appointment->id, ['balance_due_irr' => $amount], ['amount_irr' => $amount, 'method' => $method, 'receipt' => $receipt], $reason);
             return $appointment;
         }, 3);
+    }
+    public function confirmCollectedHold(BookingActor $actor, Appointment $snapshot, int $amount, string $receipt, string $reason, string $method): Appointment
+    {
+        if (!$actor->userId || !$actor->can('payments.collect')) {
+            throw new BookingFailure('FORBIDDEN', 403);
+        }
+        return DB::transaction(function () use ($actor, $snapshot, $amount, $receipt, $reason, $method): Appointment {
+            $appointment = $this->booking->lock($snapshot);
+            app(BookingService::class)->authorize($actor, $appointment);
+            if ($this->replayReceipt($actor, $appointment, $amount, $receipt, $reason, $method)) {
+                return $appointment;
+            }
+            if ($amount !== $appointment->price_irr || $amount < 0 || !$this->booking->confirmable($appointment)) {
+                throw new BookingFailure('INVALID_STATE');
+            }
+            $this->finance->assertEditable($appointment);
+            DB::table('payments')->insert(['appointment_id' => $appointment->id, 'provider' => 'clinic', 'provider_reference' => $receipt, 'amount_irr' => $amount, 'credit_irr' => 0, 'allocated' => true, 'actor_id' => $actor->userId, 'reason' => $method.': '.$reason, 'created_at' => now()]);
+            $this->booking->confirm($appointment, 'paid', 0, $actor->userId, $reason, $actor->key);
+            app(AuditService::class)->record('payment.clinic', $actor->userId, 'appointment', (string) $appointment->id, ['balance_due_irr' => $amount], ['amount_irr' => $amount, 'method' => $method, 'receipt' => $receipt], $reason);
+            return $appointment;
+        }, 3);
+    }
+    private function replayReceipt(BookingActor $actor, Appointment $appointment, int $amount, string $receipt, string $reason, string $method): bool
+    {
+        $prior = DB::table('payments')->where('provider', 'clinic')->where('provider_reference', $receipt)->lockForUpdate()->first();
+        if (!$prior) {
+            return false;
+        }
+        if ((int) $prior->appointment_id !== $appointment->id || (int) $prior->amount_irr !== $amount || (int) $prior->actor_id !== $actor->userId || $prior->reason !== $method.': '.$reason) {
+            throw new BookingFailure('IDEMPOTENCY_CONFLICT');
+        }
+        return true;
     }
 }

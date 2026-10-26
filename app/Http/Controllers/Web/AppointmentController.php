@@ -32,7 +32,9 @@ final class AppointmentController extends Controller
         $attempts = \App\Modules\Payments\Infrastructure\PaymentAttempt::where('appointment_id', $appointment->id)->orderByDesc('id')->limit(20)->get();
         $emergency = \Illuminate\Support\Facades\DB::table('payment_settings')->where('id', 1)->value('emergency_until');
         $emergencyActive = $emergency && now()->lessThan($emergency);
-        return view('booking.show', compact('appointment', 'actor', 'jalali', 'wallet', 'attempts', 'emergencyActive'));
+        $attendanceActions = $actor->can('attendance.manage') ? app(\App\Modules\Booking\Application\AttendanceService::class)->actions($appointment) : [];
+        $attendanceEvents = $actor->can('attendance.manage') ? \Illuminate\Support\Facades\DB::table('attendance_events')->where('appointment_id', $appointment->id)->orderByDesc('id')->limit(50)->get() : collect();
+        return view('booking.show', compact('appointment', 'actor', 'jalali', 'wallet', 'attempts', 'emergencyActive', 'attendanceActions', 'attendanceEvents'));
     }
     public function store(BookingRequest $request, BookingService $bookings)
     {

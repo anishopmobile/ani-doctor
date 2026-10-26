@@ -21,7 +21,7 @@ trait BookingFixtures
     }
     protected function bookingActor(User $user): BookingActor
     {
-        return new BookingActor($user->id, $user->mobile, array_values(array_filter(['appointments.manage','appointments.override_capacity','appointments.override_window','booking.settings'], fn ($p) => $user->hasPermission($p))), (string)config('app.key'));
+        return new BookingActor($user->id, $user->mobile, array_values(array_filter(['appointments.manage','appointments.override_capacity','appointments.override_window','booking.settings', 'desk.view', 'desk.book', 'appointments.urgent', 'attendance.manage', 'patients.manage', 'payments.collect', 'payments.settings', 'refunds.manage', 'payments.review'], fn ($p) => $user->hasPermission($p))), (string)config('app.key'));
     }
     protected function bookingServiceFixture(User $operator): Service
     {

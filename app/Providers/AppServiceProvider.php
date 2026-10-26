@@ -47,12 +47,13 @@ class AppServiceProvider extends ServiceProvider
             return [Limit::perMinute(10)->by('ip:'.$request->ip()), Limit::perHour(5)->by('mobile:'.$key)];
         });
         RateLimiter::for('otp-verify', fn (Request $request) => Limit::perMinute(20)->by('verify:'.$request->ip()));
-        foreach (['catalog.manage', 'schedules.manage', 'schedules.settings', 'appointments.manage', 'booking.settings', 'payments.settings', 'payments.collect', 'refunds.manage', 'payments.review'] as $permission) {
+        foreach (['catalog.manage', 'schedules.manage', 'schedules.settings', 'appointments.manage', 'appointments.override_capacity', 'appointments.override_window', 'booking.settings', 'payments.settings', 'payments.collect', 'refunds.manage', 'payments.review', 'desk.view', 'desk.book', 'appointments.urgent', 'attendance.manage', 'patients.manage'] as $permission) {
             Gate::define($permission, fn (User $user) => $user->hasPermission($permission));
         }
         RateLimiter::for('calendar', fn (Request $request) => Limit::perMinute(60)->by('calendar:'.$request->ip()));
         RateLimiter::for('booking', fn (Request $request) => Limit::perMinute(20)->by('booking:'.$request->ip()));
         RateLimiter::for('payments', fn (Request $request) => Limit::perMinute(20)->by('payments:'.$request->ip()));
         RateLimiter::for('payment-callback', fn (Request $request) => Limit::perMinute(60)->by('callback:'.$request->ip()));
+        RateLimiter::for('desk', fn (Request $request) => Limit::perMinute(60)->by('desk:'.($request->user()?->id ?? $request->ip())));
     }
 }
