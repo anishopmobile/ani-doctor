@@ -14,7 +14,7 @@ use Illuminate\Support\Str;
 
 final class BookingService
 {
-    public function __construct(private readonly BookingLocks $locks, private readonly AvailabilityService $availability, private readonly BookingPatientService $patients)
+    public function __construct(private readonly BookingLocks $locks, private readonly AvailabilityService $availability, private readonly BookingPatientService $patients, private readonly \App\Modules\Booking\Domain\BookingFinanceInterface $finance)
     {
     }
 
@@ -52,7 +52,7 @@ final class BookingService
                 'duration_minutes' => $service->duration_minutes,'buffer_minutes' => $service->buffer_minutes,
                 'capacity_limit' => $slot['capacity_limit'],'local_date' => $date,'start_at' => $start,
                 'end_at' => $start->addMinutes($service->duration_minutes),'occupied_until' => $start->addMinutes($service->duration_minutes + $service->buffer_minutes),
-                'status' => 'pending_payment','payment_status' => 'unpaid','hold_expires_at' => now()->addMinutes($settings->hold_minutes),
+                'status' => 'pending_payment','payment_status' => 'unpaid','balance_due_irr' => $service->price_irr,'hold_expires_at' => now()->addMinutes($settings->hold_minutes),
                 'channel' => $actor->staff() ? 'secretary' : ($actor->userId ? 'user' : 'guest'),
                 'is_override' => !empty($data['override_capacity']),'override_reason' => $data['reason'] ?? null,'created_by' => $actor->userId,'version' => 1,
             ]);
@@ -101,12 +101,10 @@ final class BookingService
                     }
                 }
                 if ($action === 'cancel') {
-                    // Financial settlement is a P4 prerequisite; never invent a wallet credit here.
-                    if ($appointment->payment_status !== 'unpaid') {
-                        throw new BookingFailure('FINANCIAL_SETTLEMENT_REQUIRED');
-                    }
+                    $this->finance->cancel($appointment);
                     $appointment->status = 'cancelled';
                 } elseif ($action === 'reschedule') {
+                    $this->finance->assertEditable($appointment);
                     if (!$service || !$service->is_active || (!$actor->staff() && !$service->is_online)) {
                         throw new BookingFailure('SERVICE_UNAVAILABLE');
                     }
@@ -149,6 +147,7 @@ final class BookingService
                 return;
             }
             $before = $this->state($appointment);
+            $this->finance->expire($appointment);
             $appointment->status = 'expired';
             $appointment->version++;
             $appointment->save();

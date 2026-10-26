@@ -37,6 +37,7 @@ P2 فقط preview و مدیریت برنامه دارد؛ قفل استثناه�
 - تغییر زمان، خدمت یا قیمت بعد از آغاز پرداخت فقط با نسخه‌بندی quote و تشخیص stale request.
 
 ## 5. امنیت پرداخت و کیف اعتبار
+کنترل‌های اجرایی P4، استثنای محدود CSRF callback، خطاهای مالی بدون SQL/secret، snapshot رمزگذاری‌شده merchant، current read، قیود رسید/ledger و مجوز مدیر/منشی در [docs/P4.md](docs/P4.md) و شواهد آزمون در [P4-VALIDATION](docs/P4-VALIDATION.md) هستند. وضعیت مالی `credited` برای برگشت لغو استفاده می‌شود؛ مغایرت در جدول مستقل است. حساب/اعتبار با HMAC شماره رزروکننده مرتبط است و APP_KEY باید پایدار و محفوظ بماند. callback query نباید در access log/analytics ثبت شود. استرداد بانکی دستی نیازمند تطبیق سند واقعی و مالکیت مقصد در فرایند امن مطب است؛ ثبت سند، تأیید خودکار بانک نیست.
 - کل مبلغ باید پیش از تأیید آنلاین پرداخت شود؛ فقط fallback فعال مدیر اجازه confirmed-unpaid می‌دهد.
 - gateway token و Merchant ID محرمانه؛ callback/redirect کاربر **دلیل قطعی پرداخت نیست**. verify و query سمت backend انجام شود.
 - هر provider reference باید unique و idempotent باشد؛ attempt/transaction برای retry مجزا ولی به یک رزرو مرتبط است.

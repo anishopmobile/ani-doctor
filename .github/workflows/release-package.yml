@@ -121,7 +121,7 @@ jobs:
           fi
           php artisan test --without-tty
 
-      - name: MySQL feature tests, booking and identity concurrency, migration rollback
+      - name: MySQL features, payment callbacks and wallet concurrency, migration rollback
         if: steps.detect.outputs.app == 'true'
         env:
           APP_ENV: testing
@@ -187,7 +187,7 @@ jobs:
 
           cat > "$stage/INSTALL.txt" <<'EOF'
           ANI DOCTOR - secure Laravel deployment
-          P3 foundation: identity, services, scheduling and temporary booking lifecycle; payment confirmation is not implemented.
+          P4: verified payments, atomic booking settlement, wallet credit, manual refund workflow and time-limited emergency debt. Gateway defaults to disabled. No live payment or deployment certification.
           1. Extract outside public_html; point domain DocumentRoot to public/.
           2. Create production .env on server from .env.example; never reuse CI keys.
           3. Configure production APP_KEY, database, gateways and SMS credentials on server.

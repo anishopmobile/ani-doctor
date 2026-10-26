@@ -2,6 +2,7 @@
 **نسخه:** 1.0.0 · **مخزن:** https://github.com/anishopmobile/ani-doctor
 
 ## 1. وضعیت کنونی و محدودیت صریح
+در شاخه P4 پرداخت/اعتبار و استرداد دستی اضافه شده است؛ قبل از فعال‌سازی [docs/P4.md](docs/P4.md) و [گزارش واقعی](docs/P4-VALIDATION.md) خوانده شوند. پس از بکاپ/بازبینی migration مالی و RoleSeeder اجرا و scheduler برای booking:expire-holds و payments:reconcile فعال شود. ZARINPAL_ENABLED پیش‌فرض false است؛ merchant، محیط، پایه HTTPS ثابت callback و CA معتبر PHP/cURL فقط روی سرور تنظیم شوند. APP_KEY قبلی حفظ شود؛ merchantهای snapshot رمزگذاری‌شده و HMAC مالکیت به آن وابسته‌اند. Queryهای callback از access log و analytics حذف شوند. rollback P4 داده مالی را حذف می‌کند و بدون بازیابی هماهنگ بکاپ مجاز عملیاتی نیست؛ موفقیت تست rollback گواهی بازیابی واقعی پول/بکاپ نیست. استقرار و انتقال واقعی وجه صرفاً با شواهد مستقل تأیید شوند.
 در P3 باید migration رزرو و RoleSeeder بررسی و اجرا و booking:expire-holds توسط Scheduler اجرا شود. نسخه کد و DB باید هماهنگ باشند. این بسته هنوز تأیید پرداخت آنلاین یا انتشار عمومی نیست. [راهنمای P3](docs/P3.md).
 
 در شاخه P2 بسته شامل خدمات، برنامه کاری و preview تقویم هم هست؛ ارتقا نیازمند migration و RoleSeeder و extension Intl است. رزرو و پرداخت همچنان وجود ندارند. [راهنمای P2](docs/P2.md).

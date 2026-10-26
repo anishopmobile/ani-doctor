@@ -10,7 +10,7 @@ final class Appointment extends Model
     protected $hidden = ['booker_mobile_hash','override_reason'];
     protected function casts(): array
     {
-        return ['start_at' => 'immutable_datetime','end_at' => 'immutable_datetime','occupied_until' => 'immutable_datetime','hold_expires_at' => 'immutable_datetime','is_override' => 'boolean','price_irr' => 'integer','version' => 'integer'];
+        return ['start_at' => 'immutable_datetime','end_at' => 'immutable_datetime','occupied_until' => 'immutable_datetime','hold_expires_at' => 'immutable_datetime','is_override' => 'boolean','price_irr' => 'integer','balance_due_irr' => 'integer','version' => 'integer'];
     }
     public function getRouteKeyName(): string
     {
