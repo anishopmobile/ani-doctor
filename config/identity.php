@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'local_otp_preview' => env('LOCAL_OTP_PREVIEW', false),
     'otp_ttl_seconds' => 120,
     'resend_seconds' => 60,
     'max_attempts' => 5,

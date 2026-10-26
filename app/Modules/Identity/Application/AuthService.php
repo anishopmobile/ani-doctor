@@ -14,11 +14,11 @@ use Illuminate\Support\Str;
 
 final class AuthService
 {
-    public function __construct(private readonly SmsProviderInterface $sms)
+    public function __construct(private readonly SmsProviderInterface $sms, private readonly LocalOtpPreview $preview)
     {
     }
 
-    /** @return array{id: string, expires_at: string, retry_after: int} */
+    /** @return array{id: string, expires_at: string, retry_after: int, preview_code?: string} */
     public function requestCode(string $mobile, string $purpose): array
     {
         if (!MobileNumber::isValid($mobile) || !in_array($purpose, ['login', 'guest'], true)) {
@@ -42,8 +42,11 @@ final class AuthService
 
         // Network calls stay outside database locks. Never report provider exceptions:
         // their request/response bodies may contain the OTP or API key.
+        $preview = $this->preview->enabled();
         try {
-            $this->sms->sendOtp($mobile, $code);
+            if (!$preview) {
+                $this->sms->sendOtp($mobile, $code);
+            }
         } catch (\Throwable) {
             OtpChallenge::whereKey($mobile)->where('challenge_id', $challenge->challenge_id)
                 ->update(['status' => 'failed', 'code_hash' => null]);
@@ -52,7 +55,11 @@ final class AuthService
         OtpChallenge::whereKey($mobile)->where('challenge_id', $challenge->challenge_id)->where('status', 'sending')
             ->update(['status' => 'sent']);
 
-        return ['id' => $challenge->challenge_id, 'expires_at' => $challenge->expires_at->toIso8601String(), 'retry_after' => config('identity.resend_seconds')];
+        $result = ['id' => $challenge->challenge_id, 'expires_at' => $challenge->expires_at->toIso8601String(), 'retry_after' => config('identity.resend_seconds')];
+        if ($preview) {
+            $result['preview_code'] = $code;
+        }
+        return $result;
     }
 
     public function verify(string $mobile, string $challengeId, string $purpose, #[\SensitiveParameter] string $code): ?User

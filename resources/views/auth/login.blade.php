@@ -1,7 +1,14 @@
 @extends('layouts.app')
 @section('content')
 <h1 class="h3 mb-3">ورود با شماره موبایل</h1>
+@if($localOtpPreview)
+<div class="alert alert-warning" role="status">حالت آزمایشی لوکال فعال است؛ پیامک ارسال نمی‌شود. فقط از داده ساختگی استفاده کنید.</div>
+@if(session('local_otp_code'))
+<p class="alert alert-info" role="status">کد آزمایشی این درخواست: <strong dir="ltr">{{ session('local_otp_code') }}</strong> — اعتبار دو دقیقه؛ پس از بازخوانی صفحه دوباره نمایش داده نمی‌شود.</p>
+@endif
+@else
 <p class="text-secondary">کد تأیید برای شماره شما پیامک می‌شود.</p>
+@endif
 <form method="post" action="{{ route('otp.request') }}" data-submit-message="در حال ارسال کد…">
     @csrf
     <div class="mb-3">
