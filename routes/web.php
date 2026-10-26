@@ -47,6 +47,8 @@ Route::middleware(['auth', \App\Http\Middleware\VerifiedBooker::class, 'throttle
     Route::put('/management/patients/{patient}', [\App\Http\Controllers\Secretary\PatientDirectoryController::class, 'save'])->middleware('can:patients.manage')->name('patients.update');
 });
 Route::match(['GET', 'POST'], '/payments/zarinpal/callback/{reference}', [\App\Http\Controllers\Web\PaymentController::class, 'callback'])->whereUuid('reference')->middleware('throttle:payment-callback')->name('payments.callback');
+Route::get('/payments/local-simulator/{authority}', [\App\Http\Controllers\Web\LocalPaymentController::class, 'show'])->where('authority', 'SLOCAL[a-f0-9]{30}')->middleware('throttle:payments')->name('payments.local.show');
+Route::post('/payments/local-simulator/{authority}', [\App\Http\Controllers\Web\LocalPaymentController::class, 'submit'])->where('authority', 'SLOCAL[a-f0-9]{30}')->middleware('throttle:payments')->name('payments.local.submit');
 Route::middleware([\App\Http\Middleware\VerifiedBooker::class, 'throttle:payments'])->group(function (): void {
     Route::get('/wallet', [\App\Http\Controllers\Web\WalletController::class, 'index'])->name('wallet');
     Route::post('/wallet/refunds', [\App\Http\Controllers\Web\WalletController::class, 'refund'])->defaults('finance_action', 'refund')->name('wallet.refund');

@@ -17,6 +17,7 @@
 <a class="visually-hidden-focusable" href="#main">رفتن به محتوای اصلی</a>
 <header class="site-header"><div class="container"><a href="{{ route('calendar') }}" class="brand">آنی دکتر</a><nav class="d-flex gap-3 flex-wrap" aria-label="دسترسی اصلی"><a href="{{ route('calendar') }}">تقویم خدمات</a><a href="{{ route('dashboard') }}">حساب من</a><a href="{{ route('appointments.index') }}">نوبت‌ها</a>@can('booking.settings')<a href="{{ route('booking.settings') }}">سیاست رزرو</a>@endcan @can('catalog.manage')<a href="{{ route('services.index') }}">خدمات</a>@endcan @can('schedules.manage')<a href="{{ route('schedule.index') }}">برنامه کاری</a>@endcan</nav></div></header>
 <main id="main" class="container py-4">
+    @if(app(\App\Modules\Payments\Application\LocalPaymentMode::class)->enabled())<p class="alert alert-warning" role="status">درگاه آزمایشی لوکال فعال است؛ پرداخت‌ها و اعتبار حاصل از آن ساختگی‌اند و هیچ وجهی دریافت نمی‌شود. این داده‌ها را به هاست واقعی منتقل نکنید.</p>@endif
     @can('reports.appointments')<a class="d-inline-block mb-3 me-3" href="{{ route('reports.index') }}">گزارش‌ها و خروجی</a>@endcan
     @can('discounts.manage')<a class="d-inline-block mb-3" href="{{ route('discounts.index') }}">تخفیف خدمات</a>@endcan
     @can('forms.manage')<a class="d-inline-block mb-3 me-3" href="{{ route('forms.manage') }}">مدیریت فرم‌های خصوصی</a>@endcan

@@ -10,13 +10,14 @@ use App\Modules\Identity\Domain\BookingActor;
 use App\Modules\Payments\Domain\GatewayVerification;
 use App\Modules\Payments\Domain\PaymentGatewayInterface;
 use App\Modules\Payments\Infrastructure\PaymentAttempt;
+use App\Modules\Payments\Infrastructure\LocalSimulatorGateway;
 use App\Modules\Wallet\Application\WalletService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 final class PaymentService
 {
-    public function __construct(private readonly FinancialBookingService $booking, private readonly WalletService $wallet, private readonly PaymentGatewayInterface $gateway)
+    public function __construct(private readonly FinancialBookingService $booking, private readonly WalletService $wallet, private readonly PaymentGatewayInterface $gateway, private readonly LocalPaymentMode $localMode, private readonly LocalSimulatorGateway $simulator)
     {
     }
     public function initiate(BookingActor $actor, Appointment $snapshot, array $data): PaymentAttempt
@@ -47,8 +48,9 @@ final class PaymentService
                 throw new BookingFailure('FORBIDDEN', 403);
             }
             $amount = $appointment->price_irr - $credit;
-            $settings = config('payments.zarinpal');
-            if ($amount > 0 && (!$settings['enabled'] || !Str::isUuid((string) $settings['merchant_id']) || !filter_var($settings['callback_url'], FILTER_VALIDATE_URL) || parse_url($settings['callback_url'], PHP_URL_SCHEME) !== 'https')) {
+            $local = $this->localMode->enabled();
+            $settings = $local ? $this->localMode->settings() : config('payments.zarinpal');
+            if ($amount > 0 && !$local && (!$settings['enabled'] || !Str::isUuid((string) $settings['merchant_id']) || !filter_var($settings['callback_url'], FILTER_VALIDATE_URL) || parse_url($settings['callback_url'], PHP_URL_SCHEME) !== 'https')) {
                 throw new BookingFailure('GATEWAY_DISABLED', 503);
             }
             $this->wallet->reserve($appointment->booker_mobile_hash, $credit);
@@ -58,6 +60,7 @@ final class PaymentService
                 'amount_irr' => $amount, 'credit_irr' => $credit, 'credit_reserved' => $credit > 0,
                 'merchant_secret' => $amount > 0 ? $settings['merchant_id'] : null, 'sandbox' => $settings['sandbox'],
                 'hold_expires_at' => $appointment->hold_expires_at, 'state' => 'requesting',
+                'provider' => $local ? 'local_simulator' : 'zarinpal',
             ]);
             return [$attempt, true];
         }, 3);
@@ -72,8 +75,9 @@ final class PaymentService
         }
         // Neither request nor verify is retried by the HTTP client under a database lock.
         try {
-            $callback = rtrim(config('payments.zarinpal.callback_url'), '/').'/'.$attempt->reference;
-            $authority = $this->gateway->createPayment($attempt->amount_irr, $callback, $attempt->merchant_secret, $attempt->sandbox);
+            $base = $attempt->provider === 'local_simulator' ? $this->localMode->settings()['callback_url'] : config('payments.zarinpal.callback_url');
+            $callback = rtrim($base, '/').'/'.$attempt->reference;
+            $authority = $this->gatewayFor($attempt)->createPayment($attempt->amount_irr, $callback, $attempt->merchant_secret, $attempt->sandbox);
             DB::transaction(function () use ($attempt, $authority): void {
                 $current = PaymentAttempt::whereKey($attempt->id)->lockForUpdate()->firstOrFail();
                 $current->forceFill(['authority' => $authority, 'state' => 'redirected'])->save();
@@ -101,14 +105,15 @@ final class PaymentService
             throw new BookingFailure('GATEWAY_UNCERTAIN', 503);
         }
         try {
-            $verification = $verifyFirst ? $this->gateway->verifyPayment($attempt->amount_irr, $attempt->authority, $attempt->merchant_secret, $attempt->sandbox) : new GatewayVerification(false);
+            $gateway = $this->gatewayFor($attempt);
+            $verification = $verifyFirst ? $gateway->verifyPayment($attempt->amount_irr, $attempt->authority, $attempt->merchant_secret, $attempt->sandbox) : new GatewayVerification(false);
             if ($verification->paid) {
                 return $this->settle($attempt, $verification);
             }
-            $status = $this->gateway->queryPayment($attempt->authority, $attempt->merchant_secret, $attempt->sandbox);
+            $status = $gateway->queryPayment($attempt->authority, $attempt->merchant_secret, $attempt->sandbox);
             if (in_array($status, ['PAID', 'VERIFIED'], true)) {
                 // Inquiry is never proof of payment: verify must yield a valid reference.
-                $verification = $this->gateway->verifyPayment($attempt->amount_irr, $attempt->authority, $attempt->merchant_secret, $attempt->sandbox);
+                $verification = $gateway->verifyPayment($attempt->amount_irr, $attempt->authority, $attempt->merchant_secret, $attempt->sandbox);
                 if ($verification->paid) {
                     return $this->settle($attempt, $verification);
                 }
@@ -124,6 +129,9 @@ final class PaymentService
     }
     public function settle(PaymentAttempt $snapshot, GatewayVerification $verification): PaymentAttempt
     {
+        if ($snapshot->provider === 'local_simulator' && !$this->localMode->enabled()) {
+            throw new BookingFailure('PAYMENT_NOT_FOUND', 404);
+        }
         if (!$verification->paid || !$verification->reference) {
             throw new BookingFailure('GATEWAY_UNCERTAIN', 503);
         }
@@ -134,7 +142,7 @@ final class PaymentService
             if (in_array($attempt->state, ['settled', 'credited'], true)) {
                 return $attempt;
             }
-            $provider = $attempt->amount_irr > 0 ? 'zarinpal' : 'wallet';
+            $provider = $attempt->amount_irr > 0 ? $attempt->provider : 'wallet';
             $duplicate = DB::table('payments')->where('provider', $provider)->where('provider_reference', $verification->reference)->lockForUpdate()->first();
             if ($duplicate) {
                 $attempt->state = 'uncertain';
@@ -154,7 +162,7 @@ final class PaymentService
             }
             DB::table('payments')->insert(['appointment_id' => $appointment->id, 'payment_attempt_id' => $attempt->id, 'provider' => $provider, 'provider_reference' => $verification->reference, 'amount_irr' => $attempt->amount_irr, 'credit_irr' => $allocated ? $attempt->credit_irr : 0, 'allocated' => $allocated, 'created_at' => now()]);
             if ($allocated) {
-                $this->booking->confirm($appointment, 'paid', 0, null, 'تسویه کامل تأییدشده');
+                $this->booking->confirm($appointment, 'paid', 0, null, $attempt->provider === 'local_simulator' ? 'تسویه آزمایشی لوکال؛ بدون دریافت وجه واقعی' : 'تسویه کامل تأییدشده');
             } else {
                 if ($attempt->amount_irr > 0) {
                     $this->wallet->entry($attempt->owner_hash, $attempt->amount_irr, 'late:'.$attempt->id, 'unallocated_payment', $appointment->id);
@@ -185,6 +193,11 @@ final class PaymentService
     }
     public function redirect(PaymentAttempt $attempt): ?string
     {
-        return $attempt->state === 'redirected' && $attempt->hold_expires_at->isFuture() && $attempt->authority ? $this->gateway->redirectUrl($attempt->authority, $attempt->sandbox) : null;
+        return $attempt->state === 'redirected' && $attempt->hold_expires_at->isFuture() && $attempt->authority ? $this->gatewayFor($attempt)->redirectUrl($attempt->authority, $attempt->sandbox) : null;
+    }
+    private function gatewayFor(PaymentAttempt $attempt): PaymentGatewayInterface
+    {
+        // Persisted provider identity prevents a mode switch from verifying real attempts locally.
+        return $attempt->provider === 'local_simulator' ? $this->simulator : $this->gateway;
     }
 }

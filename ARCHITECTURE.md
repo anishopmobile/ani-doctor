@@ -170,4 +170,5 @@ DynamicForms مالک انتشار نسخه و پاسخ رمزگذاری‌شد�
 Billing/DiscountService قفل سهمیه و snapshot قیمت را در تراکنش Booking نگه می‌دارد؛ Reporting گزارش read transaction و خروجی حافظه‌ای می‌سازد. قفل کد بعد از بیمار/روز است و هیچ نوبت دیگر زیر قفل کد گرفته نمی‌شود. مهاجرت، معادله تطبیق و rollback: [docs/P7.md](docs/P7.md).
 
 ## P8 Operations
+ابزار توسعه محلی پرداخت: LocalPaymentMode مرز local/loopback را کنترل می‌کند؛ LocalSimulatorGateway adapter مستقلی پشت PaymentGatewayInterface است. PaymentService براساس provider ذخیره‌شده هر attempt، بین adapter واقعی و شبیه‌سازی انتخاب می‌کند؛ schema و وابستگی جدیدی ندارد. وضعیت یک‌روزه شبیه‌ساز در cache مشترک و تصمیم زیر lock؛ نبود cache به unknown می‌رود. Controller فقط نمایش و فراخوانی adapter را هماهنگ می‌کند و settlement اصلی دست‌نخورده از حیث قفل/idempotency است.
 ماژول Operations مسئول readiness کنسولی، بکاپ و restore جدا و کنترل بسته است؛ بدون migration یا route مدیریت جدید. فایل بکاپ/کلید/runtime وارد ZIP نمی‌شوند؛ رمزنگاری در Infrastructure و use case در Application است. [قرارداد و محدودیت‌ها](docs/P8.md).
