@@ -31,7 +31,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
 
@@ -68,7 +68,7 @@ jobs:
 
       - name: Set up PHP 8.4 and Composer
         if: steps.detect.outputs.app == 'true'
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@d52fc211a0436f8839a587b3b5b8efddab4744ea # v2
         with:
           php-version: '8.4'
           extensions: mbstring, curl, dom, fileinfo, pdo_mysql, pdo_sqlite, xml, bcmath, intl, zip, gd
@@ -99,7 +99,7 @@ jobs:
         if: steps.detect.outputs.app == 'true'
         run: |
           vendor/bin/pint --test
-          find app bootstrap config database routes tests lang -name '*.php' -print0 | xargs -0 -n1 php -l
+          find app bootstrap config database routes tests lang scripts -name '*.php' -print0 | xargs -0 -n1 php -l
 
       - name: Run automated PHP tests
         if: steps.detect.outputs.app == 'true'
@@ -166,7 +166,7 @@ jobs:
           set -euo pipefail
           stage="$RUNNER_TEMP/ani-doctor-host-ready"
           mkdir -p "$stage"
-          for item in app bootstrap config database lang public resources routes artisan composer.json composer.lock .env.example vendor DEPLOYMENT.md; do
+          for item in app bootstrap config database lang public resources routes scripts deployment artisan composer.json composer.lock .env.example vendor DEPLOYMENT.md; do
             if [[ -e "$item" ]]; then
               cp -a "$item" "$stage/"
             fi
@@ -187,7 +187,7 @@ jobs:
 
           cat > "$stage/INSTALL.txt" <<'EOF'
           ANI DOCTOR - secure Laravel deployment
-          P7: atomic discount quotas, operational/financial reconciliation reports, private RTL PDF/XLSX and tickets, on P1-P6. Event SMS and payment gateway default to disabled. No live SMS/payment or deployment certification.
+          P8 candidate: production guards, encrypted backup/isolated restore, private error logging and acceptance tools, on P1-P7. Check docs and evidence before release. No remote host or live provider certification.
           1. Extract outside public_html; point domain DocumentRoot to public/.
           2. Create production .env on server from .env.example; never reuse CI keys.
           3. Configure production APP_KEY, database, gateways and SMS credentials on server.
@@ -197,6 +197,8 @@ jobs:
           Full instructions: DEPLOYMENT.md.
           EOF
 
+          php scripts/verify-package.php --root="$stage" --write-manifest --revision="$GITHUB_SHA"
+
           short_sha="${GITHUB_SHA:0:7}"
           package="ani-doctor-${short_sha}.zip"
           (cd "$stage" && zip -q -r "$GITHUB_WORKSPACE/$package" .)
@@ -204,9 +206,43 @@ jobs:
           echo "### Installable Laravel ZIP created: $package" >> "$GITHUB_STEP_SUMMARY"
           echo "DocumentRoot must point to Laravel public/. .env and database are deliberately excluded." >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Install candidate ZIP in isolated Apache HTTPS staging and run acceptance load
+        if: steps.detect.outputs.app == 'true'
+        env:
+          MYSQL_PWD: test-only-root
+        shell: bash
+        run: |
+          set -euo pipefail
+          stage="$RUNNER_TEMP/p8-installed"
+          mkdir -p "$stage"
+          unzip -q "${{ steps.bundle.outputs.file }}" -d "$stage"
+          php scripts/verify-package.php --root="$stage"
+          mysql -h 127.0.0.1 -u root -e 'CREATE DATABASE ani_doctor_p8_smoke CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci'
+          docker build --pull -f "$stage/deployment/Dockerfile.staging" -t ani-doctor-p8-smoke "$stage"
+          docker run -d --name ani-doctor-p8-smoke --network host \
+            -e APP_ENV=production -e APP_DEBUG=false -e APP_KEY -e APP_URL=https://localhost:18443 \
+            -e DB_CONNECTION=mysql -e DB_HOST=127.0.0.1 -e DB_DATABASE=ani_doctor_p8_smoke -e DB_USERNAME=root -e DB_PASSWORD=test-only-root \
+            -e SESSION_DRIVER=database -e CACHE_STORE=database -e SESSION_SECURE_COOKIE=true -e SESSION_ENCRYPT=true \
+            -e ZARINPAL_ENABLED=false -e EVENT_SMS_ENABLED=false -e OPS_HSTS_ENABLED=true \
+            -e OPS_BACKUP_KEY_FILE=/var/www/app/storage/backup.key -e P8_SYNTHETIC_FIXTURE=1 ani-doctor-p8-smoke
+          trap 'docker rm -f ani-doctor-p8-smoke >/dev/null' EXIT
+          docker cp tests/Support/p8-staging-fixture.php ani-doctor-p8-smoke:/tmp/p8-fixture.php
+          docker cp ani-doctor-p8-smoke:/etc/ssl/certs/p8.crt "$RUNNER_TEMP/p8-ca.crt"
+          docker exec --user www-data ani-doctor-p8-smoke php artisan migrate --seed --force
+          docker exec --user www-data ani-doctor-p8-smoke php artisan ops:backup-key /var/www/app/storage/backup.key
+          docker exec --user www-data ani-doctor-p8-smoke php /tmp/p8-fixture.php > "$RUNNER_TEMP/p8-fixture.json"
+          docker exec --user www-data ani-doctor-p8-smoke php artisan optimize
+          docker exec --user www-data ani-doctor-p8-smoke php artisan schedule:run
+          docker exec --user www-data ani-doctor-p8-smoke php artisan ops:check
+          php scripts/staging-smoke.php --origin=https://localhost:18443 --ca="$RUNNER_TEMP/p8-ca.crt"
+          service_id=$(php -r '$j=json_decode(file_get_contents($argv[1]),true); echo $j["service"];' "$RUNNER_TEMP/p8-fixture.json")
+          day=$(php -r '$j=json_decode(file_get_contents($argv[1]),true); echo $j["date"];' "$RUNNER_TEMP/p8-fixture.json")
+          month=$(php -r '$j=json_decode(file_get_contents($argv[1]),true); echo $j["month"];' "$RUNNER_TEMP/p8-fixture.json")
+          php scripts/load-test.php --origin=https://localhost:18443 --ca="$RUNNER_TEMP/p8-ca.crt" --service="$service_id" --date="$day" --month="$month"
+
       - name: Upload host-ready artifact
         if: steps.detect.outputs.app == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: ani-doctor-host-ready-${{ github.run_number }}
           path: ${{ steps.bundle.outputs.file }}

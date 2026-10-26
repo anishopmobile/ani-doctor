@@ -33,3 +33,6 @@ PHP 8.4، Laravel 13، MySQL 8، Blade، Bootstrap 5، Tabler، Vanilla JavaScri
 ## GitHub Actions
 
 Workflow با push و PR اجرا می‌شود: تست‌های SQLite و MySQL، هم‌زمانی OTP، rollback، قالب‌بندی و بررسی وابستگی‌ها؛ سپس بسته‌بندی ZIP دارای `vendor/`. بسته P1 فقط زیرساخت هویت است. موفقیت واقعی هر اجرا و وجود artifact از تب **Actions → Artifacts** بررسی شود؛ وجود workflow به معنی موفقیت آن یا نصب روی هاست نیست.
+
+## P8 — کاندید پذیرش عملیاتی
+سخت‌سازی production، بکاپ رمزگذاری‌شده/بازیابی جدا، کنترل ZIP و ابزار نصب/بار staging موقت روی P1 تا P7. [راهنما](docs/P8.md) · [نتایج واقعی](docs/P8-VALIDATION.md). همه PRها draft و merge‌نشده‌اند؛ انتشار عمومی/هاست واقعی و provider واقعی فقط با شواهد جدا تأیید می‌شوند.

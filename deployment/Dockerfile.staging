@@ -1,0 +1,18 @@
+FROM php:8.4-apache
+
+# Disposable acceptance environment, not an automatic production deployment.
+RUN apt-get update && apt-get install -y --no-install-recommends libicu-dev libonig-dev libzip-dev libpng-dev openssl \
+    && docker-php-ext-install -j2 intl mbstring pdo_mysql zip gd opcache \
+    && a2enmod rewrite ssl headers \
+    && rm -rf /var/lib/apt/lists/*
+WORKDIR /var/www/app
+COPY . /var/www/app
+RUN mkdir -p storage/app/private storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs bootstrap/cache \
+    && chown -R www-data:www-data storage bootstrap/cache \
+    && chmod -R go-rwx storage bootstrap/cache \
+    && openssl req -x509 -newkey rsa:2048 -nodes -days 2 -subj '/CN=localhost' -addext 'subjectAltName=DNS:localhost,IP:127.0.0.1' -addext 'basicConstraints=critical,CA:FALSE' -keyout /etc/ssl/private/p8.key -out /etc/ssl/certs/p8.crt \
+    && chmod 600 /etc/ssl/private/p8.key \
+    && printf 'Listen 18443\n' > /etc/apache2/ports.conf \
+    && cp deployment/apache-staging.conf /etc/apache2/sites-available/000-default.conf \
+    && cp deployment/php-production.ini /usr/local/etc/php/conf.d/ani-doctor.ini
+EXPOSE 18443

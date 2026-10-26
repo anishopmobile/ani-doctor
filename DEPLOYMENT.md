@@ -43,7 +43,7 @@ Triggerها: هر `push` به شاخه‌ها و اجرای دستی از `Actio
 
 ## 5. الزامات هاست
 قبل از خرید هاست بررسی شود:
-- PHP 8.4 (سازگار با Laravel 13، حداقل نسخه 8.3) و extensionهای لازم مثل mbstring, openssl, PDO MySQL, xml, curl, fileinfo, tokenizer, ctype, dom, session, zip؛
+- PHP 8.4 (حداقل نسخه مجاز composer.json پروژه) و extensionهای لازم مثل mbstring, openssl, PDO MySQL, xml, curl, fileinfo, tokenizer, ctype, dom, session, zip؛
 - MySQL/MariaDB سازگار، InnoDB، دیتابیس و کاربر با حداقل مجوز مورد نیاز؛
 - SSL/TLS معتبر و امکان HTTPS اجباری؛
 - امکان تنظیم DocumentRoot دامنه/ساب‌دامنه روی پوشه `public`؛
@@ -106,3 +106,6 @@ P6: پیش از migrate/RoleSeeder بکاپ هماهنگ DB/APP_KEY و توقف 
 
 ## افزوده P7
 بسته باید vendor قفل‌شده mPDF/PhpSpreadsheet و resources/fonts با OFL داشته باشد. PHP gd/mbstring/zip و دسترسی نوشتن storage/framework/pdf-font-cache لازم است. CLINIC_PUBLIC_DOCTOR_NAME و CLINIC_PUBLIC_ADDRESS فقط اطلاعات عمومی واقعی مطب‌اند. اجرای migration دهم و RoleSeeder پس از بکاپ امن DB/APP_KEY؛ rollback فقط P7 breakdown و audit/نام جدید را حذف می‌کند و خالص نوبت/رسید/P6 را حفظ می‌کند. [راهنما و خطرها](docs/P7.md). این دستورالعمل گواه استقرار نیست.
+
+## P8 — راه‌اندازی کنترل‌شده
+ابتدا [راهنمای P8](docs/P8.md) و [شواهد](docs/P8-VALIDATION.md) را بخوانید. روی ZIP استخراج‌شده و پیش از env/runtime، scripts/verify-package.php را اجرا و منشأ/digest GitHub را بررسی کنید. PHP این پروژه حداقل 8.4 است. APP_DEBUG=false، HTTPS واقعی، DocumentRoot=public و کلید پایدار الزامی‌اند. پراکسی فقط IP/CIDR مشخص OPS_TRUSTED_PROXIES؛ HSTS بعد از تأیید TLS. کلید مستقل OPS_BACKUP_KEY_FILE بیرون public و پوشه بکاپ، مسیر OPS_BACKUP_DIR خصوصی، client رسمی MySQL 8 و ACL حداقلی. migrate/RoleSeeder فقط بعد بکاپ؛ optimize با env واقعی. Cron دقیقه‌ای و ops:check/heartbeat؛ کد آماده‌ی مرحله‌ای است و خودش cron هاست، off-site یا استقرار خارجی ایجاد نمی‌کند. Dockerfile.staging فقط پذیرش موقت با گواهی localhost است، نه راهنمای گواهی/کلید تولیدی. restore هیچ promotion خودکار ندارد.

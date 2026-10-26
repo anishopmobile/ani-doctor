@@ -52,3 +52,64 @@ Artisan::command('notifications:delivery', function (\App\Modules\Notifications\
     $dispatcher->poll();
 });
 Schedule::command('notifications:delivery')->everyFifteenMinutes()->withoutOverlapping();
+
+Artisan::command('ops:check', function (\App\Modules\Operations\Application\ReadinessService $readiness): int {
+    $result = $readiness->inspect();
+    $this->line(json_encode($result, JSON_UNESCAPED_SLASHES));
+    return $result['ready'] ? 0 : 1;
+})->purpose('Read-only local readiness checks; never certifies a remote host or provider');
+
+Artisan::command('ops:heartbeat', function (): void {
+    \Illuminate\Support\Facades\Cache::put('operations.scheduler_seen', time(), 600);
+})->purpose('Record scheduler liveness without patient information');
+Schedule::command('ops:heartbeat')->everyMinute()->withoutOverlapping();
+
+Artisan::command('ops:backup-key {path}', function (\App\Modules\Operations\Infrastructure\PrivatePaths $paths): int {
+    $mask = umask(0077);
+    try {
+        $file = $paths->directory(dirname($this->argument('path'))).'/'.basename($this->argument('path'));
+        if (file_exists($file) || $paths->inside($file, storage_path('app/private'))) {
+            throw new \RuntimeException('KEY_PATH_INVALID');
+        }
+        $handle = fopen($file, 'xb');
+        chmod($file, 0600);
+        try {
+            app(\App\Modules\Operations\Infrastructure\EncryptedArchive::class)->put($handle, base64_encode(random_bytes(32))."\n");
+        } finally {
+            fclose($handle);
+        }
+        $this->info('کلید مستقل ساخته شد؛ مقدار آن چاپ نشده است. آن را جدا از بکاپ و APP_KEY نگه دارید.');
+        return 0;
+    } catch (\Throwable) {
+        $this->error('کلید ساخته نشد؛ مسیر خصوصی و نبود فایل قبلی را بررسی کنید.');
+        return 1;
+    } finally {
+        umask($mask);
+    }
+})->purpose('Create a separate backup key with owner-only file permissions; never replaces an existing key');
+
+Artisan::command('ops:backup {--writers-stopped}', function (\App\Modules\Operations\Application\BackupService $backups): int {
+    try {
+        $result = $backups->create((bool) $this->option('writers-stopped'));
+        $this->line(json_encode($result, JSON_UNESCAPED_SLASHES));
+        return 0;
+    } catch (\Throwable) {
+        $this->error('بکاپ ساخته نشد؛ کلید مستقل، مسیر خصوصی، maintenance و توقف همه نویسنده‌ها را بررسی کنید.');
+        return 1;
+    }
+})->purpose('Encrypted MySQL/private-file backup during a controlled maintenance window');
+
+Artisan::command('ops:restore {archive} {target} {private-target} {--isolated-target}', function (\App\Modules\Operations\Application\BackupService $backups): int {
+    if (!$this->option('isolated-target')) {
+        $this->error('بازیابی فقط با تأیید محیط جدا و دیتابیس خالی ani_doctor_restore_* مجاز است.');
+        return 1;
+    }
+    try {
+        $result = $backups->restore($this->argument('archive'), $this->argument('target'), $this->argument('private-target'));
+        $this->line(json_encode($result, JSON_UNESCAPED_SLASHES));
+        return 0;
+    } catch (\Throwable) {
+        $this->error('بازیابی تأیید نشد؛ مقصد جدا، کلیدها و صحت بکاپ را بررسی کنید. مقصد ناموفق را فعال نکنید.');
+        return 1;
+    }
+})->purpose('Authenticate an entire backup before restoring to an empty isolated database; never promotes it');
