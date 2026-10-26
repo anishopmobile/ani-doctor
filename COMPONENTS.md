@@ -175,3 +175,6 @@ P5: میز کار منشی/مدیر، فهرست پایه بیمار، رزرو 
 ## افزوده P6
 
 FormSchema و PrivateFormService، EventSmsProviderInterface/SmsIrEventProvider و NotificationOutbox/MessageDispatcher/SmsSettingsService افزوده شدند. مسیرها، مجوز مستقل پاسخ و retry محدود در docs/P6.md ثبت‌اند؛ فایل پزشکی طبق مرز PRD مجاز نیست.
+
+## اجزای P7
+DiscountService (quote/reserve/transition)، ReportService (فیلتر، snapshot و audit)، ReportExporter (mPDF/PhpSpreadsheet)، TicketService (مالکیت و برگه بدون پاسخ پزشکی) و StaffNameService (نام واقعی با دلیل) در Service Layer هستند. برآورد AJAX مصرفی ایجاد نمی‌کند. قراردادها: [docs/P7.md](docs/P7.md).

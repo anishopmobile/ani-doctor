@@ -21,6 +21,9 @@ class BookingRequest extends FormRequest
                 $input[$key] = MobileNumber::normalize($input[$key]);
             }
         }
+        if (isset($input['discount_code']) && is_string($input['discount_code'])) {
+            $input['discount_code'] = strtoupper(trim($input['discount_code']));
+        }
         $this->merge($input);
     }
     public function rules(): array
@@ -31,6 +34,7 @@ class BookingRequest extends FormRequest
         $staff = app(ActorResolver::class)->resolve($this)->staff();
         return [
             'idempotency_key' => 'required|uuid',
+            'discount_code' => $create ? ['nullable', 'string', 'regex:/\A[A-Za-z0-9_-]{3,32}\z/'] : 'prohibited',
             'expected_version' => $create ? 'prohibited' : 'required|integer|min:1',
             'service_id' => $create ? 'required|integer|min:1' : 'prohibited',
             'expected_price_irr' => $create ? 'required|integer|min:0' : 'prohibited',

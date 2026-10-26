@@ -33,7 +33,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        foreach (['forms.manage', 'forms.answers.view', 'forms.answers.write', 'notifications.manage'] as $permission) {
+        foreach (['forms.manage', 'forms.answers.view', 'forms.answers.write', 'notifications.manage', 'discounts.manage', 'reports.appointments', 'reports.finance'] as $permission) {
             Gate::define($permission, fn (User $user) => $user->hasPermission($permission));
         }
         \Illuminate\Support\Facades\View::composer('layouts.app', function ($view): void {
@@ -59,5 +59,6 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('payments', fn (Request $request) => Limit::perMinute(20)->by('payments:'.$request->ip()));
         RateLimiter::for('payment-callback', fn (Request $request) => Limit::perMinute(60)->by('callback:'.$request->ip()));
         RateLimiter::for('desk', fn (Request $request) => Limit::perMinute(60)->by('desk:'.($request->user()?->id ?? $request->ip())));
+        RateLimiter::for('reports', fn (Request $request) => Limit::perMinute($request->filled('format') ? 5 : 30)->by('reports:'.($request->user()?->id ?? $request->ip()).':'.($request->filled('format') ? 'export' : 'view')));
     }
 }

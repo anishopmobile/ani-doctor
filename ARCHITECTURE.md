@@ -165,3 +165,6 @@ P5: Booking هماهنگ‌کننده DeskBookingService، DeskReadService و At
 ## افزوده P6
 
 DynamicForms مالک انتشار نسخه و پاسخ رمزگذاری‌شده است؛ Notifications مالک outbox تراکنشی و ارسال پس از commit است. قرارداد OTP P1 مستقل می‌ماند؛ شبکه بیرون قفل رزرو/ارسال است. قراردادها و محدودیت exactly-once در docs/P6.md.
+
+## قرارداد اجرایی P7
+Billing/DiscountService قفل سهمیه و snapshot قیمت را در تراکنش Booking نگه می‌دارد؛ Reporting گزارش read transaction و خروجی حافظه‌ای می‌سازد. قفل کد بعد از بیمار/روز است و هیچ نوبت دیگر زیر قفل کد گرفته نمی‌شود. مهاجرت، معادله تطبیق و rollback: [docs/P7.md](docs/P7.md).

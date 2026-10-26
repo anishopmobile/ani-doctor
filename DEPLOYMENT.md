@@ -103,3 +103,6 @@ P5: پیش از ارتقا بکاپ، توقف درخواست‌های نوشت�
 ## افزوده P6
 
 P6: پیش از migrate/RoleSeeder بکاپ هماهنگ DB/APP_KEY و توقف writes/worker؛ EVENT_SMS_ENABLED=false پیش‌فرض مستقل از OTP است. فقط پس از بررسی قالب عمومی DATE/TIME/REFERENCE و آزمون شماره مجاز، ارسال رویداد را فعال کنید. cron موجود notifications:dispatch را دقیقه‌ای و notifications:delivery را هر ۱۵ دقیقه اجرا می‌کند؛ این صف DB به queue:work وابسته نیست. rollback پاسخ‌ها/نسخه‌ها/audit و صف ارسال P6 را حذف می‌کند؛ هماهنگی نسخه و بکاپ الزامی است. هیچ استقرار/ارسال واقعی گواهی نشده؛ docs/P6.md.
+
+## افزوده P7
+بسته باید vendor قفل‌شده mPDF/PhpSpreadsheet و resources/fonts با OFL داشته باشد. PHP gd/mbstring/zip و دسترسی نوشتن storage/framework/pdf-font-cache لازم است. CLINIC_PUBLIC_DOCTOR_NAME و CLINIC_PUBLIC_ADDRESS فقط اطلاعات عمومی واقعی مطب‌اند. اجرای migration دهم و RoleSeeder پس از بکاپ امن DB/APP_KEY؛ rollback فقط P7 breakdown و audit/نام جدید را حذف می‌کند و خالص نوبت/رسید/P6 را حفظ می‌کند. [راهنما و خطرها](docs/P7.md). این دستورالعمل گواه استقرار نیست.
