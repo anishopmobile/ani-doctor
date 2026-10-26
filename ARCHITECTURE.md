@@ -172,3 +172,8 @@ Billing/DiscountService قفل سهمیه و snapshot قیمت را در ترا�
 ## P8 Operations
 ابزار توسعه محلی پرداخت: LocalPaymentMode مرز local/loopback را کنترل می‌کند؛ LocalSimulatorGateway adapter مستقلی پشت PaymentGatewayInterface است. PaymentService براساس provider ذخیره‌شده هر attempt، بین adapter واقعی و شبیه‌سازی انتخاب می‌کند؛ schema و وابستگی جدیدی ندارد. وضعیت یک‌روزه شبیه‌ساز در cache مشترک و تصمیم زیر lock؛ نبود cache به unknown می‌رود. Controller فقط نمایش و فراخوانی adapter را هماهنگ می‌کند و settlement اصلی دست‌نخورده از حیث قفل/idempotency است.
 ماژول Operations مسئول readiness کنسولی، بکاپ و restore جدا و کنترل بسته است؛ بدون migration یا route مدیریت جدید. فایل بکاپ/کلید/runtime وارد ZIP نمی‌شوند؛ رمزنگاری در Infrastructure و use case در Application است. [قرارداد و محدودیت‌ها](docs/P8.md).
+
+## رابط مشترک و progressive enhancement
+Tabler RTL پایه مشترک Blade است؛ app-navigation نقش‌ها را با Gate نمایش می‌دهد. ui-controls.js و controls.css فقط نمایش select/date را ارتقا می‌دهند؛ نام/مقدار native و اعتبارسنجی سرور حفظ می‌شوند. Pardis مشترک برای inputها و تقویم رزرو مستقل؛ HCG تک‌انتخابی و companion چندانتخابی بدون وابستگی runtime. npm/Playwright فقط ابزار تست CI و خارج بسته اپ هستند. قرارداد: docs/UI-REFRESH.md.
+
+بازبینی UX و اصلاح تقویم به درخواست کاربر (۲۰۲۶-۱۰-۲۷): ورودی شمسی از payload.jalali و API میلادی از payload.iso؛ مسیر اصلی بیمار مرحله‌بندی، میز کار جدولی و اطلاعات ثانویه گروه‌بندی شدند. gate مرحله‌ای فقط نمایش/اعتبارسنجی بومی فرم است و جای Policy/ظرفیت/پرداخت سرور نیست؛ کارکنان همچنان override مجاز را پیش از انتخاب زمان می‌بینند. مقادیر خلاصه با textContent و انتخاب UTC اسلات از پاسخ سرور گرفته می‌شوند؛ بدون مجوز/API/schema جدید. جزئیات، منابع و شواهد در docs/UI-REFRESH.md.

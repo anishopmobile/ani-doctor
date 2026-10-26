@@ -182,3 +182,8 @@ DiscountService (quote/reserve/transition)، ReportService (فیلتر، snapsho
 ## P8
 ابزار توسعه لوکال: LocalPaymentMode، LocalSimulatorGateway، LocalPaymentController/Request و Blade درگاه دو نتیجه‌ای؛ فقط localhost مستقیم با flag صریح، بدون فرم کارت/شبکه بانک. مالکیت nonce نشست، CSRF، provider مستقل و گزارش با هشدار. راه روشن/خاموش و نصب patch در docs/INSTALL-LOCAL.md.
 ProductionGuard و ConfiguredProxies مرز محیط HTTP؛ Operations/ReadinessService، BackupService، PackageVerifier و Infrastructure/EncryptedArchive/MysqlSnapshot/PrivatePaths مسئول عملیات کنسولی‌اند. domain/ProxyAddresses قواعد اعتماد IP را مشترک نگه می‌دارد. هیچ API وب برای بکاپ یا restore وجود ندارد؛ [قرارداد](docs/P8.md).
+
+## کنترل‌های رابط بازطراحی‌شده
+app-navigation، app-shell و content-surface مشترک، تاریخ‌گزین dialog با موتور Pardis و select تک‌انتخابی HCG + companion چندانتخابی اضافه شدند. state اصلی native است؛ AJAX، reset، disabled و فرم شرطی همگام‌اند. جزئیات، منابع و آزمون‌ها در docs/UI-REFRESH.md.
+
+بازبینی UX و اصلاح تقویم به درخواست کاربر (۲۰۲۶-۱۰-۲۷): ورودی شمسی از payload.jalali و API میلادی از payload.iso؛ مسیر اصلی بیمار مرحله‌بندی، میز کار جدولی و اطلاعات ثانویه گروه‌بندی شدند. gate مرحله‌ای فقط نمایش/اعتبارسنجی بومی فرم است و جای Policy/ظرفیت/پرداخت سرور نیست؛ کارکنان همچنان override مجاز را پیش از انتخاب زمان می‌بینند. مقادیر خلاصه با textContent و انتخاب UTC اسلات از پاسخ سرور گرفته می‌شوند؛ بدون مجوز/API/schema جدید. جزئیات، منابع و شواهد در docs/UI-REFRESH.md.

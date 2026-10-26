@@ -1,12 +1,13 @@
 <section class="mt-3" aria-labelledby="payment-heading">
-<h2 id="payment-heading" class="h4">پرداخت و پیگیری مالی</h2>
+<h2 id="payment-heading" class="h4">{{ $appointment->effectiveStatus() === 'pending_payment' ? 'قدم بعدی: پرداخت نوبت' : 'پیگیری مالی' }}</h2>
 <p>مانده بدهی این نوبت: {{ number_format($appointment->balance_due_irr) }} ریال.</p>
 @if($appointment->effectiveStatus() === 'pending_payment')
 <p>برای قطعی‌شدن عادی، کل مبلغ باید با پرداخت و اعتبار تسویه شود. لغو پرداخت‌شده، مبلغ مجاز را به اعتبار شماره رزروکننده برمی‌گرداند.</p>
 <form method="post" action="{{ route('payments.initiate', $appointment->reference) }}">@csrf
 <input type="hidden" name="expected_version" value="{{ $appointment->version }}"><input type="hidden" name="idempotency_key" value="{{ (string)\Illuminate\Support\Str::uuid() }}">
-<label for="credit-irr">اعتبار مصرفی (ریال)، حداکثر موجودی قابل مصرف شما: {{ number_format($wallet['available_irr']) }}</label>
+@if($wallet['available_irr'] > 0)<label for="credit-irr">اعتبار مصرفی (ریال)، حداکثر موجودی قابل مصرف شما: {{ number_format($wallet['available_irr']) }}</label>
 <input id="credit-irr" class="form-control" name="credit_irr" type="number" min="0" max="{{ min($wallet['available_irr'], $appointment->price_irr) }}" value="0" required>
+@else<input type="hidden" name="credit_irr" value="0">@endif
 <p class="form-text">@if(app(\App\Modules\Payments\Application\LocalPaymentMode::class)->enabled())باقی‌مانده در درگاه شبیه‌سازی لوکال بررسی می‌شود؛ هیچ وجه واقعی دریافت نمی‌شود.@else باقی‌مانده با زرین‌پال پرداخت می‌شود.@endif اگر کل مبلغ با اعتبار پوشش داده شود، به درگاه نمی‌روید. در صورت نتیجه مبهم، دوباره پرداخت نکنید.</p>
 <button class="btn btn-primary mt-2" data-hold-action>پرداخت و تسویه کامل</button></form>
 @if($emergencyActive)
@@ -24,9 +25,11 @@
 <button class="btn btn-primary mt-2">ثبت دریافت حضوری {{ number_format($appointment->balance_due_irr) }} ریال</button></form>
 @endif
 @endcan
+@if($attempts->isNotEmpty())<details class="ux-secondary mt-3"><summary>سوابق تلاش‌های پرداخت</summary>
 @foreach($attempts as $attempt)
 @if($attempt->provider === 'local_simulator')<p class="text-warning">این تلاش پرداخت آزمایشی لوکال است؛ رسید بانکی واقعی نیست.</p>@endif
 <p class="mt-2">تلاش پرداخت <bdi>{{ $attempt->reference }}</bdi>: {{ ['requesting'=>'در حال ایجاد؛ از پرداخت مجدد خودداری کنید','redirected'=>'ارسال به درگاه؛ منتظر نتیجه','uncertain'=>'نیازمند بررسی؛ دوباره پرداخت نکنید','failed'=>'ناموفق؛ در مهلت معتبر می‌توانید دوباره تلاش کنید','settled'=>'تسویه کامل و تخصیص به نوبت','credited'=>'وجه تخصیص نیافت؛ به اعتبار شماره رزروکننده برگشت'][$attempt->state] ?? 'نیازمند بررسی' }}</p>
 @endforeach
+</details>@endif
 <a href="{{ route('wallet') }}">اعتبار و درخواست استرداد</a>
 </section>
