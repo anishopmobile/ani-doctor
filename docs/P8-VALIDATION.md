@@ -28,6 +28,8 @@ Apache 2.4.66 ویندوز و چهار PHP-CGI 8.4.27 روی loopback، Document
 
 ## موارد پایان‌نیافته و محدودیت پذیرش
 
+اولین CI P8 [شماره ۲۶](https://github.com/anishopmobile/ani-doctor/actions/runs/40267860629) روی 55ba840 ناموفق بود: ۲۱۰ تست موفق و یک شکست در fixture قدیمی CSRF مربوط به P6؛ fixture حالت production داشت اما APP_URL پیش‌فرض CI از نوع HTTP بود و ProductionGuard پیش از CSRF پاسخ 503 داد. fixture با origin و درخواست HTTPS و cookie امن هماهنگ شد؛ guard ضعیف یا دور زده نشد. مراحل MySQL/بسته/staging آن اجرا skip شدند و artifact جدید منتشر نشد.
+
 نسخه ثابت نهایی محلی: **SQLite ۲۱۱ تست / ۱۴۲۳ assertion موفق** و **مجموعه کامل MySQL Integration برابر ۴۵ تست / ۳۲۱ assertion موفق**؛ ۴۰ سناریوی رقابتی قبلی و ۵ سناریوی بازیابی محدود به مقصد در همان اجرا گذشتند. syntax نهایی **۲۰۳ فایل PHP بدون خطا**، Pint با cache تازه و Blade cache/clear موفق بودند. MySQL Feature میانی ۲۱۱/۱۴۲۱ بود؛ دو assertion آخر مربوط به رد PDF/Excel در بسته‌اند و نتیجه MySQL کامل نسخه نهایی را CI جدا ثبت می‌کند.
 
 CI جدید، نصب همان ZIP در Linux staging موقت و مجموعه کامل نهایی MySQL/رقابت پس از پایان واقعی در PR ثبت می‌شوند؛ صرف وجود workflow به معنی موفقیت نیست. هیچ هاست/دامنه خارجی، پرداخت/SMS sandbox واقعی، دستگاه فیزیکی/چاپ، zoom 200٪، نفوذ مستقل، بازیابی off-site تولیدی یا بررسی حقوقی/حریم خصوصی انجام نشده است. رابط محصول در P8 تغییر نکرده و بررسی بصری تازه مرورگر ادعا نشده است. نمونه‌ها، DB، کلیدها، لاگ و runtime بیرون Git هستند.
