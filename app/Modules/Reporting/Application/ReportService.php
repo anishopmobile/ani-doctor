@@ -18,6 +18,9 @@ final class ReportService
         abort_unless($actor->hasPermission($filters['kind'] === 'finance' ? 'reports.finance' : 'reports.appointments'), 403);
         return DB::transaction(function () use ($actor, $filters, $format): array {
             $report = $filters['kind'] === 'finance' ? $this->finance($filters) : $this->appointments($filters);
+            if (DB::table('payment_attempts')->where('provider', 'local_simulator')->exists()) {
+                $report['basis'] = 'هشدار: این دیتابیس شامل پرداخت شبیه‌سازی لوکال است؛ مبالغ و تطبیق شامل داده ساختگی هستند و سند دریافت وجه واقعی نیستند. '.$report['basis'];
+            }
             $report += ['from' => $filters['from'], 'to' => $filters['to'], 'generated_at' => now()->toIso8601String(), 'generated_label' => $this->date(now()).' به وقت تهران', 'kind' => $filters['kind']];
             $count = array_sum(array_map(fn ($section) => count($section['rows']), $report['sections']));
             $this->limit($count, $format === 'pdf' ? 250 : 1000);
@@ -63,7 +66,10 @@ final class ReportService
         $out = (int) $refunds->sum('amount_irr');
         $opening = (int) DB::table('payments')->where('created_at', '<', $filters['start'])->sum('amount_irr') - (int) DB::table('refunds')->where('status', 'completed')->where('updated_at', '<', $filters['start'])->sum('amount_irr');
         $summary = ['دریافت نقدی/بانکی بازه ریال' => $cash, 'دریافت حضوری بازه ریال' => (int) $payments->where('provider', 'clinic')->sum('amount_irr'), 'دریافت اینترنتی بازه ریال' => (int) $payments->where('provider', 'zarinpal')->sum('amount_irr'), 'دریافت تخصیص‌نیافته بازه ریال' => (int) $payments->where('allocated', false)->sum('amount_irr'), 'مصرف اعتبار در بازه ریال (غیرنقدی)' => (int) $payments->sum('credit_irr'), 'استرداد تکمیل‌شده بازه ریال' => $out, 'خالص جریان نقد بازه ریال' => $cash - $out, 'مانده جریان نقد پیش از بازه ریال' => $opening, 'مانده جریان نقد تا پایان بازه ریال' => $opening + $cash - $out];
-        $rows = $payments->map(fn ($p) => [$p->id, $this->date($p->created_at), ['clinic' => 'حضوری', 'zarinpal' => 'زرین‌پال', 'wallet' => 'اعتبار'][$p->provider] ?? $p->provider, $p->display_name ?: ($p->actor_id ? 'اپراتور #'.$p->actor_id : 'سیستمی/درگاه'), $p->appointment_reference, (int) $p->amount_irr, (int) $p->credit_irr, $p->allocated ? 'تخصیص‌یافته' : 'مغایرت/اعتبار', $p->provider_reference])->all();
+        if ($payments->where('provider', 'local_simulator')->isNotEmpty()) {
+            $summary['شبیه‌سازی لوکال در جمع‌های بالا؛ بدون وجه واقعی (ریال)'] = (int) $payments->where('provider', 'local_simulator')->sum('amount_irr');
+        }
+        $rows = $payments->map(fn ($p) => [$p->id, $this->date($p->created_at), ['clinic' => 'حضوری', 'zarinpal' => 'زرین‌پال', 'local_simulator' => 'آزمایشی لوکال؛ بدون وجه واقعی', 'wallet' => 'اعتبار'][$p->provider] ?? $p->provider, $p->display_name ?: ($p->actor_id ? 'اپراتور #'.$p->actor_id : 'سیستمی/درگاه'), $p->appointment_reference, (int) $p->amount_irr, (int) $p->credit_irr, $p->allocated ? 'تخصیص‌یافته' : 'مغایرت/اعتبار', $p->provider_reference])->all();
         $refundRows = $refunds->map(fn ($r) => [$r->reference, $this->date($r->updated_at), (int) $r->amount_irr, 'تکمیل ثبت‌شده', $r->decided_by ? 'مدیر #'.$r->decided_by : 'ثبت قبلی', $r->bank_reference])->all();
         $staff = $period(DB::table('appointment_events')->whereNotNull('actor_id')->whereIn('action', ['held', 'reschedule', 'cancel'])->join('users', 'users.id', '=', 'appointment_events.actor_id')->whereExists(fn ($q) => $q->selectRaw('1')->from('user_roles')->join('roles', 'roles.id', '=', 'user_roles.role_id')->whereColumn('user_roles.user_id', 'users.id')->whereIn('roles.name', ['secretary', 'admin']))->select('actor_id', 'users.display_name', 'action')->selectRaw('COUNT(*) as total')->groupBy('actor_id', 'users.display_name', 'action'), 'appointment_events.created_at')->get();
         $staffRows = $staff->map(fn ($s) => [$s->actor_id, $s->display_name ?: 'اپراتور #'.$s->actor_id, ['held' => 'ایجاد نوبت', 'reschedule' => 'تغییر زمان', 'cancel' => 'لغو'][$s->action], (int) $s->total])->all();

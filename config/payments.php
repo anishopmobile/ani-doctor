@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'local_simulator' => env('LOCAL_PAYMENT_SIMULATOR', false),
     'zarinpal' => [
         'enabled' => (bool) env('ZARINPAL_ENABLED', false),
         'merchant_id' => env('ZARINPAL_MERCHANT_ID'),

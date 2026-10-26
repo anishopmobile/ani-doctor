@@ -7,7 +7,7 @@
 <input type="hidden" name="expected_version" value="{{ $appointment->version }}"><input type="hidden" name="idempotency_key" value="{{ (string)\Illuminate\Support\Str::uuid() }}">
 <label for="credit-irr">اعتبار مصرفی (ریال)، حداکثر موجودی قابل مصرف شما: {{ number_format($wallet['available_irr']) }}</label>
 <input id="credit-irr" class="form-control" name="credit_irr" type="number" min="0" max="{{ min($wallet['available_irr'], $appointment->price_irr) }}" value="0" required>
-<p class="form-text">باقی‌مانده با زرین‌پال پرداخت می‌شود. اگر کل مبلغ با اعتبار پوشش داده شود، به درگاه نمی‌روید. در صورت نتیجه مبهم، دوباره پرداخت نکنید.</p>
+<p class="form-text">@if(app(\App\Modules\Payments\Application\LocalPaymentMode::class)->enabled())باقی‌مانده در درگاه شبیه‌سازی لوکال بررسی می‌شود؛ هیچ وجه واقعی دریافت نمی‌شود.@else باقی‌مانده با زرین‌پال پرداخت می‌شود.@endif اگر کل مبلغ با اعتبار پوشش داده شود، به درگاه نمی‌روید. در صورت نتیجه مبهم، دوباره پرداخت نکنید.</p>
 <button class="btn btn-primary mt-2" data-hold-action>پرداخت و تسویه کامل</button></form>
 @if($emergencyActive)
 <form class="mt-3" method="post" action="{{ route('payments.emergency', $appointment->reference) }}" data-confirm="این نوبت با بدهی و پرداخت در مطب قطعی می‌شود. ادامه می‌دهید؟">@csrf
@@ -25,6 +25,7 @@
 @endif
 @endcan
 @foreach($attempts as $attempt)
+@if($attempt->provider === 'local_simulator')<p class="text-warning">این تلاش پرداخت آزمایشی لوکال است؛ رسید بانکی واقعی نیست.</p>@endif
 <p class="mt-2">تلاش پرداخت <bdi>{{ $attempt->reference }}</bdi>: {{ ['requesting'=>'در حال ایجاد؛ از پرداخت مجدد خودداری کنید','redirected'=>'ارسال به درگاه؛ منتظر نتیجه','uncertain'=>'نیازمند بررسی؛ دوباره پرداخت نکنید','failed'=>'ناموفق؛ در مهلت معتبر می‌توانید دوباره تلاش کنید','settled'=>'تسویه کامل و تخصیص به نوبت','credited'=>'وجه تخصیص نیافت؛ به اعتبار شماره رزروکننده برگشت'][$attempt->state] ?? 'نیازمند بررسی' }}</p>
 @endforeach
 <a href="{{ route('wallet') }}">اعتبار و درخواست استرداد</a>
