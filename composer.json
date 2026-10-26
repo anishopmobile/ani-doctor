@@ -2,7 +2,7 @@
     "$schema": "https://getcomposer.org/schema.json",
     "name": "anishopmobile/ani-doctor",
     "type": "project",
-    "description": "Single physician appointment system - P7 discounts and financial reports",
+    "description": "Single physician appointment system - P8 operational hardening and recovery",
     "license": "proprietary",
     "require": {
         "php": "^8.4",

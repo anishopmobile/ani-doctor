@@ -178,3 +178,6 @@ FormSchema و PrivateFormService، EventSmsProviderInterface/SmsIrEventProvider 
 
 ## اجزای P7
 DiscountService (quote/reserve/transition)، ReportService (فیلتر، snapshot و audit)، ReportExporter (mPDF/PhpSpreadsheet)، TicketService (مالکیت و برگه بدون پاسخ پزشکی) و StaffNameService (نام واقعی با دلیل) در Service Layer هستند. برآورد AJAX مصرفی ایجاد نمی‌کند. قراردادها: [docs/P7.md](docs/P7.md).
+
+## P8
+ProductionGuard و ConfiguredProxies مرز محیط HTTP؛ Operations/ReadinessService، BackupService، PackageVerifier و Infrastructure/EncryptedArchive/MysqlSnapshot/PrivatePaths مسئول عملیات کنسولی‌اند. domain/ProxyAddresses قواعد اعتماد IP را مشترک نگه می‌دارد. هیچ API وب برای بکاپ یا restore وجود ندارد؛ [قرارداد](docs/P8.md).

@@ -15,16 +15,25 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->append(SecurityHeaders::class);
+        $middleware->prepend(SecurityHeaders::class);
+        $middleware->replace(\Illuminate\Http\Middleware\TrustProxies::class, \App\Http\Middleware\ConfiguredProxies::class);
+        $middleware->append(\App\Http\Middleware\ProductionGuard::class);
         $middleware->redirectUsersTo('/dashboard');
         $middleware->validateCsrfTokens(except: ['payments/zarinpal/callback/*']);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->report(function (\Illuminate\Database\QueryException $error) {
-            if (request()->is('appointments*', 'api/v1/appointments*', 'payments*', 'api/v1/payments*', 'wallet*', 'admin/finance*', 'management/reports*', 'admin/discounts*', 'api/v1/discount-preview*', 'admin/forms*', 'admin/notifications*', 'private-forms*', 'management/desk*', 'management/bookings*', 'management/patients*', 'management/appointments*', 'secretary', 'admin', 'dashboard', 'patient')) {
-                \Illuminate\Support\Facades\Log::error('booking.database_error', ['sql_state' => $error->errorInfo[0] ?? 'unknown']);
+        $exceptions->respond(fn ($response) => app(SecurityHeaders::class)->apply(request(), $response));
+        $exceptions->report(function (\Throwable $error) {
+            if (app()->environment('production') && !$error instanceof \Illuminate\Database\QueryException) {
+                // Exception messages/arguments/URLs may contain clinical data or credentials.
+                \Illuminate\Support\Facades\Log::error('application.failure', ['type' => get_class($error)]);
                 return false;
             }
+        });
+        $exceptions->report(function (\Illuminate\Database\QueryException $error) {
+            $state = $error->errorInfo[0] ?? '';
+            \Illuminate\Support\Facades\Log::error('booking.database_error', ['sql_state' => is_string($state) && preg_match('/\A[A-Z0-9]{5}\z/', $state) ? $state : 'unknown']);
+            return false;
         });
         $exceptions->render(function (\Illuminate\Database\QueryException $error, Request $request) {
             if ($request->is('appointments*', 'api/v1/appointments*', 'payments*', 'api/v1/payments*', 'wallet*', 'admin/finance*', 'management/reports*', 'admin/discounts*', 'api/v1/discount-preview*', 'admin/forms*', 'admin/notifications*', 'private-forms*', 'management/desk*', 'management/bookings*', 'management/patients*', 'management/appointments*', 'secretary', 'admin', 'dashboard', 'patient')) {

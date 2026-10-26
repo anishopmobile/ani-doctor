@@ -238,9 +238,10 @@ final class P6PrivateFormsTest extends TestCase
         $this->patient->forceFill(['is_active' => false])->save();
         $this->actingAs($this->patient)->get($this->url($id))->assertForbidden();
         $this->patient->forceFill(['is_active' => true])->save();
+        config(['app.url' => 'https://localhost', 'app.debug' => false, 'session.secure' => true, 'session.encrypt' => true, 'session.http_only' => true, 'session.same_site' => 'lax']);
         $this->app['env'] = 'production';
         try {
-            $this->post($this->url($id), $this->payload($id))->assertStatus(419);
+            $this->post('https://localhost'.$this->url($id), $this->payload($id))->assertStatus(419);
         } finally {
             $this->app['env'] = 'testing';
         }

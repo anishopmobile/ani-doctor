@@ -1,108 +1,43 @@
-# DEPLOYMENT — راهنمای خروجی GitHub Actions و نصب روی هاست
-**نسخه:** 1.0.0 · **مخزن:** https://github.com/anishopmobile/ani-doctor
+# نصب و استقرار آنی دکتر
 
-## 1. وضعیت کنونی و محدودیت صریح
-در شاخه P4 پرداخت/اعتبار و استرداد دستی اضافه شده است؛ قبل از فعال‌سازی [docs/P4.md](docs/P4.md) و [گزارش واقعی](docs/P4-VALIDATION.md) خوانده شوند. پس از بکاپ/بازبینی migration مالی و RoleSeeder اجرا و scheduler برای booking:expire-holds و payments:reconcile فعال شود. ZARINPAL_ENABLED پیش‌فرض false است؛ merchant، محیط، پایه HTTPS ثابت callback و CA معتبر PHP/cURL فقط روی سرور تنظیم شوند. APP_KEY قبلی حفظ شود؛ merchantهای snapshot رمزگذاری‌شده و HMAC مالکیت به آن وابسته‌اند. Queryهای callback از access log و analytics حذف شوند. rollback P4 داده مالی را حذف می‌کند و بدون بازیابی هماهنگ بکاپ مجاز عملیاتی نیست؛ موفقیت تست rollback گواهی بازیابی واقعی پول/بکاپ نیست. استقرار و انتقال واقعی وجه صرفاً با شواهد مستقل تأیید شوند.
-در P3 باید migration رزرو و RoleSeeder بررسی و اجرا و booking:expire-holds توسط Scheduler اجرا شود. نسخه کد و DB باید هماهنگ باشند. این بسته هنوز تأیید پرداخت آنلاین یا انتشار عمومی نیست. [راهنمای P3](docs/P3.md).
+برای نصب تازه، راهنمای متناسب با مقصد را کامل و به‌ترتیب اجرا کنید:
 
-در شاخه P2 بسته شامل خدمات، برنامه کاری و preview تقویم هم هست؛ ارتقا نیازمند migration و RoleSeeder و extension Intl است. رزرو و پرداخت همچنان وجود ندارند. [راهنمای P2](docs/P2.md).
+- [لوکال ویندوز](docs/INSTALL-LOCAL.md): PHP 8.4/MySQL 8، HTTP فقط روی loopback، env لوکال، OTP واقعی، سرور و زمان‌بند جدا.
+- [هاست اشتراکی](docs/INSTALL-SHARED-HOSTING.md): بررسی سازگاری میزبان، DocumentRoot=public، HTTPS، env مستقل production، Terminal/PHP صحیح، Cron، بکاپ و آزمون اولیه.
+- [عملیات و بازیابی P8](docs/P8.md): فرمت بکاپ، کلید مستقل، grant محدود، drill و گیت‌های انتشار.
 
-بسته شاخه P1 فقط زیرساخت و هویت را ارائه می‌کند؛ رزرو/پرداخت و تأیید استقرار عمومی ندارد. پیش از نصب آزمایشی [docs/P1.md](docs/P1.md) و [نتایج آزمون](docs/P1-VALIDATION.md) خوانده شوند. موفقیت بسته‌بندی به معنی آزمون نصب روی هاست نیست.
+## بسته صحیح
 
-مخزن ابتدا خالی بوده و در فاز P0 تنها اسناد و workflow قرار گرفته است. **تا زمانی که فایل‌های اصلی اپلیکیشن Laravel وجود نداشته باشند، هیچ ZIP نصب سایت واقعی ساخته نمی‌شود.** GitHub Actions در حالت docs-only صحت وجود اسناد را بررسی و با پیام «Package skipped» تمام می‌شود. پس از تکمیل اسکلت برنامه در P1، همان workflow به‌طور خودکار بسته نصب تولید می‌کند.
+از [GitHub Actions](https://github.com/anishopmobile/ani-doctor/actions) آخرین اجرای موفق **شاخه main** را انتخاب کنید. artifact بیرونی حاوی ZIP نصب داخلی ani-doctor-<sha>.zip است. ZIP داخلی را استخراج کنید؛ artisan و vendor باید در ریشه نصب باشند. بسته Code → Download ZIP سورس است و vendor ندارد.
 
-PHP برخلاف JS یک «compile» اجباری ندارد؛ ساخت خروجی در این پروژه به معنی نصب وابستگی‌های Composer، اجرای آزمون‌ها، تهیه `vendor/` و بسته‌بندی فایل‌های لازم است. فایل‌های Bootstrap/Tabler/datepicker باید به‌صورت نسخه آماده و با مجوز معتبر در `public/assets` ثبت شوند تا npm/Vite/Node روی هاست لازم نباشد.
+بسته آماده شامل app/bootstrap/config/database/lang/public/resources/routes، artisan و composer.lock، vendor production-only، scripts/deployment، راهنماهای منتخب docs و RELEASE.json است. env واقعی، کلید، DB، بکاپ، بیمار، تست‌ها، Git و runtime داخل آن نیستند. هیچ Composer/npm/Node روی هاست برای این بسته لازم نیست. PHP 8.4، extensionهای لازم، MySQL 8/InnoDB، دسترسی نوشتن runtime و اجرای Artisan/Cron همچنان ضروری‌اند.
 
-## 2. GitHub Actions چگونه اجرا می‌شود؟
-فایل workflow: [`.github/workflows/release-package.yml`](.github/workflows/release-package.yml)
+قبل از افزودن .env و runtime/cache، در پوشه استخراج‌شده اجرا کنید:
 
-Triggerها: هر `push` به شاخه‌ها و اجرای دستی از `Actions → Host-ready package → Run workflow`. پس از ایجاد app و موفقیت CI، به همان run بروید و از بخش **Artifacts** فایل `ani-doctor-host-ready-<run number>` را دریافت کنید. داخل artifact یک ZIP مانند `ani-doctor-<short-sha>.zip` وجود دارد.
+```sh
+php scripts/verify-package.php --root .
+```
 
-دسترسی به artifact معمولاً به مجوزهای repository/Actions بستگی دارد. ZIP خروجی را در فضای خصوصی مدیریت کنید؛ این ZIP نباید اطلاعات کاربر/دیتابیس واقعی داشته باشد.
+از PHP صحیح مقصد استفاده کنید. verified:true و منشأ/digest معتبر artifact را بررسی کنید؛ manifest امضا نیست. این verifier مخصوص بسته خام است و برای نصب دارای .env و cache روزانه استفاده نمی‌شود.
 
-## 3. پیش‌نیاز فعال‌شدن بسته‌بندی
-در ریشه مخزن باید حداقل این موارد موجود باشند:
+## قواعد مشترک مهم
 
-- `composer.json`
-- `composer.lock` نسخه‌بندی‌شده
-- `artisan`
-- `public/index.php`
+1. فقط پوشه public در دسترس وب باشد؛ ریشه Laravel را در public_html منتشر نکنید. تنظیم DocumentRoot ممکن است نیازمند پشتیبانی میزبان باشد.
+2. لوکال HTTP: APP_ENV=local و SESSION_SECURE_COOKIE=false؛ هاست HTTPS: production/debug=false و cookie امن. env لوکال را به هاست کپی نکنید.
+3. نصب خالی APP_KEY تازه می‌گیرد؛ ارتقا یا انتقال داده رمزگذاری‌شده **همان APP_KEY قبلی** را حفظ می‌کند. تولید دوباره کلید داده قبلی را قابل بازیابی نمی‌کند.
+4. migration فقط از کنسول مجاز و پس از بررسی/بکاپ؛ نه درخواست وب و نه هنگام استخراج ZIP. migrate:fresh/db:wipe/rollback دستور نصب نیستند.
+5. Seeder فقط نقش‌هاست؛ کاربر پیش‌فرض ندارد. identity:provision-staff از کنسول نقش می‌دهد؛ OTP همچنان لازم است. fixtureهای tests برای نصب عادی نیستند.
+6. env، فایل خصوصی، بکاپ و کلید خارج public بمانند؛ chmod 777، storage:link به داده خصوصی یا installer عمومی ساخته نشود.
+7. برای جریان فعلی اعلان/انقضا/reconcile، Cron دقیقه‌ای schedule:run کافی است؛ queue:work جدا شرط این پیاده‌سازی نیست. heartbeat تازه باید از Cron واقعی بیاید.
+8. بکاپ داخلی به client رسمی MySQL 8 و proc_open و کلید مستقل نیاز دارد؛ restore به مقصد خالی با نام ani_doctor_restore_* و حساب فقط مجاز به همان مقصد. پیشوند اجباری بعضی cPanelها با این قرارداد سازگار نیست؛ راهکار drill/بازیابی باید قبل داده واقعی با میزبان تعیین شود.
+9. فقط بعد از تنظیم/آزمون مستقل، SMS رویداد و درگاه را فعال کنید؛ callback زرین‌پال پایه HTTPS ثابت دارد و UUID را خود برنامه اضافه می‌کند.
+10. ادغام کد، ساخت ZIP و موفقیت staging موقت به معنی استقرار روی هاست واقعی، موفقیت پرداخت/SMS واقعی یا تأیید حقوقی/نفوذ نیستند.
 
-پروژه باید با PHP 8.4 و Laravel 13 سازگار باشد. CI اگر بخشی از اسکلت موجود ولی ناقص باشد، عمداً fail می‌شود و بسته غیرقابل نصب نمی‌سازد.
+## منابع رسمی زیرساخت
 
-**شرط assets:** صفحات باید از فایل‌های static prebuilt `public/assets` استفاده کنند. اگر صفحات Blade به `@vite` وابسته باشند، CI شکست می‌خورد تا اشتباهاً ZIP دارای Frontend ناقص تولید نشود.
+- [Laravel deployment](https://laravel.com/docs/13.x/deployment)
+- [cPanel Domains](https://docs.cpanel.net/cpanel/domains/domains/)
+- [cPanel Cron Jobs](https://docs.cpanel.net/cpanel/advanced/cron-jobs/)
+- [cURL CA verification](https://curl.se/docs/sslcerts.html)
 
-## 4. محتوای ZIP
-- پوشه‌های `app`, `bootstrap`, `config`, `database`, `lang`, `public`, `resources`, `routes` (اگر موجود باشند)
-- فایل‌های `artisan`, `composer.json`, `composer.lock`
-- پوشه کامل `vendor/` برای production (بدون dev dependency)
-- پوشه‌های خالی لازم برای storage/cache که در زمان نصب writable می‌شوند
-- فایل متنی راهنمای استقرار
-
-**عمداً خارج از ZIP:** `.env` و گونه‌های آن، secretها، private keyها، تست‌ها، `.git`، داده runtime، فایل پزشکی، dump دیتابیس و فایل‌های توسعه. اگر فایل بالقوه محرمانه در پکیج شناسایی شود، job باید fail کند.
-
-## 5. الزامات هاست
-قبل از خرید هاست بررسی شود:
-- PHP 8.4 (سازگار با Laravel 13، حداقل نسخه 8.3) و extensionهای لازم مثل mbstring, openssl, PDO MySQL, xml, curl, fileinfo, tokenizer, ctype, dom, session, zip؛
-- MySQL/MariaDB سازگار، InnoDB، دیتابیس و کاربر با حداقل مجوز مورد نیاز؛
-- SSL/TLS معتبر و امکان HTTPS اجباری؛
-- امکان تنظیم DocumentRoot دامنه/ساب‌دامنه روی پوشه `public`؛
-- دسترسی مدیریت فایل خارج `public_html`، Cron و دسترسی لازم برای اجرای `php artisan` حداقل در راه‌اندازی؛
-- `storage` و `bootstrap/cache` writable باشند؛
-- queue worker بلندمدت یا راهکار Cron جایگزین برای SMS، انقضای نوبت‌ها و reconcile.
-
-**مهم:** اگر هاست اجازه قرار دادن اپ بیرون DocumentRoot و تنظیم DocumentRoot=public را نمی‌دهد، آن هاست برای نصب مستقیم این ZIP مناسب نیست. اپ را صرفاً برای ساده‌ترشدن نصب در `public_html` رها نکنید؛ در صورت اجبار، طراحی layout جدا/بازنویسی مسیر امن و تست حفاظتی مستقل لازم است.
-
-## 6. روش نصب نسخه کامل روی هاست (پس از P1)
-1. ZIP را از GitHub Actions دریافت و محتوای آن را در پوشه خصوصی مثل `/home/account/ani-doctor` استخراج کنید.
-2. DocumentRoot سایت را به `/home/account/ani-doctor/public` اشاره دهید.
-3. دیتابیس و کاربر کم‌دسترسی بسازید.
-4. فایل `.env` را **روی هاست**، خارج از public، براساس کلیدهای `.env.example` نسخه پروژه بسازید؛ APP_ENV=production و APP_DEBUG=false؛ نام/رمز دیتابیس، پیامک، درگاه و APP_URL حقیقی را فقط اینجا وارد کنید.
-5. `APP_KEY` را روی سرور یک‌بار با `php artisan key:generate` تولید کنید و امن نگه دارید. **در هر deployment بعدی APP_KEY را عوض نکنید.**
-6. مالکیت/مجوز نوشتن `storage` و `bootstrap/cache` را اصلاح کنید؛ بدون permission 777 عمومی.
-7. ابتدا بکاپ؛ سپس migration با `php artisan migrate --force` در نسخه‌ای که migrationهای واقعی و بررسی‌شده دارد.
-8. cache را با پیکربندی واقعی سرور ایجاد کنید: `php artisan optimize:clear` و سپس `php artisan optimize`؛ کش تنظیمات پیش‌ساخته از CI داخل ZIP نباید وجود داشته باشد.
-9. Cron Scheduler را هر دقیقه اجرا کنید: `* * * * * cd /home/account/ani-doctor && /usr/bin/php artisan schedule:run >> /dev/null 2>&1` (مسیر PHP در هاست بررسی شود). Worker صف متناسب با امکانات هاست تنظیم شود.
-10. HTTPS، صفحه ورود، تقویم، مجوز مدیر/منشی، رزرو sandbox، SMS و PDF را بررسی کنید و بعد از آن تراکنش واقعی را فعال کنید.
-
-## 7. روش نصب نسخه جدید
-- از دیتابیس و storage خصوصی نسخه پشتیبان قابل بازیابی تهیه کنید.
-- نسخه جدید ZIP را در مسیر release جدا استخراج و سلامتی آن را بررسی کنید؛ secret و storage runtime قبلی را به‌صورت امن استفاده مجدد کنید.
-- زمان کوتاه maintenance متناسب با تغییرات و migration برنامه‌ریزی کنید؛ migration را کنترل‌شده اجرا کنید.
-- هرگز `.env` تولیدی یا تصاویر/فایل‌های بیماران را با ZIP تازه overwrite نکنید.
-- symlink/current release در صورت قابلیت هاست برای rollback امن مناسب است.
-- نسخه قدیمی و برنامه بازگشت قبل از فعال‌سازی نگهداری شود؛ تغییرات DB ناسازگار باید راهبرد بازگشت جدا داشته باشند.
-
-## 8. محدودیت‌های CI و مسائل امنیتی
-- Actions خروجی **فقط بسته نصب** می‌سازد؛ خودش سرور را تغییر نمی‌دهد و استقرار آنلاین خودکار انجام نمی‌شود.
-- GitHub artifact شامل `vendor` است؛ باید مرتب dependencyها و هشدارهای امنیتی بررسی شوند.
-- اگر هاست محدودیت Cron/queue یا PHP extension دارد، قبل از توسعه فاز P1 باید تطابق تأیید شود.
-- دسترسی public GitHub به سورس و مستندات به‌معنای مجازبودن قرار دادن secrets/داده واقعی در repo نیست.
-- برای امنیت بیشتر نسخه actionها بعداً به commit SHA تأییدشده pin شوند.
-
-## 9. ساخت ChatGPT Project برای استفاده از اسناد
-1. در ChatGPT از نوار کناری **New project** را انتخاب و نام `Ani Doctor — Development` بدهید.
-2. فایل‌های `AI_RULES.md`, `PRD.md`, `ARCHITECTURE.md`, `UI_GUIDELINES.md`, `COMPONENTS.md`, `SECURITY.md` را از GitHub دانلود و به Project Files اضافه کنید؛ `DEPLOYMENT.md` را نیز بهتر است ضمیمه کنید.
-3. در قسمت **Project instructions** بنویسید: «قبل از پاسخ/کدنویسی فایل AI_RULES.md و سپس PRD.md, ARCHITECTURE.md, COMPONENTS.md, UI_GUIDELINES.md, SECURITY.md را مبنا قرار بده. تنها در محدوده فاز اعلام‌شده کار کن. مخزن اصلی: anishopmobile/ani-doctor. هیچ تست اجرا‌نشده یا deployment انجام‌نشده‌ای را موفق اعلام نکن.»
-4. اگر GitHub به ChatGPT متصل است، کار روی مخزن و PRها را با همان اتصال پیش ببرید؛ فایل‌های Project پس از هر تغییر مهم باید با نسخه repo هماهنگ شوند.
-5. برای هر مرحله یک گفت‌وگوی جدا در Project ایجاد کنید، مثلاً «P1 — Foundation / Identity»؛ نام فاز و معیار پذیرش را در درخواست بنویسید.
-6. هنگام شروع P1 مخزن و وضعیت Actions را بخوانید؛ پس از commit، تب Actions را برای نتیجه تست و artifact بررسی کنید.
-
-## 10. پیوندهای فنی
-- https://laravel.com/docs/13.x/deployment
-- https://docs.github.com/en/actions
-- https://github.com/actions/upload-artifact
-- https://github.com/shivammathur/setup-php
-
-
-## افزوده P5
-
-P5: پیش از ارتقا بکاپ، توقف درخواست‌های نوشتنی و بازبینی migration حضور لازم است؛ سپس migrate و RoleSeeder اجرا شوند. rollback حضور تاریخچه جدید را حذف می‌کند ولی نوبت و داده مالی را نگه می‌دارد. ناسازگاری reader قدیمی برای completed را در docs/P5.md بررسی کنید. استقرار واقعی این فاز انجام نشده است.
-
-
-## افزوده P6
-
-P6: پیش از migrate/RoleSeeder بکاپ هماهنگ DB/APP_KEY و توقف writes/worker؛ EVENT_SMS_ENABLED=false پیش‌فرض مستقل از OTP است. فقط پس از بررسی قالب عمومی DATE/TIME/REFERENCE و آزمون شماره مجاز، ارسال رویداد را فعال کنید. cron موجود notifications:dispatch را دقیقه‌ای و notifications:delivery را هر ۱۵ دقیقه اجرا می‌کند؛ این صف DB به queue:work وابسته نیست. rollback پاسخ‌ها/نسخه‌ها/audit و صف ارسال P6 را حذف می‌کند؛ هماهنگی نسخه و بکاپ الزامی است. هیچ استقرار/ارسال واقعی گواهی نشده؛ docs/P6.md.
-
-## افزوده P7
-بسته باید vendor قفل‌شده mPDF/PhpSpreadsheet و resources/fonts با OFL داشته باشد. PHP gd/mbstring/zip و دسترسی نوشتن storage/framework/pdf-font-cache لازم است. CLINIC_PUBLIC_DOCTOR_NAME و CLINIC_PUBLIC_ADDRESS فقط اطلاعات عمومی واقعی مطب‌اند. اجرای migration دهم و RoleSeeder پس از بکاپ امن DB/APP_KEY؛ rollback فقط P7 breakdown و audit/نام جدید را حذف می‌کند و خالص نوبت/رسید/P6 را حفظ می‌کند. [راهنما و خطرها](docs/P7.md). این دستورالعمل گواه استقرار نیست.
+پارامترهای واقعی حساب، دامنه، مسیر PHP، CA و باینری MySQL از محیط مقصد گرفته شوند؛ مثال راهنما جای credential یا اطلاعات تأییدشده میزبان نیست.

@@ -78,7 +78,7 @@ P2 فقط preview و مدیریت برنامه دارد؛ قفل استثناه�
 
 ## 9. زیرساخت و هاست
 - **DocumentRoot باید پوشه `public/` Laravel باشد**؛ قرار دادن کل ریشه اپ در `public_html` ناامن است.
-- PHP >=8.3 و extensionهای Laravel 13؛ MySQL با دسترسی محدود؛ دسترسی نوشتن فقط `storage/` و `bootstrap/cache/`.
+- PHP >=8.4 و extensionهای Laravel 13 و composer.json پروژه؛ MySQL با دسترسی محدود؛ دسترسی نوشتن فقط `storage/` و `bootstrap/cache/`.
 - مالک فایل و permission حداقلی؛ `.env` خارج public و unreadable برای سایر کاربران هاست.
 - `APP_DEBUG=false` و `APP_ENV=production`؛ `APP_KEY` روی هاست یک‌بار تولید، محفوظ و قابل بازیابی در انتقال سرور.
 - scheduler: `php artisan schedule:run` دقیقه‌ای؛ queue worker با Supervisor یا راهکار cron امن و کنترل concurrency متناسب با هاست.
@@ -125,3 +125,6 @@ P6 پاسخ فرم، مقصد و پارامتر outbox با APP_KEY رمزگذا
 
 ## خروجی خصوصی P7
 مجوز reports.finance مستقل از reports.appointments و فرم خصوصی است؛ منشی گزارش مالی ندارد. دانلود آنی حافظه‌ای با private/no-store، نام غیرحساس و rate limit؛ audit فقط فیلتر whitelist دارد. XLSX متن را صریحاً string می‌نویسد؛ فرمول و لینک از متن ورودی ساخته نمی‌شود. سقف ۱۰۰۰ ردیف/۲۵۰ PDF و ۳۶۶ روز، پاسخ 422 بدون truncation؛ جزئیات [docs/P7.md](docs/P7.md).
+
+## P8
+HTTPS/Host و نشست امن در production fail-closed، اعتماد IP پراکسی صریح، خطای بدون payload خصوصی و هدر خطا؛ بکاپ authenticated encryption با کلید مستقل و بازیابی فقط DB خالی جدا، کنترل ZIP و staging موقت. فرمت/تهدیدها و گیت‌های انجام‌نشده انتشار عمومی در [docs/P8.md](docs/P8.md)، شواهد در [docs/P8-VALIDATION.md](docs/P8-VALIDATION.md). این شواهد گواه نفوذ مستقل یا انطباق حقوقی نیستند.
