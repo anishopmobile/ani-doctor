@@ -15,13 +15,13 @@ final class CalendarRequest extends FormRequest
 
     public function rules(): array
     {
-        return ['service_id' => 'required|integer|min:1', 'month' => $this->routeIs('calendar.month') ? ['required', 'string', 'regex:/\A1[34][0-9]{2}-(0[1-9]|1[0-2])\z/'] : 'prohibited', 'date' => $this->routeIs('calendar.day') ? 'required|date_format:Y-m-d' : 'prohibited'];
+        return ['service_id' => 'required|integer|min:1', 'month' => $this->routeIs('calendar.month', 'appointments.calendar.month') ? ['required', 'string', 'regex:/\A1[34][0-9]{2}-(0[1-9]|1[0-2])\z/'] : 'prohibited', 'date' => $this->routeIs('calendar.day', 'appointments.calendar.day') ? 'required|date_format:Y-m-d' : 'prohibited'];
     }
 
     public function after(): array
     {
         return [function (Validator $validator): void {
-            if ($validator->errors()->isNotEmpty() || !$this->routeIs('calendar.month')) {
+            if ($validator->errors()->isNotEmpty() || !$this->routeIs('calendar.month', 'appointments.calendar.month')) {
                 return;
             }
             try {

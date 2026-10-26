@@ -44,6 +44,8 @@ unavailable_reason?: holiday|full|past|outside_window|closed
 داده‌های این DTO نباید نام/موبایل بیمار دیگر را افشا کنند. ظرفیت در زمان ثبت نهایی دوباره بررسی شود.
 
 ### 3.2 Appointment (نمای عمومی)
+اجرای P3 در BookingService و AppointmentReader، با AppointmentPolicy و قرارداد هویت Identity است. قرارداد درخواست‌ها و claim: [docs/P3.md](docs/P3.md). عملیات مالی لغو پرداخت‌شده به P4 وابسته و فعلاً مسدود است.
+
 ```text
 reference: opaque string
 service_title: string

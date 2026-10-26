@@ -20,3 +20,5 @@ body{font-family:Vazirmatn,Tahoma,sans-serif;background:#f7fafb;color:#22323c;li
 .field-grid label, .shift-row label { display: block; min-width: 0; }
 .shift-row legend { float: none; width: auto; }
 summary { cursor: pointer; min-height: 44px; }
+dialog { max-width: min(440px, calc(100vw - 32px)); border: 1px solid #dde6e9; border-radius: 12px; padding: 24px; }
+dialog::backdrop { background: rgb(34 50 60 / 45%); }

@@ -13,27 +13,52 @@ use Illuminate\View\View;
 
 final class CalendarController extends Controller
 {
-    public function index(JalaliDate $jalali): View
+    public function index(JalaliDate $jalali, \Illuminate\Http\Request $request, \App\Modules\Booking\Application\ActorResolver $actors): View
     {
-        return view('calendar', ['services' => Service::where('is_active', true)->where('is_online', true)->orderBy('name')->get(), 'initialMonth' => substr($jalali->format(CarbonImmutable::now('Asia/Tehran')), 0, 7)]);
+        try {
+            $actor = $actors->resolve($request);
+        } catch (\App\Modules\Booking\Domain\BookingFailure) {
+            $actor = null;
+        }
+        $services = Service::where('is_active', true);
+        if (!$actor?->staff()) {
+            $services->where('is_online', true);
+        }
+        return view('calendar', ['services' => $services->orderBy('name')->get(), 'initialMonth' => substr($jalali->format(CarbonImmutable::now('Asia/Tehran')), 0, 7), 'actor' => $actor,'patients' => $actor ? app(\App\Modules\Patients\Application\BookingPatientService::class)->choices($actor) : collect(), 'editing' => null]);
     }
 
     public function month(CalendarRequest $request, AvailabilityService $availability, JalaliDate $jalali): JsonResponse
     {
-        $service = Service::where('is_active', true)->where('is_online', true)->findOrFail($request->validated('service_id'));
+        [$service,$exclude] = $this->selection($request);
         [$from, $to] = $jalali->month($request->validated('month'));
         $days = array_map(function ($day) {
             unset($day['slots']);
             return $day;
-        }, $availability->days($service, $from, $to));
+        }, $availability->days($service, $from, $to, $exclude));
         return $this->response(['days' => $days]);
     }
 
     public function day(CalendarRequest $request, AvailabilityService $availability): JsonResponse
     {
-        $service = Service::where('is_active', true)->where('is_online', true)->findOrFail($request->validated('service_id'));
+        [$service,$exclude] = $this->selection($request);
         $date = CarbonImmutable::createFromFormat('!Y-m-d', $request->validated('date'), 'Asia/Tehran');
-        return $this->response($availability->days($service, $date, $date)[0]);
+        return $this->response($availability->days($service, $date, $date, $exclude)[0]);
+    }
+
+    private function selection(CalendarRequest $request): array
+    {
+        $query = Service::where('is_active', true);
+        if (!$request->user()?->hasPermission('appointments.manage')) {
+            $query->where('is_online', true);
+        }
+        $service = $query->findOrFail($request->validated('service_id'));
+        $reference = $request->route('reference');
+        if ($reference) {
+            $actor = app(\App\Modules\Booking\Application\ActorResolver::class)->resolve($request);
+            $appointment = app(\App\Modules\Booking\Application\AppointmentAccess::class)->query($actor)->where('reference', $reference)->where('service_id', $service->id)->firstOrFail();
+            $service->forceFill(['duration_minutes' => $appointment->duration_minutes,'buffer_minutes' => $appointment->buffer_minutes,'capacity' => $appointment->capacity_limit]);
+        }
+        return [$service,$reference];
     }
 
     private function response(array $data): JsonResponse

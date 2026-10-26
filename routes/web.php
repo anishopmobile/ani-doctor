@@ -5,6 +5,23 @@ use App\Http\Controllers\Web\OtpController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/login');
+Route::middleware([\App\Http\Middleware\VerifiedBooker::class, 'throttle:booking'])->group(function (): void {
+    Route::get('/appointments', [\App\Http\Controllers\Web\AppointmentController::class, 'index'])->name('appointments.index');
+    Route::get('/appointments/{reference}', [\App\Http\Controllers\Web\AppointmentController::class, 'show'])->name('appointments.show');
+    Route::get('/appointments/{reference}/edit', [\App\Http\Controllers\Web\AppointmentController::class, 'edit'])->name('appointments.edit');
+    Route::get('/api/v1/appointments/{reference}/calendar', [\App\Http\Controllers\Web\CalendarController::class, 'month'])->name('appointments.calendar.month');
+    Route::get('/api/v1/appointments/{reference}/availability', [\App\Http\Controllers\Web\CalendarController::class, 'day'])->name('appointments.calendar.day');
+    Route::post('/appointments', [\App\Http\Controllers\Web\AppointmentController::class, 'store'])->defaults('booking_action', 'create')->name('appointments.store');
+    Route::post('/api/v1/appointments', [\App\Http\Controllers\Web\AppointmentController::class, 'store'])->defaults('booking_action', 'create')->name('api.appointments.store');
+    foreach (['reschedule','cancel','claim'] as $action) {
+        Route::post('/appointments/{reference}/'.$action, [\App\Http\Controllers\Web\AppointmentController::class, 'change'])->defaults('booking_action', $action)->name('appointments.'.$action);
+        Route::match($action === 'reschedule' ? ['POST','PATCH'] : ['POST'], '/api/v1/appointments/{reference}/'.$action, [\App\Http\Controllers\Web\AppointmentController::class, 'change'])->defaults('booking_action', $action)->name('api.appointments.'.$action);
+    }
+});
+Route::middleware(['auth','can:booking.settings'])->group(function (): void {
+    Route::get('/admin/booking-settings', [\App\Http\Controllers\Admin\BookingSettingsController::class,'index'])->name('booking.settings');
+    Route::put('/admin/booking-settings', [\App\Http\Controllers\Admin\BookingSettingsController::class,'update'])->name('booking.settings.update');
+});
 Route::get('/calendar', [\App\Http\Controllers\Web\CalendarController::class, 'index'])->name('calendar');
 Route::middleware('throttle:calendar')->group(function (): void {
     Route::get('/api/v1/calendar', [\App\Http\Controllers\Web\CalendarController::class, 'month'])->name('calendar.month');
