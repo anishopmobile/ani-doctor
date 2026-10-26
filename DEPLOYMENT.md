@@ -98,3 +98,8 @@ Triggerها: هر `push` به شاخه‌ها و اجرای دستی از `Actio
 ## افزوده P5
 
 P5: پیش از ارتقا بکاپ، توقف درخواست‌های نوشتنی و بازبینی migration حضور لازم است؛ سپس migrate و RoleSeeder اجرا شوند. rollback حضور تاریخچه جدید را حذف می‌کند ولی نوبت و داده مالی را نگه می‌دارد. ناسازگاری reader قدیمی برای completed را در docs/P5.md بررسی کنید. استقرار واقعی این فاز انجام نشده است.
+
+
+## افزوده P6
+
+P6: پیش از migrate/RoleSeeder بکاپ هماهنگ DB/APP_KEY و توقف writes/worker؛ EVENT_SMS_ENABLED=false پیش‌فرض مستقل از OTP است. فقط پس از بررسی قالب عمومی DATE/TIME/REFERENCE و آزمون شماره مجاز، ارسال رویداد را فعال کنید. cron موجود notifications:dispatch را دقیقه‌ای و notifications:delivery را هر ۱۵ دقیقه اجرا می‌کند؛ این صف DB به queue:work وابسته نیست. rollback پاسخ‌ها/نسخه‌ها/audit و صف ارسال P6 را حذف می‌کند؛ هماهنگی نسخه و بکاپ الزامی است. هیچ استقرار/ارسال واقعی گواهی نشده؛ docs/P6.md.

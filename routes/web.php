@@ -5,6 +5,22 @@ use App\Http\Controllers\Web\OtpController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/login');
+Route::middleware(['auth', \App\Http\Middleware\VerifiedBooker::class, 'throttle:desk', 'can:forms.manage'])->group(function (): void {
+    Route::get('/admin/forms', [\App\Http\Controllers\Admin\FormBuilderController::class, 'index'])->name('forms.manage');
+    Route::get('/admin/forms/new', [\App\Http\Controllers\Admin\FormBuilderController::class, 'edit'])->name('forms.new');
+    Route::post('/admin/forms', [\App\Http\Controllers\Admin\FormBuilderController::class, 'save'])->name('forms.store');
+    Route::get('/admin/forms/{form}', [\App\Http\Controllers\Admin\FormBuilderController::class, 'edit'])->whereNumber('form')->name('forms.edit');
+    Route::post('/admin/forms/{form}', [\App\Http\Controllers\Admin\FormBuilderController::class, 'save'])->whereNumber('form')->name('forms.update');
+});
+Route::middleware(['auth', \App\Http\Middleware\VerifiedBooker::class, 'throttle:desk', 'can:notifications.manage'])->group(function (): void {
+    Route::get('/admin/notifications', [\App\Http\Controllers\Admin\NotificationController::class, 'index'])->name('notifications.manage');
+    Route::post('/admin/notifications', [\App\Http\Controllers\Admin\NotificationController::class, 'save'])->name('notifications.save');
+});
+Route::middleware([\App\Http\Middleware\VerifiedBooker::class, 'throttle:booking'])->group(function (): void {
+    Route::get('/private-forms/{reference}', [\App\Http\Controllers\Web\PrivateFormController::class, 'index'])->whereUuid('reference')->name('private-forms.index');
+    Route::get('/private-forms/{reference}/{form}', [\App\Http\Controllers\Web\PrivateFormController::class, 'show'])->whereUuid('reference')->whereNumber('form')->name('private-forms.show');
+    Route::post('/private-forms/{reference}/{form}', [\App\Http\Controllers\Web\PrivateFormController::class, 'store'])->whereUuid('reference')->whereNumber('form')->name('private-forms.store');
+});
 Route::middleware(['auth', \App\Http\Middleware\VerifiedBooker::class, 'throttle:desk'])->group(function (): void {
     Route::get('/management/desk', [\App\Http\Controllers\Secretary\DeskController::class, 'index'])->middleware('can:desk.view')->name('desk');
     Route::post('/management/desk/search', [\App\Http\Controllers\Secretary\DeskController::class, 'filter'])->middleware('can:desk.view')->name('desk.filter');

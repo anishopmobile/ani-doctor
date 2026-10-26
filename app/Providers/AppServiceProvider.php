@@ -21,6 +21,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->app->bind(\App\Modules\Notifications\Domain\EventSmsProviderInterface::class, \App\Modules\Notifications\Infrastructure\SmsIrEventProvider::class);
         $this->app->bind(\App\Modules\Payments\Domain\PaymentGatewayInterface::class, \App\Modules\Payments\Infrastructure\ZarinpalGateway::class);
         $this->app->bind(\App\Modules\Booking\Domain\BookingFinanceInterface::class, \App\Modules\Billing\Application\BookingFinance::class);
         $this->app->bind(SmsProviderInterface::class, SmsIrProvider::class);
@@ -32,6 +33,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        foreach (['forms.manage', 'forms.answers.view', 'forms.answers.write', 'notifications.manage'] as $permission) {
+            Gate::define($permission, fn (User $user) => $user->hasPermission($permission));
+        }
         \Illuminate\Support\Facades\View::composer('layouts.app', function ($view): void {
             $until = \Illuminate\Support\Facades\DB::table('payment_settings')->where('id', 1)->value('emergency_until');
             $view->with('clinicEmergencyActive', $until && now()->lessThan($until));

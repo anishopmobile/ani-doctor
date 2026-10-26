@@ -17,6 +17,8 @@
 <a class="visually-hidden-focusable" href="#main">رفتن به محتوای اصلی</a>
 <header class="site-header"><div class="container"><a href="{{ route('calendar') }}" class="brand">آنی دکتر</a><nav class="d-flex gap-3 flex-wrap" aria-label="دسترسی اصلی"><a href="{{ route('calendar') }}">تقویم خدمات</a><a href="{{ route('dashboard') }}">حساب من</a><a href="{{ route('appointments.index') }}">نوبت‌ها</a>@can('booking.settings')<a href="{{ route('booking.settings') }}">سیاست رزرو</a>@endcan @can('catalog.manage')<a href="{{ route('services.index') }}">خدمات</a>@endcan @can('schedules.manage')<a href="{{ route('schedule.index') }}">برنامه کاری</a>@endcan</nav></div></header>
 <main id="main" class="container py-4">
+    @can('forms.manage')<a class="d-inline-block mb-3 me-3" href="{{ route('forms.manage') }}">مدیریت فرم‌های خصوصی</a>@endcan
+    @can('notifications.manage')<a class="d-inline-block mb-3" href="{{ route('notifications.manage') }}">اعلان‌های پیامکی</a>@endcan
     @auth<form method="post" action="{{ route('logout') }}" class="mb-3">@csrf<button class="btn btn-outline-secondary">خروج از حساب</button></form>@endauth
     @if($clinicEmergencyActive)<p class="alert alert-warning" role="status">حالت اضطراری پرداخت در مطب فعال است؛ نوبت‌های این حالت بدهکار ثبت می‌شوند.</p>@endif
     <nav class="d-flex gap-3 mb-3" aria-label="پیگیری مالی"><a href="{{ route('wallet') }}">اعتبار و استرداد</a>@can('payments.review')<a href="{{ route('finance') }}">مدیریت مالی</a>@endcan</nav>

@@ -1,6 +1,7 @@
 @extends('layouts.app')
 @push('assets')<script src="{{ asset('assets/booking.js') }}" defer></script>@endpush
 @section('content')
+@if(!$actor->staff() || $actor->can('forms.answers.view'))<p><a href="{{ route('private-forms.index', $appointment->reference) }}">فرم‌های خصوصی این نوبت</a></p>@endif
 <h1 class="h3">جزئیات نوبت</h1>
 <p>{{ $appointment->patient->name }} — {{ $appointment->service_title }}</p>
 <p>تاریخ: <bdi dir="ltr">{{ $jalali->format($appointment->start_at) }}</bdi>، ساعت {{ $appointment->start_at->setTimezone('Asia/Tehran')->format('H:i') }} به وقت تهران</p>

@@ -44,6 +44,7 @@ final class FinancialBookingService
         $before = $appointment->status;
         $appointment->forceFill(['status' => 'confirmed', 'payment_status' => $paymentStatus, 'balance_due_irr' => $due, 'version' => $appointment->version + 1])->save();
         $this->event($appointment, $before, 'confirmed', $actorId, $reason, $actorHash);
+        app(\App\Modules\Notifications\Application\NotificationOutbox::class)->record($appointment, 'confirmed');
     }
     public function financialStatus(Appointment $appointment, string $status, int $due): void
     {

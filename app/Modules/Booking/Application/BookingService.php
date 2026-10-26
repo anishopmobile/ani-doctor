@@ -55,7 +55,7 @@ final class BookingService
             }
             $appointment = Appointment::create([
                 'reference' => (string)Str::uuid(),'patient_id' => $patient->id,
-                'booker_user_id' => $actor->staff() ? null : $actor->userId,'booker_mobile_hash' => $ownerHash,
+                'booker_user_id' => $actor->staff() ? null : $actor->userId,'booker_mobile_hash' => $ownerHash, 'notification_mobile' => $actor->staff() ? $data['booker_mobile'] : $actor->mobile,
                 'service_id' => $service->id,'service_title' => $service->name,'price_irr' => $service->price_irr,
                 'duration_minutes' => $service->duration_minutes,'buffer_minutes' => $service->buffer_minutes,
                 'capacity_limit' => $slot['capacity_limit'],'local_date' => $date,'start_at' => $start,
@@ -136,6 +136,9 @@ final class BookingService
             $appointment->version++;
             $appointment->save();
             $this->event($appointment, $actor, $action, $before, $data['reason'] ?? null);
+            if ($action === 'cancel' || ($action === 'reschedule' && $appointment->status === 'confirmed')) {
+                app(\App\Modules\Notifications\Application\NotificationOutbox::class)->record($appointment, $action === 'cancel' ? 'cancelled' : 'rescheduled');
+            }
             $this->remember($actor, $data, $action, $appointment);
             return $appointment;
         }, 3);

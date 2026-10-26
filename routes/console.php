@@ -42,3 +42,13 @@ Artisan::command('payments:reconcile', function (\App\Modules\Payments\Applicati
     $this->info('تلاش‌های دارای شناسه درگاه بررسی شدند؛ نتیجه در مدیریت مالی قابل پیگیری است.');
 });
 Schedule::command('payments:reconcile')->everyFiveMinutes()->withoutOverlapping();
+
+Artisan::command('notifications:dispatch', function (\App\Modules\Notifications\Application\MessageDispatcher $dispatcher): void {
+    $dispatcher->run();
+    $this->info('صف اعلان‌ها بررسی شد؛ پذیرش ارائه‌دهنده به معنی تحویل به گوشی نیست.');
+});
+Schedule::command('notifications:dispatch')->everyMinute()->withoutOverlapping();
+Artisan::command('notifications:delivery', function (\App\Modules\Notifications\Application\MessageDispatcher $dispatcher): void {
+    $dispatcher->poll();
+});
+Schedule::command('notifications:delivery')->everyFifteenMinutes()->withoutOverlapping();

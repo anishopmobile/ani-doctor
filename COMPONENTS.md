@@ -170,3 +170,8 @@ queryDelivery(providerMessageId): DeliveryStatus
 ## افزوده P5
 
 P5: میز کار منشی/مدیر، فهرست پایه بیمار، رزرو تلفنی/فوری و حضور افزوده شد. قرارداد Serviceها، مسیرها، مجوزها و ماشین وضعیت در docs/P5.md ثبت شده است.
+
+
+## افزوده P6
+
+FormSchema و PrivateFormService، EventSmsProviderInterface/SmsIrEventProvider و NotificationOutbox/MessageDispatcher/SmsSettingsService افزوده شدند. مسیرها، مجوز مستقل پاسخ و retry محدود در docs/P6.md ثبت‌اند؛ فایل پزشکی طبق مرز PRD مجاز نیست.

@@ -21,13 +21,13 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->report(function (\Illuminate\Database\QueryException $error) {
-            if (request()->is('appointments*', 'api/v1/appointments*', 'payments*', 'api/v1/payments*', 'wallet*', 'admin/finance*', 'management/desk*', 'management/bookings*', 'management/patients*', 'management/appointments*', 'secretary', 'admin', 'dashboard', 'patient')) {
+            if (request()->is('appointments*', 'api/v1/appointments*', 'payments*', 'api/v1/payments*', 'wallet*', 'admin/finance*', 'admin/forms*', 'admin/notifications*', 'private-forms*', 'management/desk*', 'management/bookings*', 'management/patients*', 'management/appointments*', 'secretary', 'admin', 'dashboard', 'patient')) {
                 \Illuminate\Support\Facades\Log::error('booking.database_error', ['sql_state' => $error->errorInfo[0] ?? 'unknown']);
                 return false;
             }
         });
         $exceptions->render(function (\Illuminate\Database\QueryException $error, Request $request) {
-            if ($request->is('appointments*', 'api/v1/appointments*', 'payments*', 'api/v1/payments*', 'wallet*', 'admin/finance*', 'management/desk*', 'management/bookings*', 'management/patients*', 'management/appointments*', 'secretary', 'admin', 'dashboard', 'patient')) {
+            if ($request->is('appointments*', 'api/v1/appointments*', 'payments*', 'api/v1/payments*', 'wallet*', 'admin/finance*', 'admin/forms*', 'admin/notifications*', 'private-forms*', 'management/desk*', 'management/bookings*', 'management/patients*', 'management/appointments*', 'secretary', 'admin', 'dashboard', 'patient')) {
                 $message = 'ثبت یا دریافت نوبت فعلاً انجام نشد. همان درخواست را دوباره بررسی کنید.';
                 if ($request->expectsJson() || $request->is('api/v1/*')) {
                     return response()->json(['success' => false,'data' => null,'error' => ['code' => 'BOOKING_TEMPORARILY_UNAVAILABLE','message' => $message],'meta' => (object)[]], 503);
@@ -73,7 +73,7 @@ return Application::configure(basePath: dirname(__DIR__))
             if ($request->is('payments/zarinpal/callback/*')) {
                 return response()->view('errors.message', ['message' => $message], $error->status);
             }
-            return back()->withInput($request->except('_token', 'Authority', 'Status'))->withErrors(['booking' => $message]);
+            return back()->withInput($request->except('_token', 'Authority', 'Status', 'answers', 'schema'))->withErrors(['booking' => $message]);
         });
         $exceptions->shouldRenderJsonWhen(fn (Request $request, \Throwable $e) => $request->is('api/v1/*') || $request->expectsJson());
         $exceptions->render(function (\Illuminate\Validation\ValidationException $error, Request $request) {
@@ -86,7 +86,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 return response()->json(['success' => false, 'data' => null, 'error' => ['code' => 'NOT_FOUND', 'message' => 'خدمت در دسترس نیست.'], 'meta' => (object) []], 404);
             }
         });
-        $exceptions->dontFlash(['code', 'mobile', 'Authority', 'Status', 'query']);
+        $exceptions->dontFlash(['code', 'mobile', 'Authority', 'Status', 'query', 'answers', 'schema']);
         $exceptions->dontReport([OtpFailure::class]);
         $exceptions->render(function (OtpFailure $error, Request $request) {
             $message = match ($error->errorCode) {
