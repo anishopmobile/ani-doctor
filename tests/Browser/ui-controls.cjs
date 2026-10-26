@@ -187,6 +187,37 @@ async function main() {
             (await page.locator("[data-fields] .hcg-select").count()) >= 3,
         );
         checks++;
+        await page
+            .locator('input[name="schema[0][label]"]')
+            .fill("فیلد انتخابی ساختگی");
+        await selectSearch(
+            page,
+            'select[name="schema[0][type]"]',
+            "انتخاب",
+            "انتخاب",
+        );
+        await page
+            .getByRole("button", { name: "افزودن فیلد", exact: true })
+            .click();
+        await page.waitForFunction(
+            () =>
+                !!document.querySelector(
+                    'select[name="schema[1][condition][field]"]',
+                )?._hcgApi,
+        );
+        await selectSearch(
+            page,
+            'select[name="schema[1][condition][field]"]',
+            "ساختگی",
+            "فیلد انتخابی ساختگی",
+        );
+        assert.equal(
+            await page
+                .locator('select[name="schema[1][condition][field]"]')
+                .inputValue(),
+            "field_0",
+        );
+        checks++;
         await page.goto(origin + "/admin/discounts");
         await ready(page);
         await page.evaluate(() => {
