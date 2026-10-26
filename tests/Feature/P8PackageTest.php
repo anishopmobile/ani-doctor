@@ -18,6 +18,9 @@ final class P8PackageTest extends TestCase
             $this->writeFixture($path, 'synthetic');
         }
         $this->writeFixture('.env.example', "APP_KEY=\nDB_PASSWORD=\nSMS_IR_API_KEY=\nZARINPAL_MERCHANT_ID=\n");
+        foreach (['INSTALL-LOCAL.md', 'INSTALL-SHARED-HOSTING.md', 'P8.md', 'P8-VALIDATION.md'] as $guide) {
+            $this->writeFixture('docs/'.$guide, 'Reviewed synthetic guide fixture');
+        }
     }
 
     protected function tearDown(): void
@@ -50,7 +53,7 @@ final class P8PackageTest extends TestCase
 
     public function test_zip_rejects_secrets_runtime_backups_source_tests_and_public_php(): void
     {
-        foreach (['.env', 'public/.env', 'storage/app/private/answer.json', 'storage/app/backups/backup.adb', 'bootstrap/cache/config.php', 'public/shell.php', 'public/patient-report.xlsx', 'public/ticket.pdf', 'tests/fixture.php'] as $path) {
+        foreach (['.env', 'public/.env', 'storage/app/private/answer.json', 'storage/app/backups/backup.adb', 'bootstrap/cache/config.php', 'public/shell.php', 'public/patient-report.xlsx', 'public/ticket.pdf', 'docs/private-notes.md', 'tests/fixture.php'] as $path) {
             $this->writeFixture($path, 'PRIVATE-SENTINEL');
             try {
                 (new PackageVerifier())->files($this->root);

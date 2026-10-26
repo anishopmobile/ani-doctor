@@ -25,7 +25,7 @@ final class PackageVerifier
             }
         }
         $files = [];
-        $allowed = ['app', 'bootstrap', 'config', 'database', 'lang', 'public', 'resources', 'routes', 'vendor', 'storage', 'scripts', 'deployment', 'artisan', 'composer.json', 'composer.lock', '.env.example', 'DEPLOYMENT.md', 'INSTALL.txt', 'RELEASE.json'];
+        $allowed = ['app', 'bootstrap', 'config', 'database', 'lang', 'public', 'resources', 'routes', 'vendor', 'storage', 'scripts', 'deployment', 'docs', 'artisan', 'composer.json', 'composer.lock', '.env.example', 'DEPLOYMENT.md', 'INSTALL.txt', 'RELEASE.json'];
         foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root, \FilesystemIterator::SKIP_DOTS)) as $file) {
             $path = str_replace('\\', '/', substr($file->getPathname(), strlen($root) + 1));
             $top = explode('/', $path)[0];
@@ -34,6 +34,9 @@ final class PackageVerifier
             }
             if (!$file->isFile()) {
                 continue;
+            }
+            if ($top === 'docs' && !in_array($path, ['docs/INSTALL-LOCAL.md', 'docs/INSTALL-SHARED-HOSTING.md', 'docs/P8.md', 'docs/P8-VALIDATION.md'], true)) {
+                throw new RuntimeException('PACKAGE_UNEXPECTED_ENTRY');
             }
             if ($top !== 'vendor') {
                 $base = basename($path);
