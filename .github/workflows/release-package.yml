@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - '**'
+  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -18,6 +19,15 @@ jobs:
     name: Verify documentation and package Laravel
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: test-only-root
+          MYSQL_DATABASE: ani_doctor_test
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping -ptest-only-root" --health-interval=10s --health-timeout=5s --health-retries=10
 
     steps:
       - name: Checkout repository
@@ -82,6 +92,14 @@ jobs:
         shell: bash
         run: |
           echo "APP_KEY=base64:$(php -r 'echo base64_encode(random_bytes(32));')" >> "$GITHUB_ENV"
+          # Dotenv expects the file to exist; all test values still come from CI.
+          touch .env
+
+      - name: Check PHP formatting and syntax
+        if: steps.detect.outputs.app == 'true'
+        run: |
+          vendor/bin/pint --test
+          find app bootstrap config database routes tests lang -name '*.php' -print0 | xargs -0 -n1 php -l
 
       - name: Run automated PHP tests
         if: steps.detect.outputs.app == 'true'
@@ -102,6 +120,25 @@ jobs:
             exit 1
           fi
           php artisan test --without-tty
+
+      - name: MySQL OTP concurrency and migration rollback
+        if: steps.detect.outputs.app == 'true'
+        env:
+          APP_ENV: testing
+          DB_CONNECTION: mysql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: ani_doctor_test
+          DB_USERNAME: root
+          DB_PASSWORD: test-only-root
+          CACHE_STORE: array
+          SESSION_DRIVER: array
+        run: |
+          vendor/bin/phpunit
+          vendor/bin/phpunit -c phpunit.mysql.xml
+          php artisan migrate --seed --force
+          php artisan migrate:rollback --force
+          php artisan migrate --seed --force
 
       - name: Verify frontend assets are prebuilt
         if: steps.detect.outputs.app == 'true'
@@ -150,6 +187,7 @@ jobs:
 
           cat > "$stage/INSTALL.txt" <<'EOF'
           ANI DOCTOR - secure Laravel deployment
+          P1 foundation only: identity and OTP; booking and payments are not implemented.
           1. Extract outside public_html; point domain DocumentRoot to public/.
           2. Create production .env on server from .env.example; never reuse CI keys.
           3. Configure production APP_KEY, database, gateways and SMS credentials on server.

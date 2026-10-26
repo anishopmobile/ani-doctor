@@ -77,6 +77,8 @@ queryPayment(ProviderReference): PaymentStatus
 تمام adapterها باید reference/token را از یک منبع معتبر سروری بگیرند. Provider callback به نتیجه internal normalized تبدیل می‌شود، نه اینکه مستقیم appointment را تغییر دهد.
 
 ### 3.5 SmsPort
+پورت اجرایی P1 فقط `Identity/Domain/SmsProviderInterface::sendOtp` را دارد؛ سایر عملیات زیر برای P6 هستند. [جزئیات](docs/P1.md).
+
 ```text
 sendOtp(recipient, template, opaqueCode): MessageResult
 sendTemplate(recipient, templateId, safeVariables): MessageResult

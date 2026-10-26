@@ -10,8 +10,9 @@
 /node_modules/
 
 # Logs and runtime files
-/storage/*
-!/storage/.gitignore
+/storage/**
+!/storage/**/
+!/storage/**/.gitignore
 /bootstrap/cache/*
 !/bootstrap/cache/.gitignore
 *.log
