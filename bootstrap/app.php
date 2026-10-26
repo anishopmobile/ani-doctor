@@ -19,6 +19,17 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->redirectUsersTo('/dashboard');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        $exceptions->shouldRenderJsonWhen(fn (Request $request, \Throwable $e) => $request->is('api/v1/*') || $request->expectsJson());
+        $exceptions->render(function (\Illuminate\Validation\ValidationException $error, Request $request) {
+            if ($request->is('api/v1/*')) {
+                return response()->json(['success' => false, 'data' => null, 'error' => ['code' => 'VALIDATION_ERROR', 'message' => 'ورودی معتبر نیست.', 'details' => $error->errors()], 'meta' => (object) []], 422);
+            }
+        });
+        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\HttpException $error, Request $request) {
+            if ($request->is('api/v1/*') && $error->getStatusCode() === 404) {
+                return response()->json(['success' => false, 'data' => null, 'error' => ['code' => 'NOT_FOUND', 'message' => 'خدمت در دسترس نیست.'], 'meta' => (object) []], 404);
+            }
+        });
         $exceptions->dontFlash(['code', 'mobile']);
         $exceptions->dontReport([OtpFailure::class]);
         $exceptions->render(function (OtpFailure $error, Request $request) {
@@ -34,7 +45,7 @@ return Application::configure(basePath: dirname(__DIR__))
         });
         $exceptions->render(function (ThrottleRequestsException $error, Request $request) {
             $message = 'تعداد درخواست‌ها زیاد است. کمی بعد دوباره تلاش کنید.';
-            if ($request->expectsJson()) {
+            if ($request->expectsJson() || $request->is('api/v1/*')) {
                 return response()->json(['success' => false, 'data' => null, 'error' => ['code' => 'RATE_LIMITED', 'message' => $message], 'meta' => (object) []], 429, $error->getHeaders());
             }
             return response()->view('errors.message', ['message' => $message], 429, $error->getHeaders());
