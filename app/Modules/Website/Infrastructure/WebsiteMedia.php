@@ -13,6 +13,12 @@ final class WebsiteMedia extends Model
 
     public function ownerIsPublished(): bool
     {
+        if ($this->owner_type === 'service') {
+            return \App\Modules\Catalog\Infrastructure\Service::query()
+                ->whereKey($this->owner_id)->where('is_active', true)->where('is_online', true)
+                ->whereHas('websiteContent', fn ($query) => $query->where('is_published', true))->exists();
+        }
+
         if ($this->owner_type === 'article') {
             return WebsiteArticle::query()
                 ->whereKey($this->owner_id)

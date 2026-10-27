@@ -75,4 +75,25 @@ final class WebsiteThemeTest extends TestCase
         }
         $this->assertDatabaseCount('website_theme_settings', 0);
     }
+
+    public function test_brand_contact_and_seo_are_escaped_and_phone_cannot_inject_a_link(): void
+    {
+        $this->actingAs($this->admin());
+        $values = ThemeService::DEFAULTS + [
+            'brand_name' => '<script>brand</script>', 'brand_subtitle' => 'عنوان آزمایشی',
+            'contact_phone' => '+98210000000', 'contact_address' => '<b>نشانی</b>',
+            'seo_description' => '"><script>seo</script>',
+        ];
+        $this->put(route('website.theme.update'), $values)->assertSessionHasNoErrors();
+        auth()->logout();
+        $this->get('/')->assertOk()->assertSee('&lt;script&gt;brand&lt;/script&gt;', false)
+            ->assertDontSee('<script>brand</script>', false)->assertSee('tel:+98210000000', false)
+            ->assertDontSee('<script>seo</script>', false)->assertSee('noindex, nofollow');
+        $this->get('/services')->assertOk()->assertSee('&lt;script&gt;brand&lt;/script&gt;', false);
+        $this->actingAs(User::create(['mobile' => '09120000994']))
+            ->put(route('website.theme.update'), $values)->assertForbidden();
+        $this->actingAs(User::query()->where('mobile', '09120000991')->firstOrFail())
+            ->put(route('website.theme.update'), array_replace($values, ['contact_phone' => 'javascript:alert(1)']))
+            ->assertSessionHasErrors('contact_phone');
+    }
 }

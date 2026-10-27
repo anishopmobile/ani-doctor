@@ -12,7 +12,7 @@ Route::middleware(['auth', 'can:website.manage'])->prefix('admin/website-theme')
 Route::get('/sitemap.xml', \App\Http\Controllers\Web\SitemapController::class)->name('website.sitemap');
 Route::get('/website-media/{media}', \App\Http\Controllers\Web\WebsiteMediaController::class)->whereNumber('media')->name('website.media.show');
 Route::middleware(['auth', 'can:website.manage'])->group(function (): void {
-    Route::post('/admin/website-media/{type}/{id}', [\App\Http\Controllers\Admin\WebsiteMediaController::class, 'store'])->whereIn('type', ['article', 'section'])->whereNumber('id')->name('website.media.store');
+    Route::post('/admin/website-media/{type}/{id}', [\App\Http\Controllers\Admin\WebsiteMediaController::class, 'store'])->whereIn('type', ['article', 'section', 'service'])->whereNumber('id')->name('website.media.store');
     Route::delete('/admin/website-media/{media}', [\App\Http\Controllers\Admin\WebsiteMediaController::class, 'destroy'])->whereNumber('media')->name('website.media.destroy');
 });
 Route::get('/articles', [\App\Http\Controllers\Web\PublicArticleController::class, 'index'])->name('website.articles.index');

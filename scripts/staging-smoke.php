@@ -8,7 +8,7 @@ if (($url['scheme'] ?? '') !== 'https' || !in_array($url['host'] ?? '', ['localh
     exit(1);
 }
 $checks = [];
-$cases = [['login', '/login', [200]], ['health', '/up', [200]], ['finance_auth', '/admin/finance', [302]], ['reports_auth', '/management/reports', [302]], ['environment', '/.env', [403, 404]], ['vendor', '/vendor/autoload.php', [403, 404]], ['runtime', '/storage/logs/laravel.log', [403, 404]], ['config', '/bootstrap/cache/config.php', [403, 404]], ['source', '/composer.lock', [403, 404]], ['host', '/up', [421], 'host'], ['csrf', '/otp/request', [419], 'post']];
+$cases = [['website_home', '/', [200]], ['website_services', '/services', [200]], ['website_articles', '/articles', [200]], ['website_sitemap', '/sitemap.xml', [200]], ['website_theme_auth', '/admin/website-theme', [302]], ['website_private_media', '/storage/app/private/website-media/probe.jpg', [403, 404]], ['login', '/login', [200]], ['health', '/up', [200]], ['finance_auth', '/admin/finance', [302]], ['reports_auth', '/management/reports', [302]], ['environment', '/.env', [403, 404]], ['vendor', '/vendor/autoload.php', [403, 404]], ['runtime', '/storage/logs/laravel.log', [403, 404]], ['config', '/bootstrap/cache/config.php', [403, 404]], ['source', '/composer.lock', [403, 404]], ['host', '/up', [421], 'host'], ['csrf', '/otp/request', [419], 'post']];
 foreach ($cases as $case) {
     [$name, $path, $expected] = $case;
     $handle = curl_init($origin.$path);

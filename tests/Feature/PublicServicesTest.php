@@ -65,4 +65,18 @@ final class PublicServicesTest extends TestCase
             ->assertSee('&lt;script&gt;alert(1)&lt;/script&gt;', false)
             ->assertDontSee('<script>alert(1)</script>', false);
     }
+
+    public function test_service_booking_link_preselects_only_an_available_catalog_option_without_creating_a_hold(): void
+    {
+        $first = $this->service('اول');
+        $selected = $this->service('دوم');
+        $offline = $this->service('حضوری', true, false);
+        $this->get(route('website.services.show', $selected->id))
+            ->assertSee(route('calendar', ['service_id' => $selected->id]), false);
+        $response = $this->get(route('calendar', ['service_id' => $selected->id]))->assertOk();
+        $response->assertSee('data-price="900000" selected', false);
+        $this->get(route('calendar', ['service_id' => $offline->id]))->assertOk()->assertDontSee('حضوری');
+        $this->get(route('calendar', ['service_id' => '<script>']))->assertOk()->assertDontSee('<script>', false);
+        $this->assertDatabaseCount('appointments', 0);
+    }
 }

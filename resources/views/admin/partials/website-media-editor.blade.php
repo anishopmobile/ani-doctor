@@ -1,5 +1,7 @@
 <section class="border rounded p-3 mt-3">
     <h3 class="h6">تصویر محتوای نمایشی</h3>
+    @error('image') <p role="alert" class="text-danger">{{ $message }}</p> @enderror
+    @error('alt_text') <p role="alert" class="text-danger">{{ $message }}</p> @enderror
     @if($owner->media)
         <img class="img-fluid rounded mb-2" src="{{ route('website.media.show', $owner->media->id) }}" alt="{{ $owner->media->alt_text }}" style="max-height:180px">
         <form method="post" action="{{ route('website.media.destroy', $owner->media) }}">

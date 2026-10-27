@@ -23,4 +23,5 @@
     </label>
     <button type="submit" class="btn btn-primary">ذخیره محتوا</button>
 </form>
+@include('admin.partials.website-media-editor', ['owner' => $service, 'ownerType' => 'service'])
 @endsection

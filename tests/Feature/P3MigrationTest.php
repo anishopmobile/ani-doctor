@@ -13,6 +13,7 @@ final class P3MigrationTest extends TestCase
     public function test_rollback_of_p3_and_reapply_preserve_p1_and_p2_records(): void
     {
         $this->artisan('migrate:fresh', ['--force' => true])->assertSuccessful();
+        $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful(); // Public brand settings.
         $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful(); // Website service editorial copy migration.
         $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful(); // Additional later website migration boundary.
         $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful(); // Website theme settings migration.

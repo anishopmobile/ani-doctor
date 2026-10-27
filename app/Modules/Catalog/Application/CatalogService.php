@@ -32,6 +32,9 @@ final class CatalogService
             $service = Service::whereKey($service->id)->lockForUpdate()->firstOrFail();
             $this->audit->record($actor, 'service.archived', $service->toArray(), null);
             $service->delete();
+            DB::afterCommit(function () use ($service): void {
+                $service->media?->deleteWithFile();
+            });
         });
     }
 }

@@ -8,14 +8,14 @@ use App\Modules\Website\Infrastructure\WebsiteArticle;
 use App\Modules\Website\Infrastructure\WebsiteMedia;
 use App\Modules\Website\Infrastructure\WebsiteSection;
 use Database\Seeders\RoleSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 final class WebsiteMediaTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseMigrations;
 
     private function editor(): User
     {
@@ -33,6 +33,47 @@ final class WebsiteMediaTest extends TestCase
             'slug' => 'medical-guide', 'title' => 'راهنمای پزشکی', 'body' => 'متن',
             'is_published' => $published, 'published_at' => now()->subDay(),
         ]);
+    }
+
+    public function test_service_image_requires_published_editorial_and_online_active_catalog_and_supports_replacement_and_deletion(): void
+    {
+        Storage::fake('local');
+        $service = \App\Modules\Catalog\Infrastructure\Service::create([
+            'name' => 'خدمت', 'price_irr' => 1000, 'duration_minutes' => 30,
+            'buffer_minutes' => 0, 'capacity' => 1, 'is_active' => true, 'is_online' => true,
+        ]);
+        $admin = $this->editor();
+        $url = route('website.media.store', ['service', $service->id]);
+        $this->post($url)->assertRedirect('/login');
+        $this->actingAs($admin)->post($url, [
+            'image' => UploadedFile::fake()->image('service.jpg'), 'alt_text' => 'تصویر خدمت',
+        ])->assertSessionHasNoErrors();
+        $media = WebsiteMedia::firstOrFail();
+        $oldPath = $media->path;
+        $this->get(route('website.media.show', $media))->assertOk();
+        auth()->logout();
+        $this->get(route('website.media.show', $media))->assertNotFound();
+        $content = \App\Modules\Website\Infrastructure\WebsiteServiceContent::create([
+            'service_id' => $service->id, 'is_published' => true,
+        ]);
+        $this->get(route('website.media.show', $media))->assertOk()->assertHeader('Cache-Control', 'no-store, private');
+        $this->get(route('website.services.show', $service))->assertSee('تصویر خدمت');
+        foreach (['is_online', 'is_active'] as $flag) {
+            $service->update([$flag => false]);
+            $this->get(route('website.media.show', $media))->assertNotFound();
+            $service->update([$flag => true]);
+        }
+        $content->update(['is_published' => false]);
+        $this->get(route('website.media.show', $media))->assertNotFound();
+        $this->actingAs($admin)->post($url, [
+            'image' => UploadedFile::fake()->image('replacement.png'), 'alt_text' => 'جایگزین',
+        ])->assertSessionHasNoErrors();
+        Storage::disk('local')->assertMissing($oldPath);
+        $this->assertDatabaseCount('website_media', 1);
+        $media->refresh();
+        $this->delete(route('website.media.destroy', $media))->assertRedirect();
+        Storage::disk('local')->assertMissing($media->path);
+        $this->assertDatabaseCount('website_media', 0);
     }
 
     public function test_private_media_is_not_accessible_until_its_article_is_published(): void
