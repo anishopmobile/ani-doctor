@@ -52,3 +52,5 @@ h1,h2,h3{font-weight:800;line-height:1.5}h2{font-size:clamp(1.5rem,3vw,2.2rem);m
 .slide-control:hover{background:#fff0f6}
 .slide-counter{color:#5e4962;font-variant-numeric:tabular-nums}
 @media(max-width:767px){.website-slide{min-height:auto}.slide-controls{margin-bottom:18px}}
+
+.cms-media{display:block;max-width:100%;width:min(100%,720px);height:auto;max-height:420px;object-fit:contain;border-radius:20px;margin:18px 0}.cms-media-large{width:min(100%,960px);max-height:580px}
