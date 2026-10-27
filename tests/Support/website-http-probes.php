@@ -28,13 +28,13 @@ try {
 
         return ['cookie' => $cookie, 'token' => $token];
     };
-    $probe = static function (string $name, string $method, string $path, int $expected, ?array $session = null, ?array $payload = null, bool $csrf = true) use (&$checks): string {
+    $probe = static function (string $name, string $method, string $path, int $expected, ?array $session = null, ?array $payload = null, bool $csrf = true, bool $multipart = false) use (&$checks): string {
         $curl = curl_init('https://localhost:18443'.$path);
         $headers = ['Accept: application/json'];
         if ($csrf && $session) {
             $headers[] = 'X-CSRF-TOKEN: '.$session['token'];
         }
-        if ($payload !== null) {
+        if ($payload !== null && !$multipart) {
             $headers[] = 'Content-Type: application/json';
         }
         curl_setopt_array($curl, [CURLOPT_RETURNTRANSFER => true, CURLOPT_CAINFO => '/etc/ssl/certs/p8.crt', CURLOPT_TIMEOUT => 20,
@@ -43,7 +43,7 @@ try {
             curl_setopt($curl, CURLOPT_COOKIE, $session['cookie']);
         }
         if ($payload !== null) {
-            curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($payload, JSON_THROW_ON_ERROR));
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $multipart ? $payload : json_encode($payload, JSON_THROW_ON_ERROR));
         }
         $body = curl_exec($curl);
         $status = curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
@@ -82,6 +82,49 @@ try {
     $probe('stale_publication_denied', 'POST', $base.'/publish', 422, $editor, ['expected_version' => 3]);
     $probe('stale_deletion_denied', 'DELETE', $base, 422, $editor, ['expected_version' => 3]);
     $probe('private_image_path_denied', 'GET', '/storage/app/private/website-media/probe.png', 404);
+    $temporary = tempnam(sys_get_temp_dir(), 'cms-probe-');
+    try {
+        $image = imagecreatetruecolor(2, 2);
+        imagepng($image, $temporary);
+        $probe(
+            'real_multipart_image_upload',
+            'POST',
+            $base.'/assets',
+            302,
+            $editor,
+            ['image' => new CURLFile($temporary, 'image/png', 'probe.png'), 'alt_text' => 'تصویر ساختگی ارزیابی'],
+            true,
+            true
+        );
+        $asset = $page->assets()->with('media')->sole();
+        $imagePath = '/website-media/'.$asset->media->id;
+        $probe('editor_image_preview', 'GET', $imagePath, 200, $editor);
+        $probe('unpublished_image_denied', 'GET', $imagePath, 404);
+        $blocks = $page->fresh()->blocks;
+        $blocks[0]['asset_id'] = $asset->id;
+        $probe('image_draft_saved', 'PUT', $base, 200, $editor, ['title' => $page->title, 'blocks' => $blocks, 'expected_version' => 4]);
+        $probe('draft_image_still_private', 'GET', $imagePath, 404);
+        $probe('publish_image_snapshot', 'POST', $base.'/publish', 200, $editor, ['expected_version' => 5]);
+        $probe('published_image_available', 'GET', $imagePath, 200);
+        file_put_contents($temporary, '<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>');
+        $probe(
+            'svg_upload_denied',
+            'POST',
+            $base.'/assets',
+            422,
+            $editor,
+            ['image' => new CURLFile($temporary, 'image/svg+xml', 'payload.svg'), 'alt_text' => 'آزمون رد فایل'],
+            true,
+            true
+        );
+        if ($page->assets()->count() !== 1) {
+            throw new RuntimeException('INVALID_UPLOAD_LEFT_ASSET');
+        }
+    } finally {
+        if (is_file($temporary)) {
+            unlink($temporary);
+        }
+    }
     echo json_encode(['passed' => true, 'scope' => 'synthetic_https_real_session_csrf_no_test_bypass', 'checks' => $checks], JSON_THROW_ON_ERROR).PHP_EOL;
 } catch (Throwable) {
     echo json_encode(['passed' => false, 'checks' => $checks], JSON_THROW_ON_ERROR).PHP_EOL;
