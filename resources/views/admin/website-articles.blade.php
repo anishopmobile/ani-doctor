@@ -18,6 +18,7 @@
         @include('admin.partials.website-article-fields', ['article' => $article])
         <button class="btn btn-primary mt-3">ذخیره تغییرات</button>
     </form>
+    @include('admin.partials.website-media-editor', ['ownerType' => 'article', 'owner' => $article])
     <form method="post" action="{{ route('website.articles.destroy', $article) }}" class="mt-2" data-confirm="مقاله حذف شود؟">
         @csrf @method('DELETE')
         <button class="btn btn-outline-danger">حذف مقاله</button>
