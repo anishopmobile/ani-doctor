@@ -174,3 +174,11 @@ P5 پیاده‌سازی‌شده در شاخه مستقل: داشبورد عم�
 P7: FR-DIS-01 و FR-REP-01/02 در شاخه مستقل روی P6؛ قرارداد سهمیه، مبنای مالی و محدودیت‌ها در [docs/P7.md](docs/P7.md) و شواهد در [docs/P7-VALIDATION.md](docs/P7-VALIDATION.md). P8 و merge انجام نشده‌اند.
 
 P8 در شاخه مستقل روی P7: سخت‌سازی production، بکاپ رمزگذاری‌شده و restore جدا، کنترل ZIP و نصب/بار staging موقت. قرارداد و گیت انتشار عمومی: [docs/P8.md](docs/P8.md)؛ صرف اجرا در محیط محلی، تأیید هاست/بانک/SMS واقعی نیست. شواهد: [docs/P8-VALIDATION.md](docs/P8-VALIDATION.md).
+
+## Website/CMS extension acceptance (2026-10-27)
+Explicit extension of FR-SRV-01 and FR-CAL-01, approved scope recorded in docs/WEBSITE-CMS-PLAN.md:
+- FR-WEB-01: administrator with website.manage can upload/replace/delete one private JPEG/PNG/WebP image (<=2 MiB, required alt) for each real service. Public bytes require active, online, non-archived catalog plus published editorial content. Drafts remain editor-only.
+- FR-WEB-02: administrator can edit escaped brand name, professional subtitle, phone, address and default SEO description. CSS values remain hex-only; new color updates require text contrast >=4.5:1.
+- AC-WEB-MEDIA: unauthorized mutation/draft read, invalid MIME/size/missing alt, replacement cleanup and archive rollback/commit are tested. MySQL Integration suite includes the archive lifecycle.
+- AC-WEB-BOOK: public service links preselect an authorized catalog option in the existing calendar. GET does not create appointments. Malformed/unknown/offline selections cannot introduce a new service or bypass booking validation.
+- AC-WEB-RELEASE: PHP/SQLite and MySQL tests, migrations/rollback, dependency audit, secure ZIP manifest and isolated Apache HTTPS staging must pass for the shipped revision. Homepage RTL at 320px, keyboard skip/focus and 200% zoom reviewed; limits in docs/WEBSITE-CMS-VALIDATION.md.
