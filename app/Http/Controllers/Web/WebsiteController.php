@@ -12,6 +12,7 @@ final class WebsiteController extends Controller
     {
         return view('website.home', [
             'sections' => $sections->published(),
+            'slides' => $sections->published('slide'),
             'headerLinks' => $links->published('header'),
             'footerLinks' => $links->published('footer'),
             'services' => Service::query()
