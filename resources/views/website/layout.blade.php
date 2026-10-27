@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="@yield('meta_description', 'معرفی خدمات قابل رزرو مطب دکتر زهرا باقری')">
     <title>@yield('title', 'خدمات مطب') | دکتر زهرا باقری</title>
+    <link rel="sitemap" type="application/xml" href="{{ route('website.sitemap') }}">
+    @unless(request()->hasAny(['category', 'tag', 'page']))
+        <link rel="canonical" href="{{ url()->current() }}">
+    @endunless
     <link rel="stylesheet" href="{{ asset('assets/vendor/bootstrap.rtl.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/website.css') }}">
 </head>
