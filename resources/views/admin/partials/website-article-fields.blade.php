@@ -24,3 +24,13 @@
 <label class="d-block mt-2">متن مقاله (متن ساده؛ HTML اجرا نمی‌شود)
     <textarea class="form-control" name="body" rows="8" required maxlength="50000">{{ old('body', $article?->body) }}</textarea>
 </label>
+
+<fieldset class="border rounded p-3 mt-3">
+    <legend class="float-none w-auto fs-6 px-2">دسته‌بندی‌ها و برچسب‌ها</legend>
+    @foreach($taxonomies as $taxonomy)
+        <label class="d-inline-flex gap-2 align-items-center me-3 mb-2">
+            <input type="checkbox" name="taxonomy_ids[]" value="{{ $taxonomy->id }}" @checked(in_array($taxonomy->id, old('taxonomy_ids', $article?->taxonomies?->pluck('id')->all() ?? [])))>
+            {{ $taxonomy->name }} ({{ $taxonomy->type === 'tag' ? 'برچسب' : 'دسته' }})
+        </label>
+    @endforeach
+</fieldset>
