@@ -31,6 +31,7 @@ final class ArticleService
 
     public function remove(WebsiteArticle $article): void
     {
+        $article->media?->deleteWithFile();
         $article->delete();
     }
 }
