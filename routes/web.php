@@ -5,6 +5,12 @@ use App\Http\Controllers\Web\OtpController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [\App\Http\Controllers\Web\WebsiteController::class, 'home'])->name('website.home');
+Route::middleware(['auth', 'can:website.manage'])->prefix('admin/website-links')->group(function (): void {
+    Route::get('/', [\App\Http\Controllers\Admin\WebsiteLinkController::class, 'index'])->name('website.links.index');
+    Route::post('/', [\App\Http\Controllers\Admin\WebsiteLinkController::class, 'store'])->name('website.links.store');
+    Route::put('/{link}', [\App\Http\Controllers\Admin\WebsiteLinkController::class, 'update'])->name('website.links.update');
+    Route::delete('/{link}', [\App\Http\Controllers\Admin\WebsiteLinkController::class, 'destroy'])->name('website.links.destroy');
+});
 Route::middleware(['auth', 'can:website.manage'])->prefix('admin/website-sections')->group(function (): void {
     Route::get('/', [\App\Http\Controllers\Admin\WebsiteSectionController::class, 'index'])->name('website.sections.index');
     Route::post('/', [\App\Http\Controllers\Admin\WebsiteSectionController::class, 'store'])->name('website.sections.store');
