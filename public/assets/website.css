@@ -39,3 +39,5 @@ h1,h2,h3{font-weight:800;line-height:1.5}h2{font-size:clamp(1.5rem,3vw,2.2rem);m
 @media(max-width:991px){.hero-content{grid-template-columns:1fr}.hero-art{display:none}.header-inner{justify-content:center}.main-nav{order:3;justify-content:center;width:100%}.about-grid{grid-template-columns:1fr 2fr;gap:25px}}
 @media(max-width:767px){.hero{padding-top:35px}.hero-content{min-height:auto}.hero-highlights,.service-grid,.why-grid,.contact-grid,.about-grid{grid-template-columns:1fr}.hero-highlights{transform:none;padding-top:22px;padding-bottom:18px}.section{padding:47px 0}.about-symbol{min-height:130px;font-size:5rem}.appointment-panel{flex-direction:column;align-items:start;gap:10px}.header-inner{gap:14px}.main-nav{gap:13px;font-size:.82rem}.service-card{min-height:auto}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.btn-primary-site,.btn-outline-site{transition:none}}
+
+.cms-section{padding-block:64px}.cms-blush{background:#fff1f6}.cms-lilac{background:#f5edfb}.cms-plain{background:#fff}.cms-copy{max-width:800px;white-space:pre-line;overflow-wrap:anywhere}
