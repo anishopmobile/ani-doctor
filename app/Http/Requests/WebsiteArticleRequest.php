@@ -22,6 +22,8 @@ final class WebsiteArticleRequest extends FormRequest
             'meta_description' => ['nullable', 'string', 'max:160'],
             'is_published' => ['required', 'boolean'],
             'published_at' => ['nullable', 'date'],
+            'taxonomy_ids' => ['sometimes', 'array', 'max:30'],
+            'taxonomy_ids.*' => ['integer', 'distinct', Rule::exists('website_taxonomies', 'id')],
         ];
     }
 }
