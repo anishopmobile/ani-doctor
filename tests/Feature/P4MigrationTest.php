@@ -18,6 +18,7 @@ final class P4MigrationTest extends TestCase
         $user = $this->booker();
         $service = $this->bookingServiceFixture($user);
         $appointment = app(BookingService::class)->create($this->bookingActor($user), $this->bookingData($service));
+        $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful(); // Website private media migration.
         $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful(); // Website taxonomy migration.
         $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful(); // Website articles migration.
         $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful(); // Website links migration, added after CMS sections.
