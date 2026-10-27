@@ -18,11 +18,11 @@ final class WebsiteTaxonomiesTest extends TestCase
         $tag = WebsiteTaxonomy::create(['type' => 'tag', 'slug' => 'women', 'name' => 'زنان']);
         $article = $this->article('visible', true);
         $article->taxonomies()->sync([$category->id, $tag->id]);
-        $draft = $this->article('hidden', false);
+        $draft = $this->article('draft-private-article', false);
         $draft->taxonomies()->sync([$category->id]);
 
-        $this->get('/articles?category=care')->assertOk()->assertSee('visible')->assertDontSee('hidden');
-        $this->get('/articles?tag=women')->assertOk()->assertSee('visible')->assertDontSee('hidden');
+        $this->get('/articles?category=care')->assertOk()->assertSee('visible')->assertDontSee('draft-private-article');
+        $this->get('/articles?tag=women')->assertOk()->assertSee('visible')->assertDontSee('draft-private-article');
         $this->get('/articles?category=missing')->assertOk()->assertDontSee('visible');
         $this->get(route('website.articles.show', 'visible'))->assertOk()->assertSee('مراقبت')->assertSee('زنان');
     }
