@@ -20,6 +20,7 @@ final class P6MigrationTest extends TestCase
         $this->secretary = $this->booker('09123456787', 'secretary');
         $this->service = $this->bookingServiceFixture($this->secretary);
         $appointment = $this->clinicAppointment();
+        $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful(); // Website service editorial copy migration.
         $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful(); // Website theme settings migration.
         $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful(); // Website private media migration.
         $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful(); // Website taxonomy migration.
