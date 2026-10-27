@@ -19,6 +19,6 @@ final class WebsiteThemeController extends Controller
     {
         $themes->save($request->validated());
 
-        return back()->with('status', 'رنگ‌بندی سایت ذخیره شد.');
+        return back()->with('status', 'تنظیمات سایت ذخیره شد.');
     }
 }

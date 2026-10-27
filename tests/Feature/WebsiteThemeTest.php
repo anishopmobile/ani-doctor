@@ -25,7 +25,7 @@ final class WebsiteThemeTest extends TestCase
 
     public function test_public_pages_show_default_colors_before_any_admin_change(): void
     {
-        $this->get('/')->assertOk()->assertSee('--pink: #ce4081;', false);
+        $this->get('/')->assertOk()->assertSee('--pink: #c83c7b;', false);
         $this->get('/services')->assertOk()->assertSee('--purple: #362147;', false);
         $this->get('/articles')->assertOk()->assertSee('--paper: #fffafc;', false);
     }
@@ -53,10 +53,10 @@ final class WebsiteThemeTest extends TestCase
         $this->get('/services')->assertSee('--purple: #334455;', false);
 
         $this->put(route('website.theme.update'), array_replace($values, [
-            'primary_color' => '#aabbcc',
+            'primary_color' => '#223344',
         ]))->assertSessionHasNoErrors();
         $this->assertDatabaseCount('website_theme_settings', 1);
-        $this->assertSame('#aabbcc', app(ThemeService::class)->settings()['primary_color']);
+        $this->assertSame('#223344', app(ThemeService::class)->settings()['primary_color']);
     }
 
     public function test_css_payloads_and_non_hex_values_cannot_be_saved(): void
@@ -95,5 +95,17 @@ final class WebsiteThemeTest extends TestCase
         $this->actingAs(User::query()->where('mobile', '09120000991')->firstOrFail())
             ->put(route('website.theme.update'), array_replace($values, ['contact_phone' => 'javascript:alert(1)']))
             ->assertSessionHasErrors('contact_phone');
+    }
+
+    public function test_low_contrast_palette_cannot_be_published(): void
+    {
+        $this->actingAs($this->admin());
+        $this->put(route('website.theme.update'), array_replace(ThemeService::DEFAULTS, [
+            'primary_color' => '#ffffff',
+        ]))->assertSessionHasErrors('primary_color');
+        $this->put(route('website.theme.update'), array_replace(ThemeService::DEFAULTS, [
+            'text_color' => '#fffafc',
+        ]))->assertSessionHasErrors('text_color');
+        $this->assertDatabaseCount('website_theme_settings', 0);
     }
 }

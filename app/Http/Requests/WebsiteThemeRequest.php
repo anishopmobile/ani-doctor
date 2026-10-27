@@ -24,4 +24,18 @@ final class WebsiteThemeRequest extends FormRequest
             'surface_color' => ['required', 'string', 'regex:/\\A#[0-9a-fA-F]{6}\\z/D'],
         ];
     }
+
+    public function after(): array
+    {
+        return [function (\Illuminate\Validation\Validator $validator): void {
+            if ($validator->errors()->isNotEmpty()) {
+                return;
+            }
+            foreach ([['primary_color', '#ffffff'], ['text_color', '#ffffff'], ['text_color', $this->string('surface_color')->toString()], ['primary_color', $this->string('surface_color')->toString()]] as [$field, $background]) {
+                if (\App\Modules\Website\Application\ThemeService::contrast($this->string($field)->toString(), $background) < 4.5) {
+                    $validator->errors()->add($field, 'کنتراست رنگ متن و زمینه باید حداقل ۴٫۵ باشد؛ رنگ تیره‌تری برای متن و دکمه انتخاب کنید.');
+                }
+            }
+        }];
+    }
 }

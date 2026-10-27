@@ -117,6 +117,29 @@ final class WebsiteMediaTest extends TestCase
         $this->assertDatabaseCount('website_media', 0);
     }
 
+    public function test_unprivileged_user_cannot_read_draft_or_change_media_and_invalid_uploads_leave_no_files(): void
+    {
+        Storage::fake('local');
+        $article = $this->article(false);
+        $admin = $this->editor();
+        $url = route('website.media.store', ['article', $article->id]);
+        $this->actingAs($admin)->post($url, [
+            'image' => UploadedFile::fake()->image('cover.jpg'), 'alt_text' => 'تصویر',
+        ])->assertSessionHasNoErrors();
+        $media = WebsiteMedia::firstOrFail();
+        $user = User::create(['mobile' => '09120000996']);
+        $user->forceFill(['mobile_verified_at' => now()])->save();
+        $this->actingAs($user)->get(route('website.media.show', $media))->assertNotFound();
+        $this->post($url, ['image' => UploadedFile::fake()->image('other.jpg'), 'alt_text' => 'متن'])->assertForbidden();
+        $this->delete(route('website.media.destroy', $media))->assertForbidden();
+        $this->actingAs($admin)->post($url, [
+            'image' => UploadedFile::fake()->image('large.jpg')->size(2049), 'alt_text' => 'متن',
+        ])->assertSessionHasErrors('image');
+        $this->post($url, ['image' => UploadedFile::fake()->image('missing-alt.png')])->assertSessionHasErrors('alt_text');
+        $this->assertCount(1, Storage::disk('local')->allFiles('website-media'));
+        $this->assertDatabaseHas('website_media', ['id' => $media->id, 'path' => $media->path]);
+    }
+
     public function test_published_section_media_is_public_and_deleted_with_its_owner(): void
     {
         Storage::fake('local');

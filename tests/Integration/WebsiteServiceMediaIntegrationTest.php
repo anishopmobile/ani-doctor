@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Integration;
 
 use App\Modules\Catalog\Application\CatalogService;
 use App\Modules\Catalog\Infrastructure\Service;

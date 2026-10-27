@@ -1,6 +1,7 @@
 @extends('layouts.app')
 @section('content')
-<h1 class="h3">تنظیمات رنگ‌بندی سایت عمومی</h1>
+<h1 class="h3">تنظیمات برند، تماس و رنگ‌بندی سایت عمومی</h1>
+@if(session('status')) <p role="status" class="alert alert-success">{{ session('status') }}</p> @endif
 <p>رنگ‌های اصلی وب‌سایت را بدون تغییر ظاهر تقویم رزرو و پنل مدیریت تنظیم کنید. مقادیر فقط به‌شکل کد رنگ شش‌رقمی پذیرفته می‌شوند.</p>
 <form method="post" action="{{ route('website.theme.update') }}">
     @csrf
@@ -16,6 +17,6 @@
             <input class="form-control" type="color" name="{{ $field }}" value="{{ old($field, $theme[$field]) }}" required>
         </label>
     @endforeach
-    <button class="btn btn-primary">ذخیره رنگ‌بندی</button>
+    <button class="btn btn-primary">ذخیره تنظیمات سایت</button>
 </form>
 @endsection
