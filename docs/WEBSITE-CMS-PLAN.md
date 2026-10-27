@@ -34,3 +34,12 @@ Branch: `feat/doctor-website-dynamic-cms`. This extension is for the existing si
 
 ## Current gate
 This file documents a *source-inspected subset*, not a complete schema audit. No PHP implementation or new migration is claimed by this phase, and no new runtime tests are claimed to have passed. Continue source inspection before shipping A1 and especially before defining CMS database tables.
+
+## A2 implementation checkpoint (2026-10-27)
+- Added additive `website_sections` schema (typed hero/about/cta copy, title/subtitle, escaped body, allowlisted background, internal-only CTA links, sort order, publication state).
+- Wired `SectionService`, authorization through existing role/permission tables using `website.manage`, admin CRUD and public published-only rendering.
+- Existing booking/calendar endpoints remain intact; no appointment, payment or patient table was edited.
+- On existing installations, run the reviewed migration after backup and sync updated role permissions using the established RoleSeeder procedure. Do not seed with real patient details or reset existing user accounts.
+- Regression tests now account for additive CMS migration before rolling back the historical P3–P7 migrations; those legacy tests previously assumed no migrations would ever be added after P7.
+- This is a **limited section editor**, not the complete visual Section Builder, website navigation builder, blog or media manager. Preview and image management are still pending.
+- CI must complete Pint, PHPUnit, MySQL rollback, secure ZIP and staging package smoke before declaring this stage accepted.
