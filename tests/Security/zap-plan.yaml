@@ -5,6 +5,8 @@ env:
         - https://localhost:18443
       includePaths:
         - 'https://localhost:18443/(?:|services(?:/.*)?|articles(?:/.*)?|pages/security-audit|website-media/.*|website-theme\.css|assets/.*|sitemap\.xml|robots\.txt)(?:\?.*)?'
+      excludePaths:
+        - 'https://localhost:18443/(?:otp|payments|api|admin|management|private-forms|logout)(?:[/?].*)?'
   parameters:
     failOnError: true
     failOnWarning: false
@@ -23,6 +25,8 @@ jobs:
       maxDepth: 5
       parseRobotsTxt: false
       parseSitemapXml: false
+      processForm: false
+      postForm: false
     tests:
       - name: Public crawl must discover at least five URLs
         type: stats

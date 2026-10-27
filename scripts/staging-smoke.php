@@ -8,6 +8,23 @@ if (($url['scheme'] ?? '') !== 'https' || !in_array($url['host'] ?? '', ['localh
     exit(1);
 }
 $checks = [];
+$static = curl_init($origin.'/assets/website.css');
+$staticHeaders = [];
+curl_setopt_array($static, [CURLOPT_RETURNTRANSFER => true, CURLOPT_CAINFO => $options['ca'], CURLOPT_TIMEOUT => 20,
+    CURLOPT_HEADERFUNCTION => function ($curl, string $line) use (&$staticHeaders): int {
+        if (str_contains($line, ':')) {
+            [$key, $value] = explode(':', $line, 2);
+            $staticHeaders[strtolower(trim($key))] = trim($value);
+        }
+
+        return strlen($line);
+    }]);
+$staticBody = curl_exec($static);
+$staticStatus = curl_getinfo($static, CURLINFO_RESPONSE_CODE);
+curl_close($static);
+$checks['static_asset_headers'] = ['status' => $staticStatus, 'passed' => $staticBody !== false && $staticStatus === 200
+    && ($staticHeaders['x-content-type-options'] ?? '') === 'nosniff'
+    && ($staticHeaders['strict-transport-security'] ?? '') === 'max-age=31536000'];
 $cases = [['website_home', '/', [200]], ['website_services', '/services', [200]], ['website_articles', '/articles', [200]], ['website_sitemap', '/sitemap.xml', [200]], ['website_theme_auth', '/admin/website-theme', [302]], ['website_private_media', '/storage/app/private/website-media/probe.jpg', [403, 404]], ['login', '/login', [200]], ['health', '/up', [200]], ['finance_auth', '/admin/finance', [302]], ['reports_auth', '/management/reports', [302]], ['environment', '/.env', [403, 404]], ['vendor', '/vendor/autoload.php', [403, 404]], ['runtime', '/storage/logs/laravel.log', [403, 404]], ['config', '/bootstrap/cache/config.php', [403, 404]], ['source', '/composer.lock', [403, 404]], ['host', '/up', [421], 'host'], ['csrf', '/otp/request', [419], 'post']];
 foreach ($cases as $case) {
     [$name, $path, $expected] = $case;

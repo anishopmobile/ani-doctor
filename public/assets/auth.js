@@ -1,6 +1,9 @@
 'use strict';
 const confirmation = document.querySelector('#confirm-action');
 let pendingConfirmation;
+document.querySelectorAll('[data-confirm-choice]').forEach(button => {
+    button.addEventListener('click', () => confirmation.close(button.dataset.confirmChoice));
+});
 document.querySelectorAll('form[data-confirm]').forEach(form => {
     form.addEventListener('submit', event => {
         if (form.dataset.confirmed === 'true') {

@@ -15,6 +15,9 @@ final class SecurityHeaders
 
     public function apply(Request $request, Response $response): Response
     {
+        if ($response instanceof \Symfony\Component\HttpFoundation\RedirectResponse) {
+            $response->setContent('');
+        }
         $response->headers->set('Cache-Control', 'no-store, private');
         $response->headers->set('X-Content-Type-Options', 'nosniff');
         $response->headers->set('X-Frame-Options', 'DENY');

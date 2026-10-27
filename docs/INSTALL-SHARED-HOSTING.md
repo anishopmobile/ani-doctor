@@ -212,3 +212,6 @@ ZARINPAL_CALLBACK_URL=https://doctor.example.com/payments/zarinpal/callback
 | ops:backup/restore رد شد | maintenance/توقف نویسنده‌ها، key مستقل، client رسمی MySQL، grant فقط مقصد و محدودیت نام DB را بررسی کنید؛ دسترسی root راه‌حل نیست. |
 
 قواعد استقرار و cache با [راهنمای Laravel](https://laravel.com/docs/13.x/deployment) هم‌راستا هستند. این راهنما راه‌اندازی شما را انجام‌شده فرض نمی‌کند؛ SMS/بانک واقعی، شرایط حقوقی و حریم خصوصی و ارزیابی مستقل امنیت همچنان پیش‌نیاز انتشار عمومی‌اند.
+
+## Static assets and CMS uploads
+The shipped public/.htaccess supplies nosniff for static responses when mod_headers is enabled. When enabling OPS_HSTS_ENABLED on an HTTPS host, configure the same HSTS policy for static responses in the HTTPS virtual host/hosting panel; PHP middleware cannot cover files served directly by the web server. The disposable staging vhost demonstrates this with max-age=31536000. Keep HSTS off HTTP development. For CMS images, use file_uploads=On, upload_max_filesize=2M, post_max_size=3M, max_file_uploads=1 and a 3MiB web-server request limit; medical-form files remain prohibited and image auth/CSRF/MIME validation is mandatory.

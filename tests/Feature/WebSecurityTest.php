@@ -28,4 +28,16 @@ final class WebSecurityTest extends TestCase
         $this->post('/otp/verify', ['code' => '123456'])->assertStatus(419);
         $this->post('/logout')->assertStatus(419);
     }
+
+    public function test_only_http_only_session_cookie_is_needed_and_redirects_have_no_body(): void
+    {
+        $response = $this->get('/login')->assertOk();
+        $cookies = collect($response->headers->getCookies());
+        $session = $cookies->first(fn ($cookie) => $cookie->getName() === config('session.cookie'));
+        $this->assertNotNull($session);
+        $this->assertTrue($session->isHttpOnly());
+        $this->assertFalse($cookies->contains(fn ($cookie) => $cookie->getName() === 'XSRF-TOKEN'));
+        $redirect = $this->get('/appointments')->assertRedirect('/login');
+        $this->assertSame('', $redirect->getContent());
+    }
 }
