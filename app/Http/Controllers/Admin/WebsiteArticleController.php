@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\WebsiteArticleRequest;
 use App\Modules\Website\Application\ArticleService;
 use App\Modules\Website\Infrastructure\WebsiteArticle;
+use App\Modules\Website\Infrastructure\WebsiteTaxonomy;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -14,7 +15,8 @@ final class WebsiteArticleController extends Controller
     public function index(): View
     {
         return view('admin.website-articles', [
-            'articles' => WebsiteArticle::query()->orderByDesc('updated_at')->paginate(20),
+            'articles' => WebsiteArticle::query()->with('taxonomies')->orderByDesc('updated_at')->paginate(20),
+            'taxonomies' => WebsiteTaxonomy::query()->orderBy('type')->orderBy('name')->get(),
         ]);
     }
 
