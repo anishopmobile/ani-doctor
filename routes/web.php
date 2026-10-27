@@ -28,6 +28,10 @@ Route::middleware(['auth', 'can:website.manage'])->prefix('admin/website-article
     Route::put('/{article}', [\App\Http\Controllers\Admin\WebsiteArticleController::class, 'update'])->name('website.articles.update');
     Route::delete('/{article}', [\App\Http\Controllers\Admin\WebsiteArticleController::class, 'destroy'])->name('website.articles.destroy');
 });
+Route::middleware(['auth', 'can:website.manage'])->prefix('admin/website-service-content')->group(function (): void {
+    Route::get('/{service}', [\App\Http\Controllers\Admin\WebsiteServiceContentController::class, 'edit'])->whereNumber('service')->name('website.service-content.edit');
+    Route::put('/{service}', [\App\Http\Controllers\Admin\WebsiteServiceContentController::class, 'update'])->whereNumber('service')->name('website.service-content.update');
+});
 Route::get('/services', [\App\Http\Controllers\Web\PublicServiceController::class, 'index'])->name('website.services.index');
 Route::get('/services/{service}', [\App\Http\Controllers\Web\PublicServiceController::class, 'show'])->whereNumber('service')->name('website.services.show');
 Route::middleware(['auth', 'can:website.manage'])->prefix('admin/website-links')->group(function (): void {
