@@ -76,3 +76,11 @@ The existing `website_sections` table now also accepts the allowlisted `slide` t
 - Article/section service deletion removes associated media bytes and registry entries. This baseline does not include an image cropper, transformations, automatic thumbnail generation, virus scanner or CDN. Because images are currently proxied through Laravel, use efficient caching/streaming and harden rate limiting before high-traffic production.
 - On production, verify PHP's `fileinfo` and image validation support, writable `storage/app/private` and webserver request upload limits. Back up `storage/app/private/website-media` together with the DB; a database-only backup does not retain image bytes.
 - Feature tests cover guest rejection, SVG rejection, draft isolation, publication gating and physical cleanup. CI, MySQL rollback and packaged staging must pass before acceptance.
+
+## A7 editable public color tokens (2026-10-27)
+- Additive singleton `website_theme_settings` table and `ThemeService` defaults provide three editable colors: `primary_color`, `text_color`, and `surface_color`, all restricted to complete six-digit hexadecimal CSS values.
+- The admin form at `/admin/website-theme` requires an authenticated user with `website.manage`. A whitelist-only FormRequest prevents arbitrary CSS strings, script injection and new CSS properties.
+- Public homepage and public subpage layout share the same three theme tokens. Original palette stays in place for installations with no row. Admin, booking, finance and patient layouts are deliberately unaffected.
+- No CSS file rebuild and no additional frontend dependencies are needed for host ZIP deployments.
+- Tests verify defaults, admin-only updates, singleton persistence, rejection of malformed CSS values, and cross-page rendering. Historical P3–P7 rollback tests include the new migration. Await the entire CI, ZIP and Apache staging acceptance before merging.
+- This is a **minimal palette editor**, not a full visual page builder, typographic editor or theme preset/contrast audit.
