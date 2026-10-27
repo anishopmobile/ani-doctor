@@ -16,6 +16,7 @@
         <nav class="main-nav" aria-label="ناوبری اصلی">
             <a href="{{ route('website.home') }}">خانه</a>
             <a href="{{ route('website.services.index') }}">خدمات</a>
+            <a href="{{ route('website.articles.index') }}">مقالات</a>
             <a href="{{ route('website.home') }}#contact">تماس با ما</a>
         </nav>
         <a href="{{ route('calendar') }}" class="btn-primary-site">رزرو نوبت آنلاین</a>
@@ -26,7 +27,7 @@
 </main>
 <footer class="website-footer"><div class="container footer-inner">
     <div><strong>دکتر زهرا باقری</strong><p>متخصص زنان، زایمان و نازایی</p></div>
-    <nav aria-label="دسترسی فوتر"><a href="{{ route('website.home') }}">صفحه اصلی</a><a href="{{ route('website.services.index') }}">خدمات</a><a href="{{ route('calendar') }}">نوبت‌دهی</a></nav>
+    <nav aria-label="دسترسی فوتر"><a href="{{ route('website.home') }}">صفحه اصلی</a><a href="{{ route('website.services.index') }}">خدمات</a><a href="{{ route('website.articles.index') }}">مقالات</a><a href="{{ route('calendar') }}">نوبت‌دهی</a></nav>
 </div></footer>
 </body>
 </html>
