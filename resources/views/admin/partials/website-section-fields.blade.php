@@ -1,7 +1,7 @@
 <div class="field-grid">
     <label>نوع سکشن
         <select class="form-select" name="type" required>
-            @foreach(['hero' => 'معرفی اصلی', 'about' => 'درباره پزشک', 'cta' => 'دعوت به اقدام'] as $key => $name)
+            @foreach(['hero' => 'معرفی اصلی', 'about' => 'درباره پزشک', 'cta' => 'دعوت به اقدام', 'slide' => 'اسلاید صفحه اصلی'] as $key => $name)
                 <option value="{{ $key }}" @selected(old('type', $section?->type) === $key)>{{ $name }}</option>
             @endforeach
         </select>
