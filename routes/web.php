@@ -6,6 +6,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [\App\Http\Controllers\Web\WebsiteController::class, 'home'])->name('website.home');
 Route::get('/articles', [\App\Http\Controllers\Web\PublicArticleController::class, 'index'])->name('website.articles.index');
+Route::middleware(['auth', 'can:website.manage'])->prefix('admin/website-taxonomies')->group(function (): void {
+    Route::get('/', [\App\Http\Controllers\Admin\WebsiteTaxonomyController::class, 'index'])->name('website.taxonomies.index');
+    Route::post('/', [\App\Http\Controllers\Admin\WebsiteTaxonomyController::class, 'store'])->name('website.taxonomies.store');
+    Route::delete('/{taxonomy}', [\App\Http\Controllers\Admin\WebsiteTaxonomyController::class, 'destroy'])->name('website.taxonomies.destroy');
+});
 Route::get('/articles/{slug}', [\App\Http\Controllers\Web\PublicArticleController::class, 'show'])->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')->name('website.articles.show');
 Route::middleware(['auth', 'can:website.manage'])->prefix('admin/website-articles')->group(function (): void {
     Route::get('/', [\App\Http\Controllers\Admin\WebsiteArticleController::class, 'index'])->name('website.articles.manage');
