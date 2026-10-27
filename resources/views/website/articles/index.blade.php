@@ -7,6 +7,7 @@
 <div class="service-grid mt-4">
     @forelse($articles as $article)
         <article class="service-card">
+            @if($article->media)<img class="cms-media" src="{{ route('website.media.show', $article->media->id) }}" alt="{{ $article->media->alt_text }}" loading="lazy">@endif
             <h2 class="h5">{{ $article->title }}</h2>
             @foreach($article->taxonomies as $taxonomy)
                 <a href="{{ route('website.articles.index', [$taxonomy->type === 'tag' ? 'tag' : 'category' => $taxonomy->slug]) }}" class="small">{{ $taxonomy->name }}</a>
