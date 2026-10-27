@@ -6,6 +6,10 @@
 <article class="service-detail mt-4">
     <span class="service-icon" aria-hidden="true">✿</span>
     <h1>{{ $service->name }}</h1>
+    @if($editorial)
+        @if($editorial->summary) <p class="lead">{{ $editorial->summary }}</p> @endif
+        @if($editorial->description) <div class="mb-4" style="white-space: pre-line">{{ $editorial->description }}</div> @endif
+    @endif
     <p>مدت زمان خدمت: {{ $service->duration_minutes }} دقیقه</p>
     <p>تعرفه ثبت‌شده: {{ number_format($service->price_irr) }} ریال</p>
     <p class="text-secondary">زمان‌های نوبت و مبلغ نهایی پیش از ثبت در سامانه اصلی بررسی می‌شوند. صرف مشاهده این صفحه به معنی رزرو نیست.</p>
