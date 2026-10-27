@@ -30,6 +30,7 @@ final class SectionService
 
     public function remove(WebsiteSection $section): void
     {
+        $section->media?->deleteWithFile();
         $section->delete();
     }
 }
