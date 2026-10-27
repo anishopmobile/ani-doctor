@@ -14,7 +14,7 @@ final class WebsiteSectionController extends Controller
     public function index(): View
     {
         return view('admin.website-sections', [
-            'sections' => WebsiteSection::query()->orderBy('sort_order')->orderBy('id')->get(),
+            'sections' => WebsiteSection::query()->with('media')->orderBy('sort_order')->orderBy('id')->get(),
         ]);
     }
 
