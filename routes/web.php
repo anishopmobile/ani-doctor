@@ -4,7 +4,7 @@ use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\OtpController;
 use Illuminate\Support\Facades\Route;
 
-Route::redirect('/', '/login');
+Route::get('/', [\App\Http\Controllers\Web\WebsiteController::class, 'home'])->name('website.home');
 Route::middleware(['auth', \App\Http\Middleware\VerifiedBooker::class, 'throttle:reports'])->group(function (): void {
     Route::get('/management/reports', [\App\Http\Controllers\Admin\ReportController::class, 'index'])->name('reports.index');
     Route::post('/management/reports/staff-name', \App\Http\Controllers\Admin\StaffDisplayNameController::class)->middleware('can:reports.finance')->name('reports.staff-name');
