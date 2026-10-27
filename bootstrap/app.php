@@ -16,7 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->prepend(SecurityHeaders::class);
-        $middleware->web(replace: [\Illuminate\Foundation\Http\Middleware\PreventRequestForgery::class => \App\Http\Middleware\CsrfProtection::class]);
+        $middleware->web(replace: [\Illuminate\Foundation\Http\Middleware\PreventRequestForgery::class => \App\Http\Middleware\CsrfProtection::class, \Illuminate\Session\Middleware\StartSession::class => \App\Http\Middleware\UiSessionHistory::class]);
         $middleware->replace(\Illuminate\Http\Middleware\TrustProxies::class, \App\Http\Middleware\ConfiguredProxies::class);
         $middleware->append(\App\Http\Middleware\ProductionGuard::class);
         $middleware->redirectUsersTo('/dashboard');

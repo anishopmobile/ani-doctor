@@ -15,6 +15,16 @@ final class WebsiteTheme extends Model
         return $this->hasOne(WebsiteMedia::class, 'owner_id')->where('owner_type', 'brand');
     }
 
+    public function portraitMedia(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(WebsiteMedia::class, 'owner_id')->where('owner_type', 'portrait');
+    }
+
+    public function faviconMedia(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(WebsiteMedia::class, 'owner_id')->where('owner_type', 'favicon');
+    }
+
     protected function casts(): array
     {
         return ['brand_settings' => 'array'];

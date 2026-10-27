@@ -11,7 +11,11 @@ const externalRequests = [];
 await context.route('**/*', route => { if (new URL(route.request().url()).origin === base) return route.continue(); externalRequests.push(route.request().url()); return route.abort(); });
 const page = await context.newPage();
 const errors = []; page.on('pageerror', error => errors.push(error.message));
+context.on('page', child => { if (child !== page) child.on('pageerror', error => errors.push(error.message)); });
+const failedAssets = [];
+context.on('response', response => { if (response.status() >= 400 && ['stylesheet', 'script', 'font', 'image'].includes(response.request().resourceType())) failedAssets.push({url: response.url(), status: response.status()}); });
 const violations = [];
+const routeChecks = [];
 await context.exposeFunction('__recordCsp', value => violations.push(value));
 await context.addInitScript(() => document.addEventListener('securitypolicyviolation', e => window.__recordCsp(`${e.violatedDirective}: ${e.blockedURI}`)));
 const widget = id => page.locator(`#${id}`).locator('..');
@@ -38,6 +42,81 @@ try {
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
         await page.screenshot({path: 'results/admin-overview-mobile.png', fullPage: true});
         await page.setViewportSize({width: 1440, height: 1000});
+    });
+    await test('public mobile navigation opens, closes with Escape and keeps real booking links', async () => {
+        await page.setViewportSize({width: 320, height: 820}); await page.goto(base);
+        await page.locator('[data-public-menu]').click(); assert.equal(await page.locator('#public-navigation').isVisible(), true);
+        await page.keyboard.press('Escape'); assert.equal(await page.locator('#public-navigation').isVisible(), false);
+        assert.equal(await page.locator('.header-actions a').getAttribute('href'), `${base}/calendar`);
+        await page.setViewportSize({width: 1440, height: 1000});
+    });
+    await test('all interactive route families fit desktop, tablet and mobile with actual synthetic records', async () => {
+        const reference = '11111111-1111-4111-8111-111111111111';
+        const routes = ['/about', '/contact', '/services/1', '/articles/ui-demo-article', '/pages/panel-demo', '/admin', '/management/desk', '/management/patients', '/management/patients/1', '/management/bookings/new', '/admin/services', '/management/schedule', '/management/reports', '/admin/finance', '/admin/discounts', '/admin/booking-settings', '/admin/forms', '/admin/forms/new', '/admin/forms/1', '/admin/notifications', '/admin/website-theme', '/admin/website-pages', '/admin/website-pages/1/edit', '/admin/website-sections', '/admin/website-links', '/admin/website-articles', '/admin/website-taxonomies', '/admin/website-service-content/1', '/appointments', `/appointments/${reference}`, `/private-forms/${reference}`, `/private-forms/${reference}/1`, '/wallet'];
+        for (const width of [1440, 768, 320]) {
+            await page.setViewportSize({width, height: 1000});
+            for (const path of routes) {
+                const response = await page.goto(`${base}${path}`); assert.equal(response.status(), 200, path);
+                await page.evaluate(() => document.fonts.ready);
+                assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `${path} at ${width}px`);
+                routeChecks.push({path, width, passed: true});
+            }
+        }
+        await page.setViewportSize({width: 1440, height: 1000});
+        await page.goto(`${base}/admin/website-theme`); await page.screenshot({path: 'results/unified-settings.png', fullPage: true});
+    });
+    await test('settings changes can be previewed privately, saved and restored without a false save', async () => {
+        await page.goto(`${base}/admin/website-theme`);
+        const original = await page.locator('[name=hero_title]').inputValue();
+        await page.locator('[name=hero_title]').evaluate(el => { el.closest('details').open = true; });
+        await page.locator('[name=hero_title]').fill('عنوان ساختگی پیش‌نمایش رابط');
+        assert.match(await page.locator('[data-unsaved-status]').innerText(), /ذخیره‌نشده/);
+        const popupPromise = context.waitForEvent('page');
+        await page.locator('button[formtarget="_blank"]').click(); const preview = await popupPromise;
+        await preview.waitForLoadState(); assert.match(await preview.locator('h1').innerText(), /عنوان ساختگی/); await preview.close();
+        assert.match(await page.locator('[data-unsaved-status]').innerText(), /ذخیره‌نشده/);
+        await Promise.all([page.waitForNavigation({waitUntil: 'domcontentloaded'}), page.locator('[data-theme-settings] button[type=submit]').first().click()]);
+        await page.locator('[data-theme-settings]').waitFor();
+        assert.equal(await page.locator('[name=hero_title]').inputValue(), 'عنوان ساختگی پیش‌نمایش رابط');
+        await page.goto(base); assert.match(await page.locator('h1').innerText(), /عنوان ساختگی/);
+        await page.goto(`${base}/admin/website-theme`); await page.locator('[name=hero_title]').evaluate(el => { el.closest('details').open = true; });
+        await page.locator('[name=hero_title]').fill(original); await Promise.all([page.waitForNavigation({waitUntil: 'domcontentloaded'}), page.locator('[data-theme-settings] button[type=submit]').first().click()]); await page.locator('[data-theme-settings]').waitFor();
+    });
+    await test('inline server errors attach to real fields and rejected changes do not save', async () => {
+        await page.goto(`${base}/admin/website-theme`);
+        const original = await page.locator('[name=contact_phone]').inputValue();
+        await page.locator('[name=contact_phone]').fill('invalid-phone');
+        await Promise.all([page.waitForNavigation({waitUntil: 'domcontentloaded'}), page.locator('[data-theme-settings] button[type=submit]').first().click()]);
+        await page.locator('[name=contact_phone][aria-invalid=true]').waitFor({state: 'attached'});
+        assert.equal(await page.locator('[name=contact_phone]').getAttribute('aria-describedby') !== null, true);
+        await page.goto(`${base}/admin/website-theme`); assert.equal(await page.locator('[name=contact_phone]').inputValue(), original);
+    });
+    await test('settings ordering, repeater removal, palette selection and account menu stay usable', async () => {
+        await page.goto(`${base}/admin/website-theme`);
+        await page.locator('#home-order > summary').click();
+        const order = await page.locator('[name="section_order[]"]').evaluateAll(inputs => inputs.map(input => input.value));
+        await page.locator('[data-order-row]').first().locator('[data-order-move=down]').click();
+        await page.locator('[data-order-row]').nth(1).locator('[data-order-move=up]').click();
+        assert.deepEqual(await page.locator('[name="section_order[]"]').evaluateAll(inputs => inputs.map(input => input.value)), order);
+        const faq = page.locator('[data-settings-repeater=faq_items]'); await faq.locator('summary').click();
+        const count = await faq.locator('[data-settings-row]').count(); await faq.locator('[data-settings-add]').click();
+        assert.equal(await faq.locator('[data-settings-row]').count(), count + 1);
+        await faq.locator('[data-settings-remove]').last().click(); assert.equal(await faq.locator('[data-settings-row]').count(), count);
+        await page.locator('#palette > summary').click(); await page.locator('[data-palette-preset]').click();
+        assert.equal(await page.locator('[name=primary_color]').inputValue(), '#087b80');
+        await page.locator('[data-theme-settings]').evaluate(form => form.reset());
+        assert.equal(await page.locator('[data-unsaved-status]').innerText(), '');
+        await page.setViewportSize({width: 320, height: 820}); await page.locator('.account-menu summary').click();
+        assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+        await page.keyboard.press('Escape'); assert.equal(await page.locator('.account-menu').getAttribute('open'), null);
+        await page.setViewportSize({width: 1440, height: 1000});
+    });
+    await test('unsaved settings prompt before leaving and preserve the edited input when cancelled', async () => {
+        await page.goto(`${base}/admin/website-theme`); await page.locator('[name=brand_name]').click(); await page.locator('[name=brand_name]').fill('ویرایش ذخیره‌نشده ساختگی');
+        const dialogPromise = page.waitForEvent('dialog'); const navigation = page.goto(base).catch(error => error);
+        const dialog = await dialogPromise; assert.equal(dialog.type(), 'beforeunload'); await dialog.dismiss(); await navigation;
+        assert.equal(page.url(), `${base}/admin/website-theme`); assert.equal(await page.locator('[name=brand_name]').inputValue(), 'ویرایش ذخیره‌نشده ساختگی');
+        await page.locator('[data-theme-settings]').evaluate(form => form.reset()); await page.goto(base);
     });
     await page.goto(`${base}/__ui-fixture`); await page.locator('#kind[data-hcg-ready]').waitFor({state: 'attached'});
     await test('live search, normal native value and no navigation', async () => {
@@ -141,8 +220,9 @@ try {
     });
     assert.deepEqual(errors, []);
     assert.deepEqual(externalRequests, []);
+    assert.deepEqual(failedAssets, []);
     assert.deepEqual(violations, []);
-    await writeFile('results/summary.json', JSON.stringify({passed: true, checks: results, javascriptErrors: errors, cspViolations: violations}, null, 2));
+    await writeFile('results/summary.json', JSON.stringify({passed: true, checks: results, routes: routeChecks, javascriptErrors: errors, cspViolations: violations, externalRequests, failedAssets}, null, 2));
 } catch (error) {
     await page.screenshot({path: 'results/failure.png', fullPage: true}).catch(() => {});
     await writeFile('results/summary.json', JSON.stringify({passed: false, checks: results, error: String(error), javascriptErrors: errors}, null, 2));

@@ -1,10 +1,11 @@
+@php($editorMedia = $owner->getRelationValue($mediaRelation ?? 'media'))
 <section class="border rounded p-3 mt-3">
     <h3 class="h6">تصویر محتوای نمایشی</h3>
     @error('image') <p role="alert" class="text-danger">{{ $message }}</p> @enderror
     @error('alt_text') <p role="alert" class="text-danger">{{ $message }}</p> @enderror
-    @if($owner->media)
-        <img class="img-fluid rounded mb-2 cms-editor-image" src="{{ route('website.media.show', $owner->media->id) }}" alt="{{ $owner->media->alt_text }}">
-        <form method="post" action="{{ route('website.media.destroy', $owner->media) }}">
+    @if($editorMedia)
+        <img class="img-fluid rounded mb-2 cms-editor-image" src="{{ route('website.media.show', $editorMedia->id) }}" alt="{{ $editorMedia->alt_text }}">
+        <form method="post" action="{{ route('website.media.destroy', $editorMedia) }}" data-confirm="تصویر حذف شود؟ فایل منتشرشده ابتدا باید از انتشار خارج شود.">
             @csrf
             @method('DELETE')
             <button type="submit" class="btn btn-outline-danger">حذف تصویر فعلی</button>

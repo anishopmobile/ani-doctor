@@ -1,3 +1,5 @@
+> Historical design iteration. The current shared token/asset and CMS contracts are in UI-CMS-REDESIGN-AUDIT.md and UI-CMS-VALIDATION.md; panel.css/studio.css have been superseded.
+
 # Tabler RTL panels and progressive controls
 
 Scope: operational administrator, secretary and patient pages using layouts/app. The public CMS marketing shell remains separate. All CSS, JavaScript and fonts are served locally; installation needs neither Node nor a frontend build.

@@ -6,6 +6,7 @@
 <form method="post" action="{{ route('website.service-content.update', $service->id) }}">
     @csrf
     @method('PUT')
+    <label class="form-label mb-3">ترتیب نمایش عمومی (عدد کمتر، زودتر)<input class="form-control" type="number" name="sort_order" min="0" max="100000" required value="{{ old('sort_order', $content?->sort_order ?? 0) }}"></label>
     <div class="mb-3">
         <label for="summary" class="form-label">خلاصه خدمت</label>
         <textarea id="summary" name="summary" maxlength="350" rows="3" class="form-control">{{ old('summary', $content?->summary) }}</textarea>

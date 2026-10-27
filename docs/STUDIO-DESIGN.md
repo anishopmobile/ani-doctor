@@ -1,3 +1,5 @@
+> Historical design iteration. The current shared token/asset and CMS contracts are in UI-CMS-REDESIGN-AUDIT.md and UI-CMS-VALIDATION.md; panel.css/studio.css have been superseded.
+
 # Contemporary clinic visual refresh
 
 Scope: public home/services/articles/CMS layouts and the shared operational workspace. This follows the owner's visual review of the first Tabler design. Public pages use an editorial composition with warm brand accents, original clinic illustration, generous typography, service cards and a contrasting appointment banner. The workspace uses an ink sidebar, consistent line icons, contextual welcome, operational shortcuts and existing real daily counts. No invented testimonials, metrics, qualifications or appointment confirmations are added.

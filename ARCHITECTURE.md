@@ -156,6 +156,7 @@ P3 reader واقعی Booking، قفل‌های هویت/بیمار/روز، curr
 - ADR-004 تقویم جلالی فقط presentation، منبع حقیقت UTC.
 - ADR-005 build بدون npm؛ assets از قبل آماده در public/assets.
 - ADR-006: Node/Playwright فقط ابزار آزمون مرورگر در tests/Browser و CI است؛ وابستگی، build یا پیش‌نیاز نصب برنامه نیست. پنل‌ها از Tabler محلی و adapter کنترل‌های progressive استفاده می‌کنند؛ قراردادها در docs/PANEL-UI.md.
+- ADR-007: توکن‌های مشترک در design-system.css و CSS خارجی تولیدشده ThemeService منبع ظاهر سایت و پنل هستند. SiteContent قرارداد محدود متن/ترتیب/نمایش صفحه پیش‌فرض را در JSON برند موجود نگه می‌دارد؛ expected_settings_version همراه قفل سطر از بازنویسی هم‌زمان جلوگیری می‌کند. UiSessionHistory فقط درخواست CSS و رسانه را از تاریخچه ناوبری خارج می‌کند؛ امنیت و چرخه نشست StartSession و سیاست no-referrer حفظ می‌شوند. جزئیات و نقشه تنظیمات: docs/UI-CMS-REDESIGN-AUDIT.md.
 
 
 ## افزوده P5

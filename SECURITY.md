@@ -145,3 +145,9 @@ Application forms/Fetch use explicit session CSRF tokens. CsrfProtection inherit
 ## Panel browser verification
 
 The progressive select/date adapters retain native payloads and server validation; option labels remain escaped and assets stay under the existing self-only CSP. The synthetic browser router and its header-based fixture identities exist only under tests/Support, require explicit fixture opt-in, loopback, a named disposable SQLite DB and disabled providers, and are excluded from installation packages. They must never be configured as a deployed web entry point. See docs/PANEL-UI.md for bounded browser/security checks.
+
+## Unified settings and private previews
+
+Theme preview uses the existing website.manage Gate, PUT + session CSRF, bounded validated fields and a session-private no-store CSS endpoint. Public CSS contains only contrast-checked HEX tokens. No inline CSS/JS, remote fonts, HTML editor or relaxed CSP is introduced. UiSessionHistory inherits StartSession and only omits style/media requests from the navigation-history bookkeeping; no-referrer, session encryption, cookies and authentication remain unchanged. Form metadata is read via getAttribute to avoid named controls shadowing action/method properties.
+
+Logo, portrait and favicon use distinct singleton owner types in the existing private media table. Replacement unpublishes that slot and advances the settings version; published slot deletion is rejected until unpublication. Replacement deletes old bytes after commit and cleans new bytes on rollback, including an outer transaction. MySQL race/rollback checks and negative Feature tests cover these boundaries. No true patient data or external-provider credentials are added to synthetic UI fixtures.

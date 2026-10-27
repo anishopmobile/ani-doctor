@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
-use App\Modules\Catalog\Infrastructure\Service;
 use Illuminate\View\View;
 
 final class WebsiteController extends Controller
@@ -20,12 +19,7 @@ final class WebsiteController extends Controller
             'slides' => $sections->published('slide'),
             'headerLinks' => $links->published('header'),
             'footerLinks' => $links->published('footer'),
-            'services' => Service::query()
-                ->where('is_active', true)
-                ->where('is_online', true)
-                ->orderBy('name')
-                ->limit(6)
-                ->get(['id', 'name']),
+            'services' => app(\App\Modules\Website\Application\ServiceContentService::class)->catalogQuery()->limit(6)->get(['id', 'name']),
         ]);
     }
 }

@@ -29,14 +29,14 @@
     line-height: 1.2 !important;
     border-radius: 8px !important;
 }
-.pardis-day.day-available { box-shadow: inset 0 -3px #177245; }
-.pardis-day.day-full { box-shadow: inset 0 -3px #9c6515; }
-.pardis-day.day-holiday { box-shadow: inset 0 -3px #b83c4c; }
+.pardis-day.day-available { box-shadow: inset 0 -3px var(--success); }
+.pardis-day.day-full { box-shadow: inset 0 -3px var(--warning); }
+.pardis-day.day-holiday { box-shadow: inset 0 -3px var(--danger); }
 .pardis-day.day-outside_window,
 .pardis-day.day-past { opacity: .55; }
 .day-state {
     display: block;
-    font-size: 10px;
+    font-size: 11px;
     white-space: normal;
     line-height: 1.25;
 }
@@ -47,3 +47,5 @@
     .calendar-layout { grid-template-columns: minmax(0, 1fr); }
     .work-card .card-body { padding: 12px !important; }
 }
+
+.pardis-day.day-holiday,.pardis-day.day-full,.pardis-day.day-closed{opacity:1;color:var(--text-secondary)}

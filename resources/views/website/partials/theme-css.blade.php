@@ -1,1 +1,1 @@
-<link rel="stylesheet" href="{{ route('website.theme.css') }}">
+<link rel="stylesheet" href="{{ !empty($isThemePreview) ? route('website.theme.preview-css') : route('website.theme.css') }}">

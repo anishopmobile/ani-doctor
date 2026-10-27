@@ -40,9 +40,17 @@ class AppServiceProvider extends ServiceProvider
             $until = \Illuminate\Support\Facades\DB::table('payment_settings')->where('id', 1)->value('emergency_until');
             $view->with('clinicEmergencyActive', $until && now()->lessThan($until));
         });
-        \Illuminate\Support\Facades\View::composer(['website.home', 'website.layout', 'website.pages.show'], function ($view): void {
+        \Illuminate\Support\Facades\View::composer(['website.home', 'website.about', 'website.contact', 'website.layout', 'website.pages.show', 'website.services.index', 'website.services.show', 'admin.website-theme-preview', 'layouts.app'], function ($view): void {
             $themes = app(\App\Modules\Website\Application\ThemeService::class);
             $view->with('websiteTheme', $themes->settings())->with('websiteLogo', $themes->publishedLogo());
+            $view->with('websitePortrait', $themes->publishedMedia('portrait'))->with('websiteFavicon', $themes->publishedMedia('favicon'));
+            $preview = $view->getData()['themePreview'] ?? null;
+            if (is_array($preview) && auth()->user()?->hasPermission('website.manage')) {
+                $view->with('websiteTheme', $preview);
+                foreach (['brand' => ['websiteLogo', 'logo_is_published'], 'portrait' => ['websitePortrait', 'portrait_is_published'], 'favicon' => ['websiteFavicon', 'favicon_is_published']] as $type => [$variable, $flag]) {
+                    $view->with($variable, !empty($preview[$flag]) ? \App\Modules\Website\Infrastructure\WebsiteMedia::query()->where('owner_type', $type)->where('owner_id', 1)->first() : null);
+                }
+            }
             $links = app(\App\Modules\Website\Application\LinkService::class);
             $view->with('headerLinks', $links->published('header'))->with('footerLinks', $links->published('footer'));
         });
