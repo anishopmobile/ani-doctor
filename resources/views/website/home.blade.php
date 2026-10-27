@@ -40,6 +40,7 @@
                                     @if($slide->subtitle)<p class="eyebrow">{{ $slide->subtitle }}</p>@endif
                                     @if($loop->first)<h1>{{ $slide->title }}</h1>@else<h2 class="slide-heading">{{ $slide->title }}</h2>@endif
                                     @if($slide->body)<p class="lead slide-copy">{{ $slide->body }}</p>@endif
+                                    @if($slide->media)<img class="cms-media" src="{{ route('website.media.show', $slide->media->id) }}" alt="{{ $slide->media->alt_text }}" loading="lazy">@endif
                                     <div class="hero-actions">
                                         @if($slide->button_url && $slide->button_text)
                                             <a class="btn-primary-site" href="{{ $slide->button_url }}">{{ $slide->button_text }}</a>
@@ -79,6 +80,7 @@
             @if($section->subtitle)<p class="eyebrow">{{ $section->subtitle }}</p>@endif
             <h2>{{ $section->title }}</h2>
             @if($section->body)<p class="cms-copy">{{ $section->body }}</p>@endif
+            @if($section->media)<img class="cms-media" src="{{ route('website.media.show', $section->media->id) }}" alt="{{ $section->media->alt_text }}" loading="lazy">@endif
             @if($section->button_url && $section->button_text)<a class="btn-outline-site" href="{{ $section->button_url }}">{{ $section->button_text }}</a>@endif
         </div>
     </section>
