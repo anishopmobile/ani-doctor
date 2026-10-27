@@ -8,6 +8,9 @@
     @forelse($articles as $article)
         <article class="service-card">
             <h2 class="h5">{{ $article->title }}</h2>
+            @foreach($article->taxonomies as $taxonomy)
+                <a href="{{ route('website.articles.index', [$taxonomy->type === 'tag' ? 'tag' : 'category' => $taxonomy->slug]) }}" class="small">{{ $taxonomy->name }}</a>
+            @endforeach
             @if($article->summary)<p>{{ $article->summary }}</p>@endif
             <a href="{{ route('website.articles.show', $article->slug) }}">مطالعه مقاله ←</a>
         </article>
