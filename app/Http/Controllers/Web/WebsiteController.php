@@ -8,9 +8,10 @@ use Illuminate\View\View;
 
 final class WebsiteController extends Controller
 {
-    public function home(): View
+    public function home(\App\Modules\Website\Application\SectionService $sections): View
     {
         return view('website.home', [
+            'sections' => $sections->published(),
             'services' => Service::query()
                 ->where('is_active', true)
                 ->where('is_online', true)
