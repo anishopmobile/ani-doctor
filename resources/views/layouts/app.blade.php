@@ -20,7 +20,7 @@
     @if(app(\App\Modules\Payments\Application\LocalPaymentMode::class)->enabled())<p class="alert alert-warning" role="status">درگاه آزمایشی لوکال فعال است؛ پرداخت‌ها و اعتبار حاصل از آن ساختگی‌اند و هیچ وجهی دریافت نمی‌شود. این داده‌ها را به هاست واقعی منتقل نکنید.</p>@endif
     @can('reports.appointments')<a class="d-inline-block mb-3 me-3" href="{{ route('reports.index') }}">گزارش‌ها و خروجی</a>@endcan
     @can('discounts.manage')<a class="d-inline-block mb-3" href="{{ route('discounts.index') }}">تخفیف خدمات</a>@endcan
-    @can('website.manage')<a class="d-inline-block mb-3 me-3" href="{{ route('website.sections.index') }}">مدیریت سکشن‌های سایت</a><a class="d-inline-block mb-3 me-3" href="{{ route('website.links.index') }}">منو و فوتر سایت</a>@endcan
+    @can('website.manage')<a class="d-inline-block mb-3 me-3" href="{{ route('website.sections.index') }}">مدیریت سکشن‌های سایت</a><a class="d-inline-block mb-3 me-3" href="{{ route('website.links.index') }}">منو و فوتر سایت</a><a class="d-inline-block mb-3 me-3" href="{{ route('website.articles.manage') }}">مدیریت مقالات</a>@endcan
     @can('forms.manage')<a class="d-inline-block mb-3 me-3" href="{{ route('forms.manage') }}">مدیریت فرم‌های خصوصی</a>@endcan
     @can('notifications.manage')<a class="d-inline-block mb-3" href="{{ route('notifications.manage') }}">اعلان‌های پیامکی</a>@endcan
     @auth<form method="post" action="{{ route('logout') }}" class="mb-3">@csrf<button class="btn btn-outline-secondary">خروج از حساب</button></form>@endauth
