@@ -11,6 +11,7 @@
     @endunless
     <link rel="stylesheet" href="{{ asset('assets/vendor/bootstrap.rtl.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/website.css') }}">
+    @include('website.partials.theme-css')
 </head>
 <body>
 <a href="#main" class="visually-hidden-focusable">رفتن به محتوای اصلی</a>
