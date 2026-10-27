@@ -1,8 +1,8 @@
 /* Ani Doctor contemporary clinic. Original local design; no remote assets. */
 .ui-icon{width:24px;height:24px;flex:none;vertical-align:middle}
 /* Public editorial experience; brand colors remain controlled by the CMS. */
-body.clinic-site{background:#fbfcfe;color:#26344d;line-height:1.95}
-.clinic-site h1,.clinic-site h2,.clinic-site h3{letter-spacing:-.035em;color:#1e2e49}
+body.clinic-site{background:#fbfcfe;color:var(--purple);line-height:1.95}
+.clinic-site h1,.clinic-site h2,.clinic-site h3{letter-spacing:-.035em;color:var(--purple)}
 .clinic-site .container{max-width:1240px;padding-inline:28px}
 .clinic-site .website-header{background:#ffffffed;border-bottom:1px solid #e8edf4;box-shadow:none}
 .clinic-site .header-inner{min-height:104px;gap:24px}
