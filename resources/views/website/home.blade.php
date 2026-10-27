@@ -18,7 +18,7 @@
             @forelse($headerLinks as $link)
                 <a href="{{ $link->url }}" @if($link->new_tab) target="_blank" rel="noopener noreferrer" @endif>{{ $link->label }}</a>
             @empty
-                <a href="#main">خانه</a><a href="#about">درباره پزشک</a><a href="#services">خدمات</a><a href="#contact">تماس با ما</a>
+                <a href="#main">خانه</a><a href="#about">درباره پزشک</a><a href="{{ route('website.services.index') }}">خدمات</a><a href="#contact">تماس با ما</a>
             @endforelse
         </nav>
         <a class="btn-primary-site" href="{{ route('calendar') }}">رزرو نوبت آنلاین <span aria-hidden="true">◷</span></a>
@@ -91,11 +91,12 @@
             <p class="section-intro">فهرست زیر مستقیماً از خدمات فعال و قابل رزرو در سامانه مطب دریافت می‌شود.</p>
             <div class="service-grid">
             @forelse($services as $service)
-                <article class="service-card"><span class="service-icon" aria-hidden="true">✿</span><h3>{{ $service->name }}</h3><p>جزئیات زمان‌های قابل رزرو را در تقویم مشاهده کنید.</p><a href="{{ route('calendar') }}">مشاهده زمان‌های نوبت <span aria-hidden="true">←</span></a></article>
+                <article class="service-card"><span class="service-icon" aria-hidden="true">✿</span><h3>{{ $service->name }}</h3><p>جزئیات زمان‌های قابل رزرو را در تقویم مشاهده کنید.</p><a href="{{ route('website.services.show', $service->id) }}">جزئیات خدمت <span aria-hidden="true">←</span></a></article>
             @empty
                 <p class="empty-services">در حال حاضر خدمتی برای رزرو اینترنتی منتشر نشده است.</p>
             @endforelse
             </div>
+            <p class="text-center mt-4"><a class="btn-outline-site" href="{{ route('website.services.index') }}">مشاهده همه خدمات</a></p>
         </div>
     </section>
     <section class="section why-section"><div class="container"><h2 class="text-center">چرا مطب دکتر زهرا باقری؟</h2><div class="why-grid"><div><strong>حریم خصوصی</strong><span>احترام به محرمانگی اطلاعات مراجعان</span></div><div><strong>رزرو منظم</strong><span>انتخاب از بین زمان‌های قابل رزرو</span></div><div><strong>پیگیری آسان</strong><span>دسترسی به وضعیت نوبت در سامانه</span></div></div></div></section>
