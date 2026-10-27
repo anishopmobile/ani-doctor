@@ -53,3 +53,10 @@ The existing `website_sections` table now also accepts the allowlisted `slide` t
 - Price is labeled as the stored catalog amount in **ریال**; actual payable totals must still be verified by the existing booking flow. The CTA links to `/calendar` rather than creating a parallel hold/payment path.
 - This is the public index/details baseline, not yet an editorial service CMS: categories, photographs and physician-approved rich descriptions remain pending.
 - New `PublicServicesTest` covers visibility, 404 for offline/inactive/deleted, HTML escaping and links to the original booking surface. Full CI/ZIP acceptance must pass before treating A3 as approved.
+
+## A4 article CMS baseline (2026-10-27)
+- Additive `website_articles` table stores a unique ASCII slug, title, summary, plain-text body, meta description, draft/public status, and nullable publication time. No patient or booking data is stored in this module.
+- The public `/articles` directory and `/articles/{slug}` detail route filter for published articles with non-null `published_at <= now()` and use safe Blade escaping. Article bodies are deliberately plain text; raw HTML/JavaScript cannot be rendered.
+- Admin CRUD `/admin/website-articles` reuses `auth` plus `website.manage` and the existing Tabler-compatible operational layout. Slugs are constrained and unique; use English lowercase letters/digits/hyphens. Physicians must review factual clinical content before publication.
+- This is **not** the finished article platform: categories/tags, editorial revisions, image uploads and graphical editor await separate security-reviewed stages.
+- Historical P3–P7 rollback tests now explicitly account for the additional final article migration. All changes require fresh CI and staging ZIP acceptance.
