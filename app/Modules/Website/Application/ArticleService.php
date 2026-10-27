@@ -17,9 +17,14 @@ final class ArticleService
 
     public function save(array $data, ?WebsiteArticle $article = null): WebsiteArticle
     {
-        $article ??= new WebsiteArticle();
-        $article->fill($data);
-        $article->save();
+        $taxonomyIds = $data['taxonomy_ids'] ?? [];
+        unset($data['taxonomy_ids']);
+        \Illuminate\Support\Facades\DB::transaction(function () use (&$article, $data, $taxonomyIds): void {
+            $article ??= new WebsiteArticle();
+            $article->fill($data);
+            $article->save();
+            $article->taxonomies()->sync($taxonomyIds);
+        });
 
         return $article;
     }
