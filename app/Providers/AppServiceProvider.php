@@ -40,6 +40,9 @@ class AppServiceProvider extends ServiceProvider
             $until = \Illuminate\Support\Facades\DB::table('payment_settings')->where('id', 1)->value('emergency_until');
             $view->with('clinicEmergencyActive', $until && now()->lessThan($until));
         });
+        \Illuminate\Support\Facades\View::composer(['website.home', 'website.layout'], function ($view): void {
+            $view->with('websiteTheme', app(\App\Modules\Website\Application\ThemeService::class)->settings());
+        });
         Gate::policy(Patient::class, PatientPolicy::class);
         Gate::policy(\App\Modules\Booking\Infrastructure\Appointment::class, \App\Policies\AppointmentPolicy::class);
         foreach (['patient', 'secretary', 'admin'] as $panel) {
