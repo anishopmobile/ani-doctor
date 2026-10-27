@@ -15,7 +15,7 @@ final class WebsiteArticleController extends Controller
     public function index(): View
     {
         return view('admin.website-articles', [
-            'articles' => WebsiteArticle::query()->with('taxonomies')->orderByDesc('updated_at')->paginate(20),
+            'articles' => WebsiteArticle::query()->with(['taxonomies', 'media'])->orderByDesc('updated_at')->paginate(20),
             'taxonomies' => WebsiteTaxonomy::query()->orderBy('type')->orderBy('name')->get(),
         ]);
     }
