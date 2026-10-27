@@ -155,6 +155,7 @@ P3 reader واقعی Booking، قفل‌های هویت/بیمار/روز، curr
 - ADR-003 جداسازی مالی از وضعیت رزرو و دفترکل اعتبار.
 - ADR-004 تقویم جلالی فقط presentation، منبع حقیقت UTC.
 - ADR-005 build بدون npm؛ assets از قبل آماده در public/assets.
+- ADR-006: Node/Playwright فقط ابزار آزمون مرورگر در tests/Browser و CI است؛ وابستگی، build یا پیش‌نیاز نصب برنامه نیست. پنل‌ها از Tabler محلی و adapter کنترل‌های progressive استفاده می‌کنند؛ قراردادها در docs/PANEL-UI.md.
 
 
 ## افزوده P5

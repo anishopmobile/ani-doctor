@@ -1,5 +1,6 @@
 @extends('layouts.app')
 @section('content')
+<div class="workspace-actions">@can('desk.view')<a class="workspace-action" href="{{ route('desk') }}"><x-ui-icon name="calendar"/><span><strong>برنامه امروز مطب</strong><small>نوبت‌ها، حضور و پیگیری مراجعه</small></span></a>@else<a class="workspace-action" href="{{ route('calendar') }}"><x-ui-icon name="calendar"/><span><strong>یک نوبت تازه</strong><small>انتخاب خدمت و زمان مراجعه</small></span></a>@endcan<a class="workspace-action" href="{{ route('appointments.index') }}"><x-ui-icon name="file"/><span><strong>پیگیری نوبت‌ها</strong><small>جزئیات و وضعیت رزروهای شما</small></span></a>@can('website.manage')<a class="workspace-action" href="{{ route('website.pages.index') }}"><x-ui-icon name="grid"/><span><strong>وب‌سایت مطب</strong><small>طراحی و مدیریت محتوای صفحات</small></span></a>@else<a class="workspace-action" href="{{ route('wallet') }}"><x-ui-icon name="wallet"/><span><strong>اعتبار و پرداخت‌ها</strong><small>دسترسی به پیگیری مالی حساب</small></span></a>@endcan</div>
 <h1 class="h3">{{ $isGuest ? 'شماره مهمان تأیید شد' : 'ورود انجام شد' }}</h1>
 <p>از بخش نوبت‌ها، وضعیت رزرو و پرداخت خود را پیگیری کنید.</p>
 <a class="btn btn-primary mb-3" href="{{ route('calendar') }}">رزرو از تقویم</a>

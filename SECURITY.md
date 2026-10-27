@@ -142,3 +142,6 @@ Builder content is escaped text and allowlisted attributes, not executable marku
 
 ## DAST follow-up controls
 Application forms/Fetch use explicit session CSRF tokens. CsrfProtection inherits Laravel 13 token/origin checks and the existing narrow callback exception; it only disables the unused readable XSRF cookie. Session cookie remains encrypted/HttpOnly. Local confirmation dialogs use non-submitting buttons. Redirect bodies are empty. Apache nosniff covers static assets; HTTPS vhosts must align static HSTS with the enabled application policy. DAST raw reports retain every finding; no scan rule is suppressed. OTP/payment/API/admin mutations are excluded from the unauthenticated crawler and assessed separately using synthetic authenticated HTTP probes.
+## Panel browser verification
+
+The progressive select/date adapters retain native payloads and server validation; option labels remain escaped and assets stay under the existing self-only CSP. The synthetic browser router and its header-based fixture identities exist only under tests/Support, require explicit fixture opt-in, loopback, a named disposable SQLite DB and disabled providers, and are excluded from installation packages. They must never be configured as a deployed web entry point. See docs/PANEL-UI.md for bounded browser/security checks.

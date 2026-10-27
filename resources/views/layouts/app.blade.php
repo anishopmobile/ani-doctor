@@ -5,28 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
     <title>آنی دکتر</title>
-    <link rel="stylesheet" href="{{ asset('assets/vendor/bootstrap.rtl.min.css') }}">
-    @auth
-        <link rel="stylesheet" href="{{ asset('assets/vendor/tabler.rtl.min.css') }}">
-    @endauth
+    <link rel="stylesheet" href="{{ asset('assets/vendor/tabler.rtl.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/vendor/hcg-select.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/vendor/pardis.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/app.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/panel.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/studio.css') }}">
     <script src="{{ asset('assets/auth.js') }}" defer></script>
+    <script type="module" src="{{ asset('assets/form-controls.js') }}"></script>
     @stack('assets')
 </head>
-<body>
+<body class="panel-app page">
 <a class="visually-hidden-focusable" href="#main">رفتن به محتوای اصلی</a>
-<header class="site-header"><div class="container"><a href="{{ route('calendar') }}" class="brand">آنی دکتر</a><nav class="d-flex gap-3 flex-wrap" aria-label="دسترسی اصلی"><a href="{{ route('calendar') }}">تقویم خدمات</a><a href="{{ route('dashboard') }}">حساب من</a><a href="{{ route('appointments.index') }}">نوبت‌ها</a>@can('booking.settings')<a href="{{ route('booking.settings') }}">سیاست رزرو</a>@endcan @can('catalog.manage')<a href="{{ route('services.index') }}">خدمات</a>@endcan @can('schedules.manage')<a href="{{ route('schedule.index') }}">برنامه کاری</a>@endcan</nav></div></header>
-<main id="main" class="container py-4">
+<header class="navbar app-topbar"><div class="container-fluid">
+    <a href="{{ route('dashboard') }}" class="navbar-brand app-brand"><span class="app-brand-mark"><x-ui-icon name="heart"/></span><span>آنی دکتر<small>همراه شما در مسیر سلامت</small></span></a>
+    <div class="panel-context"><x-ui-icon name="calendar"/><span>امروز</span><bdi>{{ app(App\Modules\Scheduling\Application\JalaliDate::class)->format(now()) }}</bdi></div><div class="d-flex gap-2 align-items-center"><a class="btn btn-primary" href="{{ route('calendar') }}">رزرو نوبت</a><button type="button" class="btn btn-outline-primary app-menu-toggle" data-menu-toggle aria-controls="panel-navigation" aria-expanded="false" hidden>فهرست بخش‌ها</button></div>
+</div></header>
+<div class="app-frame">
+    <aside class="app-sidebar" id="panel-navigation" aria-label="منوی پنل">
+        <div class="app-workspace"><div class="workspace-title"><x-ui-icon name="grid"/><span>فضای کار شما</span></div><p>دسترسی سریع و امن به خدمات</p></div>
+        @include('layouts.panel-navigation')
+        <div class="app-sidebar-footer">@auth<form method="post" action="{{ route('logout') }}">@csrf<button class="btn btn-outline-secondary w-100">خروج از حساب</button></form>@else<a class="btn btn-outline-primary w-100" href="{{ route('login') }}">ورود به حساب</a>@endauth<p>اطلاعات ورود خود را در اختیار دیگران نگذارید.</p></div>
+    </aside>
+    <div class="page-wrapper app-content">
+        <div class="app-welcome"><div><p class="page-pretitle"><x-ui-icon name="spark"/>آنی دکتر / فضای همراه سلامت</p><p class="app-welcome-title">@can('desk.view')یک روز منظم، یک تجربه بهتر@elseبا آرامش، برای سلامتی برنامه‌ریزی کنید@endcan</p><p class="welcome-description">@can('desk.view')از برنامه امروز تا مدیریت خدمات؛ ابزارهای مطب در دسترس شماست.@elseانتخاب زمان مراجعه، پیگیری نوبت و خدمات مطب، در یک فضای امن و ساده.@endcan</p></div><div class="welcome-badge"><x-ui-icon name="calendar"/></div></div>
+        <main id="main" class="page-body">
     @if(app(\App\Modules\Payments\Application\LocalPaymentMode::class)->enabled())<p class="alert alert-warning" role="status">درگاه آزمایشی لوکال فعال است؛ پرداخت‌ها و اعتبار حاصل از آن ساختگی‌اند و هیچ وجهی دریافت نمی‌شود. این داده‌ها را به هاست واقعی منتقل نکنید.</p>@endif
-    @can('reports.appointments')<a class="d-inline-block mb-3 me-3" href="{{ route('reports.index') }}">گزارش‌ها و خروجی</a>@endcan
-    @can('discounts.manage')<a class="d-inline-block mb-3" href="{{ route('discounts.index') }}">تخفیف خدمات</a>@endcan
-    @can('website.manage')<a class="d-inline-block mb-3 me-3" href="{{ route('website.pages.index') }}">صفحه‌ساز</a><a class="d-inline-block mb-3 me-3" href="{{ route('website.sections.index') }}">مدیریت سکشن‌های سایت</a><a class="d-inline-block mb-3 me-3" href="{{ route('website.links.index') }}">منو و فوتر سایت</a><a class="d-inline-block mb-3 me-3" href="{{ route('website.articles.manage') }}">مدیریت مقالات</a><a class="d-inline-block mb-3 me-3" href="{{ route('website.taxonomies.index') }}">دسته‌بندی و برچسب</a><a class="d-inline-block mb-3 me-3" href="{{ route('website.theme.edit') }}">رنگ‌بندی سایت</a>@endcan
-    @can('forms.manage')<a class="d-inline-block mb-3 me-3" href="{{ route('forms.manage') }}">مدیریت فرم‌های خصوصی</a>@endcan
-    @can('notifications.manage')<a class="d-inline-block mb-3" href="{{ route('notifications.manage') }}">اعلان‌های پیامکی</a>@endcan
-    @auth<form method="post" action="{{ route('logout') }}" class="mb-3">@csrf<button class="btn btn-outline-secondary">خروج از حساب</button></form>@endauth
-    @if($clinicEmergencyActive)<p class="alert alert-warning" role="status">حالت اضطراری پرداخت در مطب فعال است؛ نوبت‌های این حالت بدهکار ثبت می‌شوند.</p>@endif
-    <nav class="d-flex gap-3 mb-3" aria-label="پیگیری مالی"><a href="{{ route('wallet') }}">اعتبار و استرداد</a>@can('payments.review')<a href="{{ route('finance') }}">مدیریت مالی</a>@endcan</nav>
-    @can('desk.view')<nav class="d-flex gap-3 flex-wrap mb-3" aria-label="عملیات مطب"><a href="{{ route('desk') }}">میز کار امروز</a>@can('desk.book')<a href="{{ route('desk.create') }}">نوبت تلفنی / فوری</a>@endcan @can('patients.manage')<a href="{{ route('patients.index') }}">بیماران</a>@endcan</nav>@endcan
+
+            @if($clinicEmergencyActive)<p class="alert alert-warning" role="status">حالت اضطراری پرداخت در مطب فعال است؛ نوبت‌های این حالت بدهکار ثبت می‌شوند.</p>@endif
     <div class="{{ request()->is('login', 'dashboard', 'patient', 'secretary', 'admin') ? 'auth-card' : 'work-card' }} card shadow-sm mx-auto"><div class="card-body p-3 p-md-4">
         @if(session('status'))<p class="alert alert-success" role="status">{{ session('status') }}</p>@endif
         @if($errors->any())
@@ -37,8 +43,11 @@
         @endif
         @yield('content')
     </div></div>
-</main>
+
+        </main>
+        <footer class="app-footer">آنی دکتر · مدیریت ساده‌تر، پیگیری آسان‌تر</footer>
+    </div>
+</div>
 <x-confirm-dialog/>
-<footer class="container text-center text-secondary pb-4">اطلاعات ورود خود را در اختیار دیگران نگذارید.</footer>
 </body>
 </html>

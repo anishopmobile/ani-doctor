@@ -8,6 +8,8 @@
 # Composer and JS dependencies (CI packages production dependencies)
 /vendor/
 /node_modules/
+/tests/Browser/node_modules/
+/tests/Browser/results/
 
 # Logs and runtime files
 /storage/**

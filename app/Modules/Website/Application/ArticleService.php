@@ -18,7 +18,7 @@ final class ArticleService
     public function save(array $data, ?WebsiteArticle $article = null): WebsiteArticle
     {
         $taxonomyIds = $data['taxonomy_ids'] ?? [];
-        unset($data['taxonomy_ids']);
+        unset($data['taxonomy_ids'], $data['published_jalali'], $data['published_time']);
         \Illuminate\Support\Facades\DB::transaction(function () use (&$article, $data, $taxonomyIds): void {
             $article ??= new WebsiteArticle();
             $article->fill($data);

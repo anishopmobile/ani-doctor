@@ -12,9 +12,10 @@
     @endunless
     <link rel="stylesheet" href="{{ asset('assets/vendor/bootstrap.rtl.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/website.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/studio.css') }}">
     @include('website.partials.theme-css')
 </head>
-<body>
+<body class="clinic-site">
 <a href="#main" class="visually-hidden-focusable">رفتن به محتوای اصلی</a>
 <header class="website-header">
     <div class="container header-inner">

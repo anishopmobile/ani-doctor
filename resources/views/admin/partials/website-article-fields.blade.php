@@ -14,9 +14,10 @@
             <option value="1" @selected((string) old('is_published', (int) ($article?->is_published ?? false)) === '1')>آماده انتشار</option>
         </select>
     </label>
-    <label>زمان انتشار (YYYY-MM-DD HH:MM:SS)
-        <input class="form-control" name="published_at" placeholder="2026-10-27 15:00:00" dir="ltr" value="{{ old('published_at', $article?->published_at?->format('Y-m-d H:i:s')) }}">
+    <label>تاریخ انتشار شمسی، به وقت تهران
+        <input class="form-control" name="published_jalali" data-persian-date placeholder="انتخاب تاریخ شمسی" dir="ltr" maxlength="10" value="{{ old('published_jalali', $article?->published_at ? app(App\Modules\Scheduling\Application\JalaliDate::class)->format($article->published_at) : '') }}">
     </label>
+    <label class="d-block mb-3">ساعت انتشار به وقت تهران<input class="form-control" type="time" name="published_time" value="{{ old('published_time', $article?->published_at?->timezone('Asia/Tehran')->format('H:i') ?? '00:00') }}"></label>
 </div>
 <label class="d-block mt-2">خلاصه
     <textarea class="form-control" name="summary" rows="2" maxlength="350">{{ old('summary', $article?->summary) }}</textarea>

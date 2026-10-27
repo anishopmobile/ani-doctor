@@ -1,0 +1,7 @@
+{
+  "name": "ani-doctor-browser-verification",
+  "private": true,
+  "type": "module",
+  "scripts": {"test": "node controls.mjs"},
+  "devDependencies": {"playwright": "1.62.1"}
+}

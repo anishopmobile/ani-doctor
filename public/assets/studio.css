@@ -1,0 +1,103 @@
+/* Ani Doctor contemporary clinic. Original local design; no remote assets. */
+.ui-icon{width:24px;height:24px;flex:none;vertical-align:middle}
+/* Public editorial experience; brand colors remain controlled by the CMS. */
+body.clinic-site{background:#fbfcfe;color:var(--purple);line-height:1.95}
+.clinic-site h1,.clinic-site h2,.clinic-site h3{letter-spacing:-.035em;color:var(--purple)}
+.clinic-site .container{max-width:1240px;padding-inline:28px}
+.clinic-site .website-header{background:#ffffffed;border-bottom:1px solid #e8edf4;box-shadow:none}
+.clinic-site .header-inner{min-height:104px;gap:24px}
+.clinic-site .brand{font-size:1.25rem;letter-spacing:-.04em;gap:14px}
+.clinic-site .brand small{letter-spacing:0;font-size:.72rem;max-width:200px;white-space:normal}
+.clinic-site .brand-mark{display:grid;place-items:center;width:52px;height:52px;background:var(--paper);border:1px solid var(--border);border-radius:18px;font-size:2rem}
+.clinic-site .main-nav{gap:26px;color:#53627a;font-size:.88rem}
+.clinic-site .main-nav a{padding-block:10px;transition:color .2s}
+.clinic-site .main-nav a:hover{color:var(--pink)}
+.clinic-site .btn-primary-site{background:var(--pink);border:1px solid transparent;box-shadow:0 8px 20px #30436314;border-radius:12px;padding:13px 23px;color:#fff}
+.clinic-site .btn-outline-site{color:#26344d;border-color:#d7dfeb;border-radius:12px;padding:13px 23px;background:#fff}
+.clinic-site .hero{padding:64px 0 0;background:radial-gradient(ellipse at 15% 25%,#e7edf977,transparent 55%),linear-gradient(155deg,var(--paper),#fcfdff 70%);position:relative}
+.clinic-site .hero-content{grid-template-columns:1.15fr 1fr;gap:50px;min-height:510px}
+.clinic-site .hero h1{font-size:clamp(2.3rem,4.1vw,3.65rem);line-height:1.55;max-width:650px;margin-block:18px 24px}
+.clinic-site .hero h1 em{color:var(--pink)}
+.clinic-site .hero .lead{color:#59677d;line-height:2.1;max-width:560px}
+.clinic-site .eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:.8rem;font-weight:700;color:var(--pink);letter-spacing:0}
+.clinic-site .eyebrow:before{content:'';width:22px;height:2px;background:currentColor;display:block}
+.clinic-site .eyebrow.text-center{display:flex;justify-content:center}
+.clinic-site .hero-art{display:block;border-radius:0;background:none;min-height:0;position:relative}
+.hero-illustration{display:block;width:100%;height:auto}
+.hero-art-caption{position:absolute;bottom:16px;inset-inline:35px;display:flex;gap:12px;align-items:center;background:#ffffffed;border:1px solid #e2e8f0;box-shadow:0 16px 50px #293d6810;border-radius:18px;padding:16px 20px;color:#314866;font-size:.85rem}
+.hero-art-caption .ui-icon{color:#4b876d;width:30px;height:30px}
+.hero-art-caption strong,.hero-art-caption small{display:block}.hero-art-caption small{color:#65738a}
+.clinic-site .hero-highlights{transform:none;gap:0;margin-top:40px;border-top:1px solid #e1e6ef;padding-block:26px}
+.clinic-site .hero-highlights>div{background:none;box-shadow:none;border-radius:0;padding:8px 24px;display:grid;grid-template-columns:42px 1fr;column-gap:14px}
+.hero-highlights .ui-icon{grid-row:span 2;width:28px;height:28px;color:#567294;align-self:center}
+.clinic-site .hero-highlights>div+div{border-inline-start:1px solid #e1e6ef}
+.clinic-site .hero-highlights strong{font-size:.95rem;font-weight:700}.clinic-site .hero-highlights span{font-size:.78rem;color:#64728a}
+.clinic-site .section{padding-block:88px}.clinic-site .section-intro{max-width:590px;margin:0 auto 36px;line-height:2}
+.clinic-site .about-grid{gap:70px;grid-template-columns:.85fr 1.25fr}
+.clinic-site .about-symbol{min-height:320px;border-radius:32px 100px 32px 32px;background:linear-gradient(140deg,#e9edf8,#f1f6f4);border:1px solid #e2e7ef;position:relative}
+.about-symbol .ui-icon{width:100px;height:100px;color:#6476aa;stroke-width:1}
+.about-symbol:after{content:'';width:120px;height:120px;border:1px solid #b4c2dc;border-radius:50%;position:absolute;inset-inline-end:25px;bottom:24px}
+.clinic-site .about-grid p{color:#617087}.clinic-site .about-grid h2{margin-block:16px 22px}
+.clinic-site .services-section{background:#f1f4f9;border-block:1px solid #e8edf4}
+.clinic-site .service-grid{gap:24px}.clinic-site .service-card{padding:32px;border:1px solid #e1e7f0;border-radius:22px;box-shadow:0 8px 24px #30456705;background:#fff;transition:transform .2s,box-shadow .2s;display:flex;flex-direction:column;align-items:start;min-width:0}
+.clinic-site .service-card:hover{transform:translateY(-5px);box-shadow:0 20px 45px #30456710}
+.clinic-site .service-icon{border-radius:16px;width:60px;height:60px;background:#eef1fa;color:#566ba7;font-size:1.6rem;margin-bottom:10px}
+.clinic-site .service-icon .ui-icon{width:28px;height:28px}
+.clinic-site .service-card h3,.clinic-site .service-card h2{line-height:1.8;margin:12px 0;font-size:1.1rem}
+.clinic-site .service-card>a:last-child{margin-top:auto;padding-top:16px;color:var(--pink);font-size:.86rem}
+.clinic-site .service-card .cms-media{border-radius:14px;margin:0 0 18px;aspect-ratio:16/10;object-fit:cover}
+.clinic-site .why-section{background:#fff}.clinic-site .why-grid{gap:24px;margin-top:40px;counter-reset:care}
+.clinic-site .why-grid>div{box-shadow:none;text-align:start;padding:30px;border-radius:20px;background:#f7f9fc;border:1px solid #e8edf4;counter-increment:care}
+.clinic-site .why-grid>div:before{content:'0' counter(care);display:block;font-size:2.1rem;color:#74849c;line-height:1.5;margin-bottom:20px;font-variant-numeric:tabular-nums}
+.clinic-site .why-grid strong{color:#2b405f;margin-bottom:10px}
+.clinic-site .appointment-section{background:#fff;padding-top:0}
+.clinic-site .appointment-panel{border-radius:30px;padding:48px;background:#203858;color:white;position:relative;overflow:hidden}
+.clinic-site .appointment-panel h2{color:#fff}.clinic-site .appointment-panel .eyebrow{color:#c4d4ef}.clinic-site .appointment-panel p{color:#d6e0ef;font-size:.9rem;max-width:680px}
+.clinic-site .appointment-panel .btn-primary-site{background:#fff;color:#203858;flex:none}
+.clinic-site .contact-section{background:#f6f8fc}.clinic-site .contact-grid{gap:28px;margin-top:32px}
+.clinic-site .contact-grid>div{background:#fff;border:1px solid #e3e9f1;padding:36px;border-radius:22px}
+.clinic-site .contact-grid h3{color:#61728c;font-size:.8rem;margin-bottom:8px}.clinic-site .contact-grid p{font-size:1rem}
+.clinic-site .contact-cta{background:linear-gradient(145deg,#eef1fa,#f6f9fc)!important}.contact-cta .ui-icon{width:58px;height:58px;color:#7484b5;margin-bottom:22px}
+.clinic-site .website-footer{background:#14263f;color:#e7edf5;padding-block:48px;border-top:4px solid #8195b8}
+.clinic-site .footer-inner{gap:30px}.clinic-site .footer-inner strong{font-size:1.3rem}.clinic-site .footer-inner p{color:#b0bfd2}.clinic-site .footer-inner nav{font-size:.85rem;gap:20px}
+.clinic-site .cms-media{box-shadow:0 8px 28px #30456710}.clinic-site .empty-services{padding:40px;border:1px dashed #bcc9dc;border-radius:20px;background:#fff;color:#617087}
+/* Workspace: ink sidebar, editorial headings, clear functional surfaces. */
+.panel-app{--tblr-body-bg:#f1f4fa;background:#f1f4fa;color:#243653}
+.panel-app .app-topbar{box-shadow:none;padding:1rem 1.75rem;border-bottom:1px solid #e1e7f0}
+.panel-app .app-brand{color:#243d63}.panel-app .app-brand-mark{background:#213e65;border-radius:15px;box-shadow:none}
+.panel-context{display:flex;gap:10px;align-items:center;font-size:.8rem;color:#61728c}.panel-context bdi{font-variant-numeric:tabular-nums}
+.panel-app .app-frame{flex:1}.panel-app .app-sidebar{background:#172b49;color:#d4dfee;border:0;padding:24px 16px}
+.panel-app .app-workspace{border:1px solid #ffffff18;background:#ffffff08;border-radius:16px;padding:18px;margin-bottom:24px}
+.workspace-title{display:flex;align-items:center;gap:10px;font-size:.95rem;color:#fff;font-weight:700}.workspace-title .ui-icon{color:#9eade9}
+.panel-app .app-workspace p{color:#a6b8d0;font-size:.75rem;line-height:1.9}
+.panel-app .app-navigation{gap:5px}.panel-app .app-nav-caption{color:#8ca3c3;font-size:.67rem;letter-spacing:.02em;margin:22px 12px 8px}
+.panel-app .app-nav-link{display:flex;align-items:center;gap:12px;color:#ced9e9;border-radius:11px;padding:11px 13px;font-size:.8rem;min-height:46px}
+.panel-app .app-nav-link .ui-icon{width:20px;height:20px;color:#91a7c8}
+.panel-app .app-nav-link:hover,.panel-app .app-nav-link:focus-visible{background:#ffffff0c;color:white}
+.panel-app .app-nav-link.active{background:#4661aa;color:#fff;box-shadow:0 5px 15px #0a17262b}.panel-app .app-nav-link.active .ui-icon{color:white}
+.panel-app .app-sidebar-footer{border-color:#ffffff18}.panel-app .app-sidebar-footer p{color:#9aafcb}.panel-app .app-sidebar-footer .btn{border-color:#657b9b;color:#e2eaf5;background:transparent}
+.panel-app .app-content.page-wrapper{padding:30px}
+.panel-app .app-welcome{padding:32px 38px;border-radius:24px;background:linear-gradient(110deg,#3e5292,#233d65 65%);box-shadow:0 14px 30px #293f6b12;display:flex;justify-content:space-between;align-items:center;gap:24px;isolation:isolate;overflow:hidden;margin-bottom:28px}
+.panel-app .app-welcome:after{content:'';position:absolute;width:280px;height:280px;border:46px solid #ffffff06;border-radius:50%;inset-inline-end:-50px;top:-110px;z-index:-1}
+.panel-app .app-welcome .page-pretitle{color:#c2d2ee;display:flex;align-items:center;gap:8px;font-size:.72rem}
+.panel-app .app-welcome-title{font-size:1.65rem;letter-spacing:-.04em;margin:12px 0;color:#fff}.welcome-description{font-size:.85rem;color:#d3dfef;margin:0;max-width:580px;line-height:2}
+.welcome-badge{padding:20px;border:1px solid #ffffff24;background:#ffffff0a;border-radius:20px;flex:none}.welcome-badge .ui-icon{width:54px;height:54px;stroke-width:1.1;color:#e1e8ff}
+.panel-app .work-card,.panel-app .auth-card{border-radius:22px;border:1px solid #e2e8f2;box-shadow:0 6px 24px #273d6905!important}
+.panel-app .card-body>h1{padding-bottom:20px;margin-bottom:24px;border-bottom:1px solid #edf0f6;font-size:1.4rem;color:#293f62;letter-spacing:-.04em}
+.panel-app .btn{box-shadow:none;border-radius:10px;font-size:.82rem}.panel-app .btn-primary{background:#355a9c;border-color:#355a9c}.panel-app .btn-primary:hover{background:#27467e}
+.panel-app .form-label{font-size:.82rem;color:#526580}.panel-app .form-control,.panel-app .form-select{border-color:#d2dce9;background:#fbfcfe}
+.panel-app .table thead{background:#f4f6fb}.panel-app .table th{color:#61728d;font-size:.78rem}.panel-app .table td{font-size:.85rem}.panel-app .table>*>*{padding:16px}
+.panel-app .card-body>.border,.panel-app .card-body>form.border{border-color:#e0e7f1!important;border-radius:16px!important}
+.panel-app .auth-card{max-width:100%}.panel-app .auth-card:has(form[action$="/otp/request"]){max-width:560px}
+.workspace-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-bottom:32px}
+.workspace-action{display:flex;align-items:center;gap:16px;border:1px solid #e1e7f1;border-radius:17px;padding:22px;text-decoration:none;color:#314b73;background:#fff;transition:transform .2s,box-shadow .2s}
+.workspace-action:hover{transform:translateY(-3px);box-shadow:0 12px 25px #2946710c;color:#284d8d}.workspace-action>.ui-icon{width:46px;height:46px;padding:11px;border-radius:14px;background:#edf1fb;color:#5b6daa;box-sizing:content-box;width:24px;height:24px}
+.workspace-action:nth-child(2)>.ui-icon{color:#367a67;background:#eaf5f1}.workspace-action:nth-child(3)>.ui-icon{color:#ab7051;background:#fcf0e8}.workspace-action strong,.workspace-action small{display:block}.workspace-action strong{font-size:.9rem}.workspace-action small{color:#61728c;font-size:.72rem;margin-top:6px}
+.workspace-action:focus-visible{outline:3px solid #315ca7;outline-offset:3px}
+.panel-app .desk-summary{grid-template-columns:repeat(4,minmax(0,1fr))}
+.panel-app .desk-summary{gap:16px;margin-block:26px}.panel-app .desk-summary>div{padding:22px!important;border:1px solid #e1e7f1!important;border-radius:16px!important;background:linear-gradient(135deg,#fff,#f6f8fd);position:relative;overflow:hidden}.panel-app .desk-summary dt{font-size:.73rem;font-weight:500;color:#5f728e}.panel-app .desk-summary dd{font-size:2rem;font-weight:700;color:#38598a;margin-top:8px;line-height:1.6}.panel-app .desk-summary>div:after{content:'';position:absolute;width:60px;height:60px;border:14px solid #6e89c40a;border-radius:50%;inset-inline-end:-15px;bottom:-18px}.panel-app .desk-summary>div:nth-child(3) dd,.panel-app .desk-summary>div:nth-child(4) dd{color:#357b68}.panel-app .desk-summary>div:nth-child(6) dd{color:#9a692f}
+@media(min-width:1024px){.panel-app .app-sidebar{width:252px}.panel-app .app-content.page-wrapper{max-width:calc(100% - 252px)}}
+@media(max-width:1100px){.panel-app .desk-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:1100px){.clinic-site .header-inner{justify-content:center}.clinic-site .main-nav{order:3;width:100%;justify-content:center}.clinic-site .hero-content{gap:20px}.workspace-actions{grid-template-columns:repeat(2,minmax(0,1fr))}.panel-context{display:none}}
+@media(max-width:767px){.clinic-site .container{padding-inline:20px}.clinic-site .hero{padding-top:36px}.clinic-site .hero-content{grid-template-columns:1fr;gap:22px}.clinic-site .hero h1{font-size:2.35rem}.clinic-site .hero-art{display:block;max-width:420px;width:100%;margin:auto}.clinic-site .hero-highlights{grid-template-columns:1fr;margin-top:26px;padding-block:14px}.clinic-site .hero-highlights>div{padding:14px 4px}.clinic-site .hero-highlights>div+div{border-inline-start:0;border-top:1px solid #e1e6ef}.clinic-site .section{padding-block:52px}.clinic-site .about-grid{grid-template-columns:1fr;gap:28px}.clinic-site .about-symbol{min-height:200px}.clinic-site .service-grid,.clinic-site .why-grid{grid-template-columns:1fr}.clinic-site .service-card{padding:26px}.clinic-site .appointment-panel{padding:30px 24px;border-radius:22px;max-width:calc(100% - 32px)}.clinic-site .contact-grid>div{padding:26px}.clinic-site .header-inner{min-height:90px;gap:16px}.clinic-site .main-nav{gap:18px;font-size:.78rem}.clinic-site .brand{font-size:1.1rem}.clinic-site .website-header .btn-primary-site{padding:10px 16px;font-size:.8rem}.hero-art-caption{inset-inline:18px;padding:12px 16px;font-size:.75rem;bottom:2px}.hero-art-caption small{font-size:.68rem}.panel-app .app-topbar{padding:14px}.panel-app .app-content.page-wrapper{padding:16px}.panel-app .app-welcome{padding:26px;gap:12px;margin-bottom:20px}.panel-app .app-welcome-title{font-size:1.35rem}.welcome-badge{display:none}.workspace-actions{grid-template-columns:1fr;gap:12px}.workspace-action{padding:18px}.panel-app .card-body>h1{font-size:1.2rem}.panel-app .app-sidebar{padding:20px}.clinic-site .hero-actions>*{flex:1}.clinic-site .hero .lead{font-size:.95rem}}
+@media(prefers-reduced-motion:reduce){.clinic-site *, .panel-app *{transition:none!important;animation:none!important;scroll-behavior:auto!important}}

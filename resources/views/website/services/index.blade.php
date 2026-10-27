@@ -7,7 +7,7 @@
 <div class="service-grid mt-4">
     @forelse($services as $service)
         <article class="service-card">
-            <span class="service-icon" aria-hidden="true">✿</span>
+            <span class="service-icon"><x-ui-icon name="heart"/></span>
             <h2 class="h5">{{ $service->name }}</h2>
             <p>مدت خدمت: {{ $service->duration_minutes }} دقیقه</p>
             <a href="{{ route('website.services.show', $service->id) }}" aria-label="جزئیات {{ $service->name }}">مشاهده جزئیات ←</a>
