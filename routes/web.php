@@ -5,6 +5,12 @@ use App\Http\Controllers\Web\OtpController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [\App\Http\Controllers\Web\WebsiteController::class, 'home'])->name('website.home');
+Route::middleware(['auth', 'can:website.manage'])->prefix('admin/website-sections')->group(function (): void {
+    Route::get('/', [\App\Http\Controllers\Admin\WebsiteSectionController::class, 'index'])->name('website.sections.index');
+    Route::post('/', [\App\Http\Controllers\Admin\WebsiteSectionController::class, 'store'])->name('website.sections.store');
+    Route::put('/{section}', [\App\Http\Controllers\Admin\WebsiteSectionController::class, 'update'])->name('website.sections.update');
+    Route::delete('/{section}', [\App\Http\Controllers\Admin\WebsiteSectionController::class, 'destroy'])->name('website.sections.destroy');
+});
 Route::middleware(['auth', \App\Http\Middleware\VerifiedBooker::class, 'throttle:reports'])->group(function (): void {
     Route::get('/management/reports', [\App\Http\Controllers\Admin\ReportController::class, 'index'])->name('reports.index');
     Route::post('/management/reports/staff-name', \App\Http\Controllers\Admin\StaffDisplayNameController::class)->middleware('can:reports.finance')->name('reports.staff-name');
