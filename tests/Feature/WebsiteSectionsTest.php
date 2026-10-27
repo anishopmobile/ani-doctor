@@ -58,6 +58,7 @@ final class WebsiteSectionsTest extends TestCase
             )->passes()
         );
     }
+
     public function test_published_slides_render_in_order_without_leaking_drafts_or_regular_sections(): void
     {
         WebsiteSection::create([
@@ -106,7 +107,7 @@ final class WebsiteSectionsTest extends TestCase
 
     public function test_editor_accepts_slide_but_rejects_unapproved_section_types(): void
     {
-        $rules = (new \\App\\Http\\Requests\\WebsiteSectionRequest())->rules();
+        $rules = (new \App\Http\Requests\WebsiteSectionRequest())->rules();
         $fields = [
             'type' => 'slide', 'title' => 'معرفی مطب', 'background' => 'blush',
             'sort_order' => 0, 'is_published' => 1,
@@ -114,5 +115,4 @@ final class WebsiteSectionsTest extends TestCase
         $this->assertTrue(validator($fields, $rules)->passes());
         $this->assertFalse(validator(array_replace($fields, ['type' => 'script']), $rules)->passes());
     }
-
 }
