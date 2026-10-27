@@ -1,5 +1,5 @@
 /* Public clinic landing page. Uses locally deployed Vazirmatn and prebuilt assets. */
-@font-face{font-family:Vazirmatn;src:url('fonts/Vazirmatn.woff2') format('woff2');font-display:swap}
+@font-face{font-family:Vazirmatn;src:url('fonts/Vazirmatn-Regular.woff2') format('woff2');font-display:swap}
 :root{--pink:#ce4081;--pink-light:#ffe9f2;--purple:#362147;--muted:#626078;--paper:#fffafc;--border:#f1d7e5}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
