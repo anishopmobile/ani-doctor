@@ -7,6 +7,7 @@
     <title>دکتر زهرا باقری | متخصص زنان، زایمان و نازایی</title>
     <link rel="stylesheet" href="{{ asset('assets/vendor/bootstrap.rtl.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/website.css') }}">
+    <script defer src="{{ asset('assets/website-slider.js') }}"></script>
 </head>
 <body>
 <a class="visually-hidden-focusable" href="#main">رفتن به محتوای اصلی</a>
@@ -27,11 +28,38 @@
     <section class="hero">
         <div class="container hero-content">
             <div class="hero-copy">
-                <p class="eyebrow">خانم دکتر زهرا باقری</p>
-                <p class="hero-subtitle">متخصص زنان، زایمان و نازایی</p>
-                <h1>مراقبت تخصصی <em>زنان</em>، بارداری و نازایی</h1>
-                <p class="lead">ارائه خدمات تخصصی سلامت زنان در محیطی آرام و محترمانه. برای مشاهده زمان‌های قابل رزرو، وارد تقویم آنلاین مطب شوید.</p>
-                <div class="hero-actions"><a class="btn-primary-site" href="{{ route('calendar') }}">رزرو نوبت آنلاین</a><a class="btn-outline-site" href="#services">مشاهده خدمات</a></div>
+                @if($slides->isNotEmpty())
+                    <div class="website-slider" data-website-slider aria-roledescription="اسلایدشو" aria-label="معرفی خدمات مطب">
+                        <div class="website-slides" aria-live="off">
+                            @foreach($slides as $slide)
+                                <article class="website-slide" data-website-slide @if(!$loop->first) hidden @endif>
+                                    @if($slide->subtitle)<p class="eyebrow">{{ $slide->subtitle }}</p>@endif
+                                    @if($loop->first)<h1>{{ $slide->title }}</h1>@else<h2 class="slide-heading">{{ $slide->title }}</h2>@endif
+                                    @if($slide->body)<p class="lead slide-copy">{{ $slide->body }}</p>@endif
+                                    <div class="hero-actions">
+                                        @if($slide->button_url && $slide->button_text)
+                                            <a class="btn-primary-site" href="{{ $slide->button_url }}">{{ $slide->button_text }}</a>
+                                        @endif
+                                        <a class="btn-outline-site" href="{{ route('calendar') }}">رزرو نوبت آنلاین</a>
+                                    </div>
+                                </article>
+                            @endforeach
+                        </div>
+                        @if($slides->count() > 1)
+                            <div class="slide-controls" aria-label="کنترل اسلایدها">
+                                <button type="button" class="slide-control" data-slide-prev aria-label="اسلاید قبلی">قبلی</button>
+                                <span class="slide-counter" data-slide-counter role="status" aria-live="polite">۱ از {{ $slides->count() }}</span>
+                                <button type="button" class="slide-control" data-slide-next aria-label="اسلاید بعدی">بعدی</button>
+                            </div>
+                        @endif
+                    </div>
+                @else
+                    <p class="eyebrow">خانم دکتر زهرا باقری</p>
+                    <p class="hero-subtitle">متخصص زنان، زایمان و نازایی</p>
+                    <h1>مراقبت تخصصی <em>زنان</em>، بارداری و نازایی</h1>
+                    <p class="lead">ارائه خدمات تخصصی سلامت زنان در محیطی آرام و محترمانه. برای مشاهده زمان‌های قابل رزرو، وارد تقویم آنلاین مطب شوید.</p>
+                    <div class="hero-actions"><a class="btn-primary-site" href="{{ route('calendar') }}">رزرو نوبت آنلاین</a><a class="btn-outline-site" href="#services">مشاهده خدمات</a></div>
+                @endif
             </div>
             <div class="hero-art" aria-hidden="true"><span class="art-flower">✿</span><span class="art-heart">♡</span><span class="art-label">همراه شما در مسیر سلامتی</span></div>
         </div>
