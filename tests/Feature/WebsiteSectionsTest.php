@@ -58,4 +58,61 @@ final class WebsiteSectionsTest extends TestCase
             )->passes()
         );
     }
+    public function test_published_slides_render_in_order_without_leaking_drafts_or_regular_sections(): void
+    {
+        WebsiteSection::create([
+            'type' => 'slide', 'title' => 'اسلاید دوم', 'background' => 'blush',
+            'sort_order' => 20, 'is_published' => true,
+        ]);
+        WebsiteSection::create([
+            'type' => 'slide', 'title' => 'اسلاید اول', 'background' => 'plain',
+            'sort_order' => 10, 'is_published' => true,
+        ]);
+        WebsiteSection::create([
+            'type' => 'slide', 'title' => 'اسلاید پیش‌نویس', 'background' => 'lilac',
+            'sort_order' => 0, 'is_published' => false,
+        ]);
+        WebsiteSection::create([
+            'type' => 'about', 'title' => 'متن درباره', 'background' => 'plain',
+            'sort_order' => 5, 'is_published' => true,
+        ]);
+
+        $response = $this->get('/')->assertOk()
+            ->assertSee('اسلاید اول')
+            ->assertSee('اسلاید دوم')
+            ->assertDontSee('اسلاید پیش‌نویس')
+            ->assertSee('data-slide-next', false)
+            ->assertSee('متن درباره');
+
+        $this->assertLessThan(
+            strpos($response->getContent(), 'اسلاید دوم'),
+            strpos($response->getContent(), 'اسلاید اول')
+        );
+        $this->assertSame(2, substr_count($response->getContent(), 'data-website-slide '));
+    }
+
+    public function test_no_published_slides_keeps_original_homepage_hero(): void
+    {
+        WebsiteSection::create([
+            'type' => 'slide', 'title' => 'اسلاید مخفی', 'background' => 'plain',
+            'sort_order' => 0, 'is_published' => false,
+        ]);
+
+        $this->get('/')->assertOk()
+            ->assertSee('مراقبت تخصصی')
+            ->assertDontSee('اسلاید مخفی')
+            ->assertDontSee('data-slide-next', false);
+    }
+
+    public function test_editor_accepts_slide_but_rejects_unapproved_section_types(): void
+    {
+        $rules = (new \\App\\Http\\Requests\\WebsiteSectionRequest())->rules();
+        $fields = [
+            'type' => 'slide', 'title' => 'معرفی مطب', 'background' => 'blush',
+            'sort_order' => 0, 'is_published' => 1,
+        ];
+        $this->assertTrue(validator($fields, $rules)->passes());
+        $this->assertFalse(validator(array_replace($fields, ['type' => 'script']), $rules)->passes());
+    }
+
 }
