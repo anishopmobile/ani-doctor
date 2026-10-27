@@ -15,6 +15,9 @@ final class SecurityHeaders
 
     public function apply(Request $request, Response $response): Response
     {
+        if ($response instanceof \Symfony\Component\HttpFoundation\RedirectResponse) {
+            $response->setContent('');
+        }
         $response->headers->set('Cache-Control', 'no-store, private');
         $response->headers->set('X-Content-Type-Options', 'nosniff');
         $response->headers->set('X-Frame-Options', 'DENY');
@@ -25,7 +28,7 @@ final class SecurityHeaders
         }
         // Browsers may apply form-action to the gateway redirect after an on-site POST.
         $formAction = $request->routeIs('appointments.show', 'payments.initiate') ? "'self' https://payment.zarinpal.com https://sandbox.zarinpal.com" : "'self'";
-        $response->headers->set('Content-Security-Policy', "default-src 'self'; style-src 'self'; font-src 'self'; script-src 'self'; img-src 'self' data:; frame-ancestors 'none'; base-uri 'self'; form-action ".$formAction);
+        $response->headers->set('Content-Security-Policy', "default-src 'self'; object-src 'none'; frame-src 'none'; connect-src 'self'; style-src 'self'; font-src 'self'; script-src 'self'; img-src 'self' data:; frame-ancestors 'none'; base-uri 'self'; form-action ".$formAction);
         return $response;
     }
 }

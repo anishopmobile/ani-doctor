@@ -1,0 +1,121 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Modules\Identity\Infrastructure\Role;
+use App\Modules\Identity\Infrastructure\User;
+use App\Modules\Website\Application\ThemeService;
+use Database\Seeders\RoleSeeder;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+final class WebsiteThemeTest extends TestCase
+{
+    use RefreshDatabase;
+
+    private function admin(): User
+    {
+        $this->seed(RoleSeeder::class);
+        $user = User::create(['mobile' => '09120000991']);
+        $user->forceFill(['mobile_verified_at' => now()])->save();
+        $user->roles()->attach(Role::query()->where('name', 'admin')->firstOrFail());
+
+        return $user;
+    }
+
+    public function test_public_pages_show_default_colors_before_any_admin_change(): void
+    {
+        $this->get('/website-theme.css')->assertOk()->assertSee('--pink: #c83c7b;', false);
+        $this->get('/website-theme.css')->assertOk()->assertSee('--purple: #362147;', false);
+        $this->get('/website-theme.css')->assertOk()->assertSee('--paper: #fffafc;', false);
+    }
+
+    public function test_only_verified_administrator_can_update_public_color_palette(): void
+    {
+        $values = [
+            'primary_color' => '#112233',
+            'text_color' => '#334455',
+            'surface_color' => '#eef0ff',
+        ];
+
+        $this->get('/admin/website-theme')->assertRedirect('/login');
+        $this->put('/admin/website-theme', $values)->assertRedirect('/login');
+
+        $this->actingAs($this->admin())
+            ->get(route('website.theme.edit'))->assertOk()
+            ->assertSee('رنگ‌بندی سایت');
+
+        $this->put(route('website.theme.update'), $values)->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('website_theme_settings', ['id' => 1] + $values);
+        $this->get('/website-theme.css')->assertSee('--pink: #112233;', false);
+        $this->get('/website-theme.css')->assertSee('--purple: #334455;', false);
+
+        $this->put(route('website.theme.update'), array_replace($values, [
+            'primary_color' => '#223344',
+        ]))->assertSessionHasNoErrors();
+        $this->assertDatabaseCount('website_theme_settings', 1);
+        $this->assertSame('#223344', app(ThemeService::class)->settings()['primary_color']);
+    }
+
+    public function test_css_payloads_and_non_hex_values_cannot_be_saved(): void
+    {
+        $this->actingAs($this->admin());
+        $valid = [
+            'primary_color' => '#112233',
+            'text_color' => '#334455',
+            'surface_color' => '#fafafa',
+        ];
+
+        foreach (['red', '#fff', '#111111; background:url(https://evil.example)', '<script>'] as $payload) {
+            $this->put(route('website.theme.update'), array_replace($valid, [
+                'primary_color' => $payload,
+            ]))->assertSessionHasErrors('primary_color');
+        }
+        $this->assertDatabaseCount('website_theme_settings', 0);
+    }
+
+    public function test_brand_contact_and_seo_are_escaped_and_phone_cannot_inject_a_link(): void
+    {
+        $this->actingAs($this->admin());
+        $values = ThemeService::DEFAULTS + [
+            'brand_name' => '<script>brand</script>', 'brand_subtitle' => 'عنوان آزمایشی',
+            'contact_phone' => '+98210000000', 'contact_address' => '<b>نشانی</b>',
+            'seo_description' => '"><script>seo</script>',
+        ];
+        $this->put(route('website.theme.update'), $values)->assertSessionHasNoErrors();
+        auth()->logout();
+        $this->get('/')->assertOk()->assertSee('&lt;script&gt;brand&lt;/script&gt;', false)
+            ->assertDontSee('<script>brand</script>', false)->assertSee('tel:+98210000000', false)
+            ->assertDontSee('<script>seo</script>', false)->assertSee('noindex, nofollow');
+        $this->get('/services')->assertOk()->assertSee('&lt;script&gt;brand&lt;/script&gt;', false);
+        $this->actingAs(User::create(['mobile' => '09120000994']))
+            ->put(route('website.theme.update'), $values)->assertForbidden();
+        $this->actingAs(User::query()->where('mobile', '09120000991')->firstOrFail())
+            ->put(route('website.theme.update'), array_replace($values, ['contact_phone' => 'javascript:alert(1)']))
+            ->assertSessionHasErrors('contact_phone');
+    }
+
+    public function test_low_contrast_palette_cannot_be_published(): void
+    {
+        $this->actingAs($this->admin());
+        $this->put(route('website.theme.update'), array_replace(ThemeService::DEFAULTS, [
+            'primary_color' => '#ffffff',
+        ]))->assertSessionHasErrors('primary_color');
+        $this->put(route('website.theme.update'), array_replace(ThemeService::DEFAULTS, [
+            'text_color' => '#fffafc',
+        ]))->assertSessionHasErrors('text_color');
+        $this->assertDatabaseCount('website_theme_settings', 0);
+    }
+
+    public function test_singleton_does_not_depend_on_the_database_auto_increment_counter(): void
+    {
+        $temporary = \App\Modules\Website\Infrastructure\WebsiteTheme::create(ThemeService::DEFAULTS);
+        $temporary->delete();
+        app(ThemeService::class)->save(ThemeService::DEFAULTS + ['brand_name' => 'برند ثبت شده']);
+        $this->assertDatabaseHas('website_theme_settings', ['id' => 1]);
+        $this->assertDatabaseCount('website_theme_settings', 1);
+        $this->assertSame('برند ثبت شده', app(ThemeService::class)->settings()['brand_name']);
+    }
+}

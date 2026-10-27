@@ -4,7 +4,65 @@ use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\OtpController;
 use Illuminate\Support\Facades\Route;
 
-Route::redirect('/', '/login');
+Route::get('/', [\App\Http\Controllers\Web\WebsiteController::class, 'home'])->name('website.home');
+Route::middleware(['auth', 'can:website.manage'])->prefix('admin/website-theme')->group(function (): void {
+    Route::get('/', [\App\Http\Controllers\Admin\WebsiteThemeController::class, 'edit'])->name('website.theme.edit');
+    Route::put('/', [\App\Http\Controllers\Admin\WebsiteThemeController::class, 'update'])->name('website.theme.update');
+});
+Route::get('/website-theme.css', \App\Http\Controllers\Web\WebsiteThemeCssController::class)->name('website.theme.css');
+Route::get('/pages/{slug}', \App\Http\Controllers\Web\PublicPageController::class)->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')->name('website.pages.show');
+Route::middleware(['auth', 'can:website.manage', 'throttle:website-editor'])->prefix('admin/website-pages')->group(function (): void {
+    $controller = \App\Http\Controllers\Admin\WebsitePageController::class;
+    Route::get('/', [$controller, 'index'])->name('website.pages.index');
+    Route::post('/', [$controller, 'store'])->name('website.pages.store');
+    Route::get('/{page}/edit', [$controller, 'edit'])->whereNumber('page')->name('website.pages.edit');
+    Route::get('/{page}/preview', [$controller, 'preview'])->whereNumber('page')->name('website.pages.preview');
+    Route::put('/{page}', [$controller, 'update'])->whereNumber('page')->name('website.pages.update');
+    Route::post('/{page}/publish', [$controller, 'publish'])->whereNumber('page')->name('website.pages.publish');
+    Route::post('/{page}/unpublish', [$controller, 'unpublish'])->whereNumber('page')->name('website.pages.unpublish');
+    Route::post('/{page}/restore/{revision}', [$controller, 'restore'])->whereNumber('page')->whereNumber('revision')->name('website.pages.restore');
+    Route::post('/{page}/assets', [$controller, 'upload'])->whereNumber('page')->name('website.pages.assets.store');
+    Route::delete('/{page}/assets/{asset}', [$controller, 'removeAsset'])->whereNumber('page')->whereNumber('asset')->name('website.pages.assets.destroy');
+    Route::delete('/{page}', [$controller, 'destroy'])->whereNumber('page')->name('website.pages.destroy');
+});
+
+Route::get('/sitemap.xml', \App\Http\Controllers\Web\SitemapController::class)->name('website.sitemap');
+Route::get('/website-media/{media}', \App\Http\Controllers\Web\WebsiteMediaController::class)->whereNumber('media')->name('website.media.show');
+Route::middleware(['auth', 'can:website.manage'])->group(function (): void {
+    Route::post('/admin/website-media/{type}/{id}', [\App\Http\Controllers\Admin\WebsiteMediaController::class, 'store'])->whereIn('type', ['article', 'section', 'service', 'brand'])->whereNumber('id')->name('website.media.store');
+    Route::delete('/admin/website-media/{media}', [\App\Http\Controllers\Admin\WebsiteMediaController::class, 'destroy'])->whereNumber('media')->name('website.media.destroy');
+});
+Route::get('/articles', [\App\Http\Controllers\Web\PublicArticleController::class, 'index'])->name('website.articles.index');
+Route::middleware(['auth', 'can:website.manage'])->prefix('admin/website-taxonomies')->group(function (): void {
+    Route::get('/', [\App\Http\Controllers\Admin\WebsiteTaxonomyController::class, 'index'])->name('website.taxonomies.index');
+    Route::post('/', [\App\Http\Controllers\Admin\WebsiteTaxonomyController::class, 'store'])->name('website.taxonomies.store');
+    Route::delete('/{taxonomy}', [\App\Http\Controllers\Admin\WebsiteTaxonomyController::class, 'destroy'])->name('website.taxonomies.destroy');
+});
+Route::get('/articles/{slug}', [\App\Http\Controllers\Web\PublicArticleController::class, 'show'])->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')->name('website.articles.show');
+Route::middleware(['auth', 'can:website.manage'])->prefix('admin/website-articles')->group(function (): void {
+    Route::get('/', [\App\Http\Controllers\Admin\WebsiteArticleController::class, 'index'])->name('website.articles.manage');
+    Route::post('/', [\App\Http\Controllers\Admin\WebsiteArticleController::class, 'store'])->name('website.articles.store');
+    Route::put('/{article}', [\App\Http\Controllers\Admin\WebsiteArticleController::class, 'update'])->name('website.articles.update');
+    Route::delete('/{article}', [\App\Http\Controllers\Admin\WebsiteArticleController::class, 'destroy'])->name('website.articles.destroy');
+});
+Route::middleware(['auth', 'can:website.manage'])->prefix('admin/website-service-content')->group(function (): void {
+    Route::get('/{service}', [\App\Http\Controllers\Admin\WebsiteServiceContentController::class, 'edit'])->whereNumber('service')->name('website.service-content.edit');
+    Route::put('/{service}', [\App\Http\Controllers\Admin\WebsiteServiceContentController::class, 'update'])->whereNumber('service')->name('website.service-content.update');
+});
+Route::get('/services', [\App\Http\Controllers\Web\PublicServiceController::class, 'index'])->name('website.services.index');
+Route::get('/services/{service}', [\App\Http\Controllers\Web\PublicServiceController::class, 'show'])->whereNumber('service')->name('website.services.show');
+Route::middleware(['auth', 'can:website.manage'])->prefix('admin/website-links')->group(function (): void {
+    Route::get('/', [\App\Http\Controllers\Admin\WebsiteLinkController::class, 'index'])->name('website.links.index');
+    Route::post('/', [\App\Http\Controllers\Admin\WebsiteLinkController::class, 'store'])->name('website.links.store');
+    Route::put('/{link}', [\App\Http\Controllers\Admin\WebsiteLinkController::class, 'update'])->name('website.links.update');
+    Route::delete('/{link}', [\App\Http\Controllers\Admin\WebsiteLinkController::class, 'destroy'])->name('website.links.destroy');
+});
+Route::middleware(['auth', 'can:website.manage'])->prefix('admin/website-sections')->group(function (): void {
+    Route::get('/', [\App\Http\Controllers\Admin\WebsiteSectionController::class, 'index'])->name('website.sections.index');
+    Route::post('/', [\App\Http\Controllers\Admin\WebsiteSectionController::class, 'store'])->name('website.sections.store');
+    Route::put('/{section}', [\App\Http\Controllers\Admin\WebsiteSectionController::class, 'update'])->name('website.sections.update');
+    Route::delete('/{section}', [\App\Http\Controllers\Admin\WebsiteSectionController::class, 'destroy'])->name('website.sections.destroy');
+});
 Route::middleware(['auth', \App\Http\Middleware\VerifiedBooker::class, 'throttle:reports'])->group(function (): void {
     Route::get('/management/reports', [\App\Http\Controllers\Admin\ReportController::class, 'index'])->name('reports.index');
     Route::post('/management/reports/staff-name', \App\Http\Controllers\Admin\StaffDisplayNameController::class)->middleware('can:reports.finance')->name('reports.staff-name');

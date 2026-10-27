@@ -182,3 +182,6 @@ DiscountService (quote/reserve/transition)، ReportService (فیلتر، snapsho
 ## P8
 ابزار توسعه لوکال: LocalPaymentMode، LocalSimulatorGateway، LocalPaymentController/Request و Blade درگاه دو نتیجه‌ای؛ فقط localhost مستقیم با flag صریح، بدون فرم کارت/شبکه بانک. مالکیت nonce نشست، CSRF، provider مستقل و گزارش با هشدار. راه روشن/خاموش و نصب patch در docs/INSTALL-LOCAL.md.
 ProductionGuard و ConfiguredProxies مرز محیط HTTP؛ Operations/ReadinessService، BackupService، PackageVerifier و Infrastructure/EncryptedArchive/MysqlSnapshot/PrivatePaths مسئول عملیات کنسولی‌اند. domain/ProxyAddresses قواعد اعتماد IP را مشترک نگه می‌دارد. هیچ API وب برای بکاپ یا restore وجود ندارد؛ [قرارداد](docs/P8.md).
+
+## Visual CMS components
+Website PageSchema/PageService, WebsitePage/Revision/Asset, admin WebsitePageController and public PublicPageController implement bounded block authoring, versioned publication and private images. Vanilla page-builder.js uses DOM textContent and same-origin Fetch; page-builder.css requires no build. WebsiteThemeCssController serves validated palette CSS under strict CSP; brand logo reuses MediaService.

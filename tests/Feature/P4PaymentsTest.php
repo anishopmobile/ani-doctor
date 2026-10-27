@@ -64,7 +64,7 @@ final class P4PaymentsTest extends TestCase
     public function test_full_amount_is_server_snapshot_and_network_is_outside_application_transaction(): void
     {
         $appointment = $this->hold();
-        $this->get('/appointments/'.$appointment->reference)->assertOk()->assertHeader('Content-Security-Policy', "default-src 'self'; style-src 'self'; font-src 'self'; script-src 'self'; img-src 'self' data:; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://payment.zarinpal.com https://sandbox.zarinpal.com");
+        $this->get('/appointments/'.$appointment->reference)->assertOk()->assertHeader('Content-Security-Policy', "default-src 'self'; object-src 'none'; frame-src 'none'; connect-src 'self'; style-src 'self'; font-src 'self'; script-src 'self'; img-src 'self' data:; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://payment.zarinpal.com https://sandbox.zarinpal.com");
         $baseline = DB::transactionLevel();
         $attempt = $this->begin($appointment);
         $this->assertSame(1000000, $attempt->amount_irr);

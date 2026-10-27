@@ -1,2 +1,11 @@
 User-agent: *
-Disallow:
+Allow: /
+Disallow: /admin/
+Disallow: /management/
+Disallow: /api/
+Disallow: /appointments/
+Disallow: /login
+Disallow: /otp
+Disallow: /calendar
+
+Sitemap: https://drzahrabagheri.ir/sitemap.xml

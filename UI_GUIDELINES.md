@@ -145,3 +145,6 @@ P6 فرم‌ساز عادی با افزودن/حذف فیلد، شرط نمای�
 ## P8
 ابزار توسعه لوکال با هشدار سراسری «بدون وجه واقعی»، مبلغ ریال و دو دکمه موفق/ناموفق در فرم POST سازگار با عرض کم ارائه می‌شود؛ فیلد کارت ندارد. نخستین انتخاب ثبت می‌شود. callback همچنان پیام عمومی دارد و نتیجه در نوبت‌های مالک دیده می‌شود. receipt و خروجی گزارش با provider/هشدار ساختگی مشخص‌اند؛ این هشدار گزارش با خاموش‌شدن flag از داده قبلی حذف نمی‌شود.
 گردش محصول تغییر نکرده است؛ پیام عمومی خطای پیکربندی/HTTP ناامن بدون افشای تنظیمات است. کنترل‌های جدید صرفاً کنسولی‌اند و به پنل منشی اضافه نشده‌اند. بررسی بصری تازه/دستگاه فیزیکی فقط در صورت اجرای واقعی در شواهد ذکر می‌شود.
+
+## Visual CMS editor
+Persian RTL labels, status announcements, explicit save/publish, stale-write messages retaining local input, keyboard up/down alternatives to drag, undo/redo, 320px canvas and a separate authenticated full-template preview. Raw HTML/CSS/JS inputs are absent. Image upload requires alt; destructive actions confirm. Unsaved edits block upload/restore/delete navigation. Public templates share escaped brand and menus.

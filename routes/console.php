@@ -59,6 +59,13 @@ Artisan::command('ops:check', function (\App\Modules\Operations\Application\Read
     return $result['ready'] ? 0 : 1;
 })->purpose('Read-only local readiness checks; never certifies a remote host or provider');
 
+Artisan::command('ops:installation-check', function (\App\Modules\Operations\Application\InstallationCheckService $installation): int {
+    $result = $installation->inspect();
+    $this->line(json_encode($result, JSON_UNESCAPED_SLASHES));
+
+    return $result['ready'] ? 0 : 1;
+})->purpose('Read-only installation check for missing migrations, key, runtime directories and local HTTP configuration');
+
 Artisan::command('ops:heartbeat', function (): void {
     \Illuminate\Support\Facades\Cache::put('operations.scheduler_seen', time(), 600);
 })->purpose('Record scheduler liveness without patient information');

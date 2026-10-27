@@ -174,3 +174,19 @@ P5 پیاده‌سازی‌شده در شاخه مستقل: داشبورد عم�
 P7: FR-DIS-01 و FR-REP-01/02 در شاخه مستقل روی P6؛ قرارداد سهمیه، مبنای مالی و محدودیت‌ها در [docs/P7.md](docs/P7.md) و شواهد در [docs/P7-VALIDATION.md](docs/P7-VALIDATION.md). P8 و merge انجام نشده‌اند.
 
 P8 در شاخه مستقل روی P7: سخت‌سازی production، بکاپ رمزگذاری‌شده و restore جدا، کنترل ZIP و نصب/بار staging موقت. قرارداد و گیت انتشار عمومی: [docs/P8.md](docs/P8.md)؛ صرف اجرا در محیط محلی، تأیید هاست/بانک/SMS واقعی نیست. شواهد: [docs/P8-VALIDATION.md](docs/P8-VALIDATION.md).
+
+## Website/CMS extension acceptance (2026-10-27)
+Explicit extension of FR-SRV-01 and FR-CAL-01, approved scope recorded in docs/WEBSITE-CMS-PLAN.md:
+- FR-WEB-01: administrator with website.manage can upload/replace/delete one private JPEG/PNG/WebP image (<=2 MiB, required alt) for each real service. Public bytes require active, online, non-archived catalog plus published editorial content. Drafts remain editor-only.
+- FR-WEB-02: administrator can edit escaped brand name, professional subtitle, phone, address and default SEO description. CSS values remain hex-only; new color updates require text contrast >=4.5:1.
+- AC-WEB-MEDIA: unauthorized mutation/draft read, invalid MIME/size/missing alt, replacement cleanup and archive rollback/commit are tested. MySQL Integration suite includes the archive lifecycle.
+- AC-WEB-BOOK: public service links preselect an authorized catalog option in the existing calendar. GET does not create appointments. Malformed/unknown/offline selections cannot introduce a new service or bypass booking validation.
+- AC-WEB-RELEASE: PHP/SQLite and MySQL tests, migrations/rollback, dependency audit, secure ZIP manifest and isolated Apache HTTPS staging must pass for the shipped revision. Homepage RTL at 320px, keyboard skip/focus and 200% zoom reviewed; limits in docs/WEBSITE-CMS-VALIDATION.md.
+
+## Installation/upgrade acceptance
+NFR-03 and AC-WEB-RELEASE include upgrading a P8 database to the current CMS without losing existing catalog/patient/appointment/financial records. Copying files is not a schema migration. Read-only scripts/check-install.php must report unsupported PHP/extensions before Composer and missing migrations/key/runtime/local-cookie checks without disclosing credentials. No request/start script may automatically migrate or regenerate keys. The exact ZIP must pass both fresh HTTPS staging and the guarded synthetic upgrade fixture. Complete requirement/gate review: docs/INSTALLATION-AUDIT.md.
+
+## Additional approved CMS acceptance (2026-10-27)
+FR-WEB-05: independent brand logo upload/replacement/deletion and explicit public visibility, private storage and required alt.
+FR-WEB-06: visual typed-block page builder, shared menus/footer, SEO, mobile canvas, keyboard reorder, duplication/undo, private preview, versioned drafts/public snapshots and page-scoped revision restoration. Ownership and stale-write defenses must be tested; real catalog/article widgets retain publication and booking rules.
+FR-WEB-07: independent DAST engine and adversarial authorization/CSRF/upload/publication/concurrency checks on disposable synthetic staging, with raw reports and candid limitations. Independent human/company pentest and live bank/SMS certification cannot be inferred from automation. Multiple real gateways and live providers are deferred by explicit user direction.

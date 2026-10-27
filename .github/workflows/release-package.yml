@@ -18,7 +18,7 @@ jobs:
   verify-and-package:
     name: Verify documentation and package Laravel
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 40
     services:
       mysql:
         image: mysql:8.0
@@ -174,7 +174,7 @@ jobs:
 
           # Ship only the reviewed installation guides, not arbitrary project/reference files.
           mkdir -p "$stage/docs"
-          cp docs/INSTALL-LOCAL.md docs/INSTALL-SHARED-HOSTING.md docs/P8.md docs/P8-VALIDATION.md "$stage/docs/"
+          cp docs/INSTALL-LOCAL.md docs/INSTALL-SHARED-HOSTING.md docs/P8.md docs/P8-VALIDATION.md docs/WEBSITE-CMS-PLAN.md docs/WEBSITE-CMS-VALIDATION.md docs/INSTALLATION-AUDIT.md "$stage/docs/"
 
           # Runtime state from CI must never be included in an installation package.
           rm -rf "$stage/bootstrap/cache"
@@ -198,6 +198,8 @@ jobs:
           4. Make storage/ and bootstrap/cache/ writable; use HTTPS.
           5. Review migrations, run php artisan migrate --force and optimize on server.
           6. Configure Laravel scheduler and queue worker or compatible cron.
+          UPGRADES: preserve the existing .env, APP_KEY and private storage; back up first and review/apply pending migrations. Never run key:generate, migrate:fresh or db:wipe on an existing installation.
+          LOCAL: read docs/INSTALL-LOCAL.md and run php scripts/check-install.php before starting the server. Run serve and schedule:work in separate terminals with PHP 8.4.
           Full instructions: DEPLOYMENT.md.
           EOF
 
@@ -243,6 +245,43 @@ jobs:
           day=$(php -r '$j=json_decode(file_get_contents($argv[1]),true); echo $j["date"];' "$RUNNER_TEMP/p8-fixture.json")
           month=$(php -r '$j=json_decode(file_get_contents($argv[1]),true); echo $j["month"];' "$RUNNER_TEMP/p8-fixture.json")
           php scripts/load-test.php --origin=https://localhost:18443 --ca="$RUNNER_TEMP/p8-ca.crt" --service="$service_id" --date="$day" --month="$month"
+          # Reproduce a files-only P8 -> CMS upgrade on this disposable DB, then migrate safely.
+          docker cp tests/Support/website-upgrade-fixture.php ani-doctor-p8-smoke:/tmp/website-upgrade-fixture.php
+          docker exec --user www-data ani-doctor-p8-smoke php /tmp/website-upgrade-fixture.php
+          php scripts/staging-smoke.php --origin=https://localhost:18443 --ca="$RUNNER_TEMP/p8-ca.crt"
+
+          # An independent DAST engine attacks only this disposable installation.
+          docker cp tests/Support/website-security-fixture.php ani-doctor-p8-smoke:/tmp/website-security-fixture.php
+          docker exec --user www-data ani-doctor-p8-smoke php /tmp/website-security-fixture.php
+          mkdir -p "$RUNNER_TEMP/security-results"
+          chmod 777 "$RUNNER_TEMP/security-results"
+          docker cp tests/Support/website-http-probes.php ani-doctor-p8-smoke:/tmp/website-http-probes.php
+          set +e
+          docker exec --user www-data ani-doctor-p8-smoke php /tmp/website-http-probes.php > "$RUNNER_TEMP/security-results/http-probes.json"
+          http_status=$?
+          set -e
+          cat "$RUNNER_TEMP/security-results/http-probes.json"
+          docker pull ghcr.io/zaproxy/zaproxy:stable
+          docker inspect ghcr.io/zaproxy/zaproxy:stable --format '{{json .RepoDigests}}' > "$RUNNER_TEMP/security-results/engine-digest.json"
+          set +e
+          timeout 900 docker run --rm --network host \
+            -v "$GITHUB_WORKSPACE/tests/Security/zap-plan.yaml:/zap/wrk/plan.yaml:ro" \
+            -v "$RUNNER_TEMP/security-results:/zap/wrk/results:rw" \
+            ghcr.io/zaproxy/zaproxy:stable zap.sh -cmd -autorun /zap/wrk/plan.yaml
+          scan_status=$?
+          set -e
+          python3 tests/Security/summarize-zap.py "$RUNNER_TEMP/security-results/zap-report.json"
+          test "$scan_status" -eq 0
+          test "$http_status" -eq 0
+
+      - name: Upload isolated security scan evidence
+        if: always() && steps.detect.outputs.app == 'true'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ani-doctor-security-${{ github.run_number }}
+          path: ${{ runner.temp }}/security-results/
+          if-no-files-found: warn
+          retention-days: 30
 
       - name: Upload host-ready artifact
         if: steps.detect.outputs.app == 'true'

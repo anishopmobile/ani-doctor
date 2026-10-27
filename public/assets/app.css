@@ -24,3 +24,5 @@ dialog { max-width: min(440px, calc(100vw - 32px)); border: 1px solid #dde6e9; b
 dialog::backdrop { background: rgb(34 50 60 / 45%); }
 bdi { overflow-wrap: anywhere; }
 .desk-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr)); gap: 12px; }
+
+.cms-editor-image{max-height:180px;object-fit:contain}

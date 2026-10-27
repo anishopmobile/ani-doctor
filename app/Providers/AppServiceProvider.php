@@ -33,12 +33,18 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        foreach (['forms.manage', 'forms.answers.view', 'forms.answers.write', 'notifications.manage', 'discounts.manage', 'reports.appointments', 'reports.finance'] as $permission) {
+        foreach (['forms.manage', 'forms.answers.view', 'forms.answers.write', 'notifications.manage', 'discounts.manage', 'reports.appointments', 'reports.finance', 'website.manage'] as $permission) {
             Gate::define($permission, fn (User $user) => $user->hasPermission($permission));
         }
         \Illuminate\Support\Facades\View::composer('layouts.app', function ($view): void {
             $until = \Illuminate\Support\Facades\DB::table('payment_settings')->where('id', 1)->value('emergency_until');
             $view->with('clinicEmergencyActive', $until && now()->lessThan($until));
+        });
+        \Illuminate\Support\Facades\View::composer(['website.home', 'website.layout', 'website.pages.show'], function ($view): void {
+            $themes = app(\App\Modules\Website\Application\ThemeService::class);
+            $view->with('websiteTheme', $themes->settings())->with('websiteLogo', $themes->publishedLogo());
+            $links = app(\App\Modules\Website\Application\LinkService::class);
+            $view->with('headerLinks', $links->published('header'))->with('footerLinks', $links->published('footer'));
         });
         Gate::policy(Patient::class, PatientPolicy::class);
         Gate::policy(\App\Modules\Booking\Infrastructure\Appointment::class, \App\Policies\AppointmentPolicy::class);
@@ -54,6 +60,7 @@ class AppServiceProvider extends ServiceProvider
         foreach (['catalog.manage', 'schedules.manage', 'schedules.settings', 'appointments.manage', 'appointments.override_capacity', 'appointments.override_window', 'booking.settings', 'payments.settings', 'payments.collect', 'refunds.manage', 'payments.review', 'desk.view', 'desk.book', 'appointments.urgent', 'attendance.manage', 'patients.manage'] as $permission) {
             Gate::define($permission, fn (User $user) => $user->hasPermission($permission));
         }
+        RateLimiter::for('website-editor', fn (Request $request) => Limit::perMinute(60)->by('website:'.($request->user()?->id ?? $request->ip())));
         RateLimiter::for('calendar', fn (Request $request) => Limit::perMinute(60)->by('calendar:'.$request->ip()));
         RateLimiter::for('booking', fn (Request $request) => Limit::perMinute(20)->by('booking:'.$request->ip()));
         RateLimiter::for('payments', fn (Request $request) => Limit::perMinute(20)->by('payments:'.$request->ip()));
