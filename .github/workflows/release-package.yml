@@ -255,6 +255,9 @@ jobs:
           docker exec --user www-data ani-doctor-p8-smoke php /tmp/website-security-fixture.php
           mkdir -p "$RUNNER_TEMP/security-results"
           chmod 777 "$RUNNER_TEMP/security-results"
+          docker cp tests/Support/website-http-probes.php ani-doctor-p8-smoke:/tmp/website-http-probes.php
+          docker exec --user www-data ani-doctor-p8-smoke php /tmp/website-http-probes.php > "$RUNNER_TEMP/security-results/http-probes.json"
+          cat "$RUNNER_TEMP/security-results/http-probes.json"
           docker pull ghcr.io/zaproxy/zaproxy:stable
           docker inspect ghcr.io/zaproxy/zaproxy:stable --format '{{json .RepoDigests}}' > "$RUNNER_TEMP/security-results/engine-digest.json"
           timeout 900 docker run --rm --network host \

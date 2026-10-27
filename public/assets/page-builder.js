@@ -30,7 +30,7 @@
         const input = node(options.choices ? 'select' : options.multiline ? 'textarea' : 'input');
         input.className = 'form-control';
         if (options.choices) for (const [key, title] of options.choices) { const option = node('option', title); option.value = key; input.append(option); }
-        else { input.type = options.number ? 'number' : 'text'; if (options.max) input.maxLength = options.max; if (options.number) { input.min = '1'; input.max = '12'; } }
+        else { if (!options.multiline) input.type = options.number ? 'number' : 'text'; if (options.max) input.maxLength = options.max; if (options.number) { input.min = '1'; input.max = '12'; } }
         input.value = value ?? '';
         input.addEventListener('focus', () => { input.dataset.before = JSON.stringify(blocks); });
         input.addEventListener('input', () => { callback(options.number ? Number(input.value) : input.value); changed(); });
