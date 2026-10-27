@@ -29,7 +29,6 @@ final class P4MigrationTest extends TestCase
         $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful(); // P7
         $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful(); // P6
         $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful(); // P5
-        $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful();
         $this->assertFalse(Schema::hasTable('payments'));
         $this->assertFalse(Schema::hasColumn('appointments', 'balance_due_irr'));
         $this->assertDatabaseHas('appointments', ['id' => $appointment->id, 'status' => 'pending_payment']);
