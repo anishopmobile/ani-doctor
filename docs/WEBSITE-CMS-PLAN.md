@@ -43,3 +43,6 @@ This file documents a *source-inspected subset*, not a complete schema audit. No
 - Regression tests now account for additive CMS migration before rolling back the historical P3–P7 migrations; those legacy tests previously assumed no migrations would ever be added after P7.
 - This is a **limited section editor**, not the complete visual Section Builder, website navigation builder, blog or media manager. Preview and image management are still pending.
 - CI must complete Pint, PHPUnit, MySQL rollback, secure ZIP and staging package smoke before declaring this stage accepted.
+
+## A2.2 text slideshow (2026-10-27)
+The existing `website_sections` table now also accepts the allowlisted `slide` type, with its own published-only sorted query. No new schema, patient-data changes, or payment API is introduced. The public homepage uses these rows as the hero carousel, with escaped text, manual previous/next navigation, keyboard arrows, no autoplay, and the original static hero as a zero-slide fallback. An unpublished slide never appears. This is deliberately a **text-and-color slideshow**; secure image/media storage and upload management remain separate work. The UI editor is the existing `/admin/website-sections`; set type to «اسلاید صفحه اصلی», sort order, and published state. Existing section background values remain allowlisted.
