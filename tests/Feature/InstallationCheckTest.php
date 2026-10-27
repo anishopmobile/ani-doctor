@@ -36,11 +36,11 @@ final class InstallationCheckTest extends TestCase
             'name' => 'خدمت موجود قبل از ارتقا', 'price_irr' => 950000, 'duration_minutes' => 30,
             'buffer_minutes' => 0, 'capacity' => 1, 'is_active' => true, 'is_online' => true,
         ]);
-        $this->artisan('migrate:rollback', ['--step' => 8, '--force' => true])->assertSuccessful();
+        $this->artisan('migrate:rollback', ['--step' => 9, '--force' => true])->assertSuccessful();
         $this->get('/')->assertStatus(500);
         $result = app(InstallationCheckService::class)->inspect();
         $this->assertFalse($result['ready']);
-        $this->assertCount(8, $result['pending_migrations']);
+        $this->assertCount(9, $result['pending_migrations']);
         $this->assertSame('fail', $result['checks']['website_schema']);
         $this->artisan('ops:installation-check')->assertFailed();
 

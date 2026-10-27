@@ -37,11 +37,11 @@ try {
         return $code;
     };
     $before = $snapshot();
-    if ($kernel->call('migrate:rollback', ['--step' => 8, '--force' => true]) !== 0) {
+    if ($kernel->call('migrate:rollback', ['--step' => 9, '--force' => true]) !== 0) {
         throw new RuntimeException('UPGRADE_LEGACY_SCHEMA_FAILED');
     }
     $legacy = app(App\Modules\Operations\Application\InstallationCheckService::class)->inspect();
-    if ($legacy['ready'] || count($legacy['pending_migrations']) !== 8 || $status('/') !== 500) {
+    if ($legacy['ready'] || count($legacy['pending_migrations']) !== 9 || $status('/') !== 500) {
         throw new RuntimeException('UPGRADE_REPRODUCTION_FAILED');
     }
     if ($kernel->call('migrate', ['--force' => true]) !== 0
@@ -60,7 +60,7 @@ try {
     if ($kernel->call('ops:installation-check') !== 0) {
         throw new RuntimeException('UPGRADE_INSTALLATION_CHECK_FAILED');
     }
-    echo json_encode(['upgrade_passed' => true, 'legacy_500_reproduced' => true, 'pending_before' => 8, 'pending_after' => 0, 'core_data_preserved' => true, 'public_pages' => 5, 'scope' => 'synthetic_isolated_packaged_upgrade_only']).PHP_EOL;
+    echo json_encode(['upgrade_passed' => true, 'legacy_500_reproduced' => true, 'pending_before' => 9, 'pending_after' => 0, 'core_data_preserved' => true, 'public_pages' => 5, 'scope' => 'synthetic_isolated_packaged_upgrade_only']).PHP_EOL;
 } catch (Throwable) {
     fwrite(STDERR, "PACKAGED_UPGRADE_CHECK_FAILED\n");
     exit(1);

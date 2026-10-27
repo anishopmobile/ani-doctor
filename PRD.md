@@ -185,3 +185,8 @@ Explicit extension of FR-SRV-01 and FR-CAL-01, approved scope recorded in docs/W
 
 ## Installation/upgrade acceptance
 NFR-03 and AC-WEB-RELEASE include upgrading a P8 database to the current CMS without losing existing catalog/patient/appointment/financial records. Copying files is not a schema migration. Read-only scripts/check-install.php must report unsupported PHP/extensions before Composer and missing migrations/key/runtime/local-cookie checks without disclosing credentials. No request/start script may automatically migrate or regenerate keys. The exact ZIP must pass both fresh HTTPS staging and the guarded synthetic upgrade fixture. Complete requirement/gate review: docs/INSTALLATION-AUDIT.md.
+
+## Additional approved CMS acceptance (2026-10-27)
+FR-WEB-05: independent brand logo upload/replacement/deletion and explicit public visibility, private storage and required alt.
+FR-WEB-06: visual typed-block page builder, shared menus/footer, SEO, mobile canvas, keyboard reorder, duplication/undo, private preview, versioned drafts/public snapshots and page-scoped revision restoration. Ownership and stale-write defenses must be tested; real catalog/article widgets retain publication and booking rules.
+FR-WEB-07: independent DAST engine and adversarial authorization/CSRF/upload/publication/concurrency checks on disposable synthetic staging, with raw reports and candid limitations. Independent human/company pentest and live bank/SMS certification cannot be inferred from automation. Multiple real gateways and live providers are deferred by explicit user direction.

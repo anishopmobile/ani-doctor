@@ -178,3 +178,6 @@ Website remains a module of the Laravel monolith, with Blade templates and prebu
 
 ## Installation diagnostics and upgrade validation
 Operations/InstallationCheckService is a console-only, read-only probe for configured key, runtime directories, DB reachability and schema currency. scripts/check-install.php validates the runtime before Composer boot; scripts/start-local.ps1 checks before invoking the existing server/scheduler. Both preserve .env, keys and DB. tests/Support/website-upgrade-fixture.php is excluded from releases and destructive only inside the explicitly guarded disposable CI DB; it simulates old schema, reproduces 500, migrates and compares core-data fingerprints before rechecking public routes. See docs/INSTALL-LOCAL.md and docs/INSTALLATION-AUDIT.md.
+
+## Versioned Website pages
+PageService owns page mutation/publication/history and file lifecycle. PageSchema accepts only typed text/image/catalog widgets and bounded values. Controllers use FormRequest + website.manage; public rendering uses published_snapshot exclusively. Lock order is page then asset/media; expected_version protects simultaneous editors. Revisions restore draft only. Migration 000009 adds three Website tables without modifying reservation/payment/patient state. See docs/WEBSITE-CMS-PLAN.md A10.

@@ -12,7 +12,7 @@ final class WebsiteThemeController extends Controller
 {
     public function edit(ThemeService $themes): View
     {
-        return view('admin.website-theme', ['theme' => $themes->settings()]);
+        return view('admin.website-theme', ['theme' => $themes->settings(), 'themeRecord' => \App\Modules\Website\Infrastructure\WebsiteTheme::query()->with('media')->find(1)]);
     }
 
     public function update(WebsiteThemeRequest $request, ThemeService $themes): RedirectResponse

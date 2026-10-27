@@ -13,6 +13,16 @@ final class WebsiteMedia extends Model
 
     public function ownerIsPublished(): bool
     {
+        if ($this->owner_type === 'page_asset') {
+            $asset = WebsitePageAsset::query()->with('page')->find($this->owner_id);
+
+            return $asset?->page?->referencesAsset($asset->id, true) ?? false;
+        }
+        if ($this->owner_type === 'brand') {
+            $theme = WebsiteTheme::query()->find($this->owner_id);
+
+            return (int) $this->owner_id === 1 && ($theme?->brand_settings['logo_is_published'] ?? false) === true;
+        }
         if ($this->owner_type === 'service') {
             return \App\Modules\Catalog\Infrastructure\Service::query()
                 ->whereKey($this->owner_id)->where('is_active', true)->where('is_online', true)

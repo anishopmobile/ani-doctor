@@ -18,7 +18,7 @@ jobs:
   verify-and-package:
     name: Verify documentation and package Laravel
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 40
     services:
       mysql:
         image: mysql:8.0
@@ -249,6 +249,27 @@ jobs:
           docker cp tests/Support/website-upgrade-fixture.php ani-doctor-p8-smoke:/tmp/website-upgrade-fixture.php
           docker exec --user www-data ani-doctor-p8-smoke php /tmp/website-upgrade-fixture.php
           php scripts/staging-smoke.php --origin=https://localhost:18443 --ca="$RUNNER_TEMP/p8-ca.crt"
+
+          # An independent DAST engine attacks only this disposable installation.
+          docker cp tests/Support/website-security-fixture.php ani-doctor-p8-smoke:/tmp/website-security-fixture.php
+          docker exec --user www-data ani-doctor-p8-smoke php /tmp/website-security-fixture.php
+          mkdir -p "$RUNNER_TEMP/security-results"
+          chmod 777 "$RUNNER_TEMP/security-results"
+          docker pull ghcr.io/zaproxy/zaproxy:stable
+          docker inspect ghcr.io/zaproxy/zaproxy:stable --format '{{json .RepoDigests}}' > "$RUNNER_TEMP/security-results/engine-digest.json"
+          timeout 900 docker run --rm --network host \
+            -v "$GITHUB_WORKSPACE/tests/Security/zap-plan.yaml:/zap/wrk/plan.yaml:ro" \
+            -v "$RUNNER_TEMP/security-results:/zap/wrk/results:rw" \
+            ghcr.io/zaproxy/zaproxy:stable zap.sh -cmd -autorun /zap/wrk/plan.yaml
+
+      - name: Upload isolated security scan evidence
+        if: always() && steps.detect.outputs.app == 'true'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ani-doctor-security-${{ github.run_number }}
+          path: ${{ runner.temp }}/security-results/
+          if-no-files-found: warn
+          retention-days: 30
 
       - name: Upload host-ready artifact
         if: steps.detect.outputs.app == 'true'

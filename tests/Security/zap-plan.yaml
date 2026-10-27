@@ -1,0 +1,62 @@
+env:
+  contexts:
+    - name: synthetic-website
+      urls:
+        - https://localhost:18443
+      includePaths:
+        - 'https://localhost:18443/(?:|services(?:/.*)?|articles(?:/.*)?|pages/security-audit(?:\?.*)?|website-media/.*|website-theme\.css(?:\?.*)?|assets/.*|sitemap\.xml|robots\.txt)'
+  parameters:
+    failOnError: true
+    failOnWarning: false
+    progressToStdout: true
+jobs:
+  - type: requestor
+    requests:
+      - url: https://localhost:18443/pages/security-audit
+        responseCode: 200
+      - url: https://localhost:18443/website-theme.css
+        responseCode: 200
+  - type: spider
+    parameters:
+      context: synthetic-website
+      maxDuration: 1
+      maxDepth: 5
+      parseRobotsTxt: false
+      parseSitemapXml: false
+  - type: passiveScan-wait
+    parameters:
+      maxDuration: 2
+  - type: activeScan
+    parameters:
+      context: synthetic-website
+      maxScanDurationInMins: 5
+      maxRuleDurationInMins: 1
+      threadPerHost: 2
+      delayInMs: 10
+      addQueryParam: true
+    policyDefinition:
+      defaultStrength: Medium
+      defaultThreshold: Medium
+  - type: passiveScan-wait
+    parameters:
+      maxDuration: 2
+  - type: report
+    alwaysRun: true
+    parameters:
+      template: traditional-json
+      reportDir: /zap/wrk/results
+      reportFile: zap-report.json
+      reportTitle: Ani Doctor synthetic public CMS active scan
+  - type: report
+    alwaysRun: true
+    parameters:
+      template: traditional-html
+      reportDir: /zap/wrk/results
+      reportFile: zap-report.html
+  - type: exitStatus
+    parameters:
+      errorLevel: Medium
+      warnLevel: Low
+      okExitValue: 0
+      errorExitValue: 1
+      warnExitValue: 0

@@ -18,6 +18,7 @@ final class ThemeService
         'contact_phone' => '09172551637',
         'contact_address' => 'استان فارس، شهرستان لامرد، بلوار شاهد، ساختمان دی، طبقه سوم، واحد ۵',
         'seo_description' => 'معرفی خدمات قابل رزرو مطب دکتر زهرا باقری',
+        'logo_is_published' => false,
     ];
 
     public function settings(): array
@@ -36,6 +37,9 @@ final class ThemeService
     {
         $colors = array_intersect_key($values, self::DEFAULTS);
         $brand = array_intersect_key($values, self::BRAND_DEFAULTS);
+        if (array_key_exists('logo_is_published', $brand)) {
+            $brand['logo_is_published'] = (bool) $brand['logo_is_published'];
+        }
         $theme = WebsiteTheme::query()->firstOrNew(['id' => 1]);
         // MySQL AUTO_INCREMENT is not rewound by transaction rollback.
         $theme->forceFill(['id' => 1]);
@@ -44,6 +48,30 @@ final class ThemeService
             $theme->brand_settings = array_replace($theme->brand_settings ?? [], $brand);
         }
         $theme->save();
+    }
+
+    public function publishedLogo(): ?\App\Modules\Website\Infrastructure\WebsiteMedia
+    {
+        $theme = WebsiteTheme::query()->with('media')->find(1);
+
+        return ($theme?->brand_settings['logo_is_published'] ?? false) === true ? $theme->media : null;
+    }
+
+    public function palette(): array
+    {
+        $values = array_intersect_key($this->settings(), self::DEFAULTS);
+        foreach ($values as $key => $value) {
+            if (!is_string($value) || !preg_match('/\A#[0-9a-fA-F]{6}\z/D', $value)) {
+                return self::DEFAULTS;
+            }
+        }
+        foreach (['primary_color', 'text_color'] as $key) {
+            if (self::contrast($values[$key], '#ffffff') < 4.5 || self::contrast($values[$key], $values['surface_color']) < 4.5) {
+                return self::DEFAULTS;
+            }
+        }
+
+        return $values;
     }
 
     public static function contrast(string $first, string $second): float

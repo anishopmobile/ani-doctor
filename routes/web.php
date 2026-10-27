@@ -9,10 +9,27 @@ Route::middleware(['auth', 'can:website.manage'])->prefix('admin/website-theme')
     Route::get('/', [\App\Http\Controllers\Admin\WebsiteThemeController::class, 'edit'])->name('website.theme.edit');
     Route::put('/', [\App\Http\Controllers\Admin\WebsiteThemeController::class, 'update'])->name('website.theme.update');
 });
+Route::get('/website-theme.css', \App\Http\Controllers\Web\WebsiteThemeCssController::class)->name('website.theme.css');
+Route::get('/pages/{slug}', \App\Http\Controllers\Web\PublicPageController::class)->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')->name('website.pages.show');
+Route::middleware(['auth', 'can:website.manage', 'throttle:website-editor'])->prefix('admin/website-pages')->group(function (): void {
+    $controller = \App\Http\Controllers\Admin\WebsitePageController::class;
+    Route::get('/', [$controller, 'index'])->name('website.pages.index');
+    Route::post('/', [$controller, 'store'])->name('website.pages.store');
+    Route::get('/{page}/edit', [$controller, 'edit'])->whereNumber('page')->name('website.pages.edit');
+    Route::get('/{page}/preview', [$controller, 'preview'])->whereNumber('page')->name('website.pages.preview');
+    Route::put('/{page}', [$controller, 'update'])->whereNumber('page')->name('website.pages.update');
+    Route::post('/{page}/publish', [$controller, 'publish'])->whereNumber('page')->name('website.pages.publish');
+    Route::post('/{page}/unpublish', [$controller, 'unpublish'])->whereNumber('page')->name('website.pages.unpublish');
+    Route::post('/{page}/restore/{revision}', [$controller, 'restore'])->whereNumber('page')->whereNumber('revision')->name('website.pages.restore');
+    Route::post('/{page}/assets', [$controller, 'upload'])->whereNumber('page')->name('website.pages.assets.store');
+    Route::delete('/{page}/assets/{asset}', [$controller, 'removeAsset'])->whereNumber('page')->whereNumber('asset')->name('website.pages.assets.destroy');
+    Route::delete('/{page}', [$controller, 'destroy'])->whereNumber('page')->name('website.pages.destroy');
+});
+
 Route::get('/sitemap.xml', \App\Http\Controllers\Web\SitemapController::class)->name('website.sitemap');
 Route::get('/website-media/{media}', \App\Http\Controllers\Web\WebsiteMediaController::class)->whereNumber('media')->name('website.media.show');
 Route::middleware(['auth', 'can:website.manage'])->group(function (): void {
-    Route::post('/admin/website-media/{type}/{id}', [\App\Http\Controllers\Admin\WebsiteMediaController::class, 'store'])->whereIn('type', ['article', 'section', 'service'])->whereNumber('id')->name('website.media.store');
+    Route::post('/admin/website-media/{type}/{id}', [\App\Http\Controllers\Admin\WebsiteMediaController::class, 'store'])->whereIn('type', ['article', 'section', 'service', 'brand'])->whereNumber('id')->name('website.media.store');
     Route::delete('/admin/website-media/{media}', [\App\Http\Controllers\Admin\WebsiteMediaController::class, 'destroy'])->whereNumber('media')->name('website.media.destroy');
 });
 Route::get('/articles', [\App\Http\Controllers\Web\PublicArticleController::class, 'index'])->name('website.articles.index');

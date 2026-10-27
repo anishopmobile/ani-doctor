@@ -12,6 +12,7 @@ final class SitemapController extends Controller
     public function __invoke(ArticleService $articles): Response
     {
         return response()->view('website.sitemap', [
+            'pages' => \App\Modules\Website\Infrastructure\WebsitePage::query()->whereNotNull('published_snapshot')->where('slug', '!=', 'home')->orderBy('id')->get(['slug', 'updated_at']),
             'services' => Service::query()
                 ->where('is_active', true)
                 ->where('is_online', true)

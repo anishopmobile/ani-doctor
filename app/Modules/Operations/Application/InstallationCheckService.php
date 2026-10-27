@@ -57,7 +57,7 @@ final class InstallationCheckService
                 return $pending === [];
             });
             $probe('website_schema', function (): bool {
-                foreach (['website_sections', 'website_links', 'website_articles', 'website_taxonomies', 'website_article_taxonomy', 'website_media', 'website_theme_settings', 'website_service_contents'] as $table) {
+                foreach (['website_sections', 'website_links', 'website_articles', 'website_taxonomies', 'website_article_taxonomy', 'website_media', 'website_theme_settings', 'website_service_contents', 'website_pages', 'website_page_revisions', 'website_page_assets'] as $table) {
                     if (!Schema::hasTable($table)) {
                         return false;
                     }

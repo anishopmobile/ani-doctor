@@ -11,7 +11,7 @@
             <img class="img-fluid rounded mb-3" src="{{ route('website.media.show', $service->media) }}" alt="{{ $service->media->alt_text }}">
         @endif
         @if($editorial->summary) <p class="lead">{{ $editorial->summary }}</p> @endif
-        @if($editorial->description) <div class="mb-4" style="white-space: pre-line">{{ $editorial->description }}</div> @endif
+        @if($editorial->description) <div class="mb-4 preserve-lines">{{ $editorial->description }}</div> @endif
     @endif
     <p>مدت زمان خدمت: {{ $service->duration_minutes }} دقیقه</p>
     <p>تعرفه ثبت‌شده: {{ number_format($service->price_irr) }} ریال</p>

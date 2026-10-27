@@ -54,3 +54,7 @@ h1,h2,h3{font-weight:800;line-height:1.5}h2{font-size:clamp(1.5rem,3vw,2.2rem);m
 @media(max-width:767px){.website-slide{min-height:auto}.slide-controls{margin-bottom:18px}}
 
 .cms-media{display:block;max-width:100%;width:min(100%,720px);height:auto;max-height:420px;object-fit:contain;border-radius:20px;margin:18px 0}.cms-media-large{width:min(100%,960px);max-height:580px}
+
+.brand-logo{width:56px;height:56px;object-fit:contain;flex:none}.brand{min-width:0;overflow-wrap:anywhere}.cms-copy,.service-detail,.page-block{overflow-wrap:anywhere}.preserve-lines{white-space:pre-line}
+
+.page-block{margin-block:24px;padding:clamp(20px,4vw,48px);border-radius:20px;min-width:0}.page-layout-centered{text-align:center}.page-layout-split-left,.page-layout-split-right{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:28px}.page-layout-split-left .cms-media{order:-1}.page-block-full{grid-column:1/-1}.block-hero h2{font-size:clamp(2rem,5vw,3.5rem)}.page-spacer-small{height:16px}.page-spacer-medium{height:40px}.page-spacer-large{height:80px}.page-faq{padding:16px;border-bottom:1px solid #d5c5d5}.page-faq summary{cursor:pointer;font-weight:bold}.builder-preview-notice{padding:16px;border:2px solid #362147}.page-block address{font-style:normal}.page-layout-grid .page-block-copy{max-width:100%}.page-heading{margin-bottom:24px}@media(max-width:767px){.page-layout-split-left,.page-layout-split-right{grid-template-columns:1fr}.page-block{padding:20px}.page-layout-split-left .cms-media{order:0}}

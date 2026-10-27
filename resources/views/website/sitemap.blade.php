@@ -3,6 +3,9 @@
     <url><loc>{{ route('website.home') }}</loc></url>
     <url><loc>{{ route('website.services.index') }}</loc></url>
     <url><loc>{{ route('website.articles.index') }}</loc></url>
+    @foreach($pages as $page)
+        <url><loc>{{ route('website.pages.show', $page->slug) }}</loc><lastmod>{{ $page->updated_at->toAtomString() }}</lastmod></url>
+    @endforeach
     @foreach($services as $service)
         <url>
             <loc>{{ route('website.services.show', $service->id) }}</loc>

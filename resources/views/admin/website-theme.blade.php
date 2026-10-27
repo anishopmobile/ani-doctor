@@ -18,5 +18,13 @@
         </label>
     @endforeach
     <button class="btn btn-primary">ذخیره تنظیمات سایت</button>
+    <label class="form-check mt-3"><input type="hidden" name="logo_is_published" value="0"><input class="form-check-input" type="checkbox" name="logo_is_published" value="1" @checked(old('logo_is_published', $theme['logo_is_published']))> انتشار لوگوی برند در تمام صفحات عمومی</label>
 </form>
+@if($themeRecord)
+    <h2 class="h4 mt-4">لوگوی مستقل برند</h2>
+    <p>لوگو از تصاویر خدمت و مقاله مستقل است. پیش از انتشار می‌توانید تصویر را در همین پنل بررسی کنید.</p>
+    @include('admin.partials.website-media-editor', ['owner' => $themeRecord, 'ownerType' => 'brand'])
+@else
+    <p class="mt-3">برای فعال‌شدن فرم بارگذاری لوگو، تنظیمات برند را یک بار ذخیره کنید.</p>
+@endif
 @endsection

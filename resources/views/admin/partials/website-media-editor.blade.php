@@ -3,7 +3,7 @@
     @error('image') <p role="alert" class="text-danger">{{ $message }}</p> @enderror
     @error('alt_text') <p role="alert" class="text-danger">{{ $message }}</p> @enderror
     @if($owner->media)
-        <img class="img-fluid rounded mb-2" src="{{ route('website.media.show', $owner->media->id) }}" alt="{{ $owner->media->alt_text }}" style="max-height:180px">
+        <img class="img-fluid rounded mb-2 cms-editor-image" src="{{ route('website.media.show', $owner->media->id) }}" alt="{{ $owner->media->alt_text }}">
         <form method="post" action="{{ route('website.media.destroy', $owner->media) }}">
             @csrf
             @method('DELETE')

@@ -25,9 +25,9 @@ final class WebsiteThemeTest extends TestCase
 
     public function test_public_pages_show_default_colors_before_any_admin_change(): void
     {
-        $this->get('/')->assertOk()->assertSee('--pink: #c83c7b;', false);
-        $this->get('/services')->assertOk()->assertSee('--purple: #362147;', false);
-        $this->get('/articles')->assertOk()->assertSee('--paper: #fffafc;', false);
+        $this->get('/website-theme.css')->assertOk()->assertSee('--pink: #c83c7b;', false);
+        $this->get('/website-theme.css')->assertOk()->assertSee('--purple: #362147;', false);
+        $this->get('/website-theme.css')->assertOk()->assertSee('--paper: #fffafc;', false);
     }
 
     public function test_only_verified_administrator_can_update_public_color_palette(): void
@@ -49,8 +49,8 @@ final class WebsiteThemeTest extends TestCase
             ->assertSessionHasNoErrors();
 
         $this->assertDatabaseHas('website_theme_settings', ['id' => 1] + $values);
-        $this->get('/')->assertSee('--pink: #112233;', false);
-        $this->get('/services')->assertSee('--purple: #334455;', false);
+        $this->get('/website-theme.css')->assertSee('--pink: #112233;', false);
+        $this->get('/website-theme.css')->assertSee('--purple: #334455;', false);
 
         $this->put(route('website.theme.update'), array_replace($values, [
             'primary_color' => '#223344',

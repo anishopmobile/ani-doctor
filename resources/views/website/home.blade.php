@@ -19,7 +19,7 @@
 <a class="visually-hidden-focusable" href="#main">رفتن به محتوای اصلی</a>
 <header class="website-header">
     <div class="container header-inner">
-        <a class="brand" href="{{ route('website.home') }}" aria-label="صفحه اصلی {{ $websiteTheme['brand_name'] }}"><span class="brand-mark" aria-hidden="true">✿</span><span>{{ $websiteTheme['brand_name'] }}<small>{{ $websiteTheme['brand_subtitle'] }}</small></span></a>
+        <a class="brand" href="{{ route('website.home') }}" aria-label="صفحه اصلی {{ $websiteTheme['brand_name'] }}">@include('website.partials.brand-logo')<span>{{ $websiteTheme['brand_name'] }}<small>{{ $websiteTheme['brand_subtitle'] }}</small></span></a>
         <nav aria-label="ناوبری اصلی" class="main-nav">
             @forelse($headerLinks as $link)
                 <a href="{{ $link->url }}" @if($link->new_tab) target="_blank" rel="noopener noreferrer" @endif>{{ $link->label }}</a>
