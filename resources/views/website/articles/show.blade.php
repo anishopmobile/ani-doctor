@@ -1,6 +1,6 @@
 @extends('website.layout')
-@section('title', $article->title)
-@section('meta_description', $article->meta_description ?: ($article->summary ?: 'آموزش سلامت زنان در وب‌سایت دکتر زهرا باقری'))
+@section('title', e($article->title))
+@section('meta_description', e($article->meta_description ?: ($article->summary ?: 'آموزش سلامت زنان در وب‌سایت دکتر زهرا باقری')))
 @section('content')
 <nav aria-label="مسیر صفحه"><a href="{{ route('website.home') }}">خانه</a> / <a href="{{ route('website.articles.index') }}">مقالات</a> / {{ $article->title }}</nav>
 <article class="service-detail mt-4">
