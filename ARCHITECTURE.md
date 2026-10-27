@@ -4,7 +4,7 @@
 ## 1. تصمیم معماری (ADR-001)
 **Modular Monolith + MVC + Service Layer** در یک مخزن و یک استقرار PHP. درخواست کاربر → Route → Controller → FormRequest/Policy → Application Service → Domain/Repository → Database/Adapter → Response (Blade یا JSON). نه میکروسرویس، نه SPA، نه Node build اجباری و نه اتصال مستقیم JS به دیتابیس.
 
-**فناوری‌ها:** Laravel 13، PHP 8.4 (حداقل الزامی Laravel 13: 8.3)، MySQL 8/InnoDB، Blade، Bootstrap 5، Tabler، Vanilla JS + Fetch API، فونت Vazirmatn، تقویم جلالی inline. Laravel به‌صورت سروررندر اجرا شود؛ فایل‌های CSS/JS استفاده‌شده، build شده و نسخه‌بندی‌شده در `public/assets/` نگهداری شوند. @vite / asset pipeline وابسته به npm در تولید نسخه اول مجاز نیست.
+**فناوری‌ها:** Laravel 13، PHP 8.4 (نسخه معتبر این بسته طبق composer.json و composer.lock: PHP 8.4)، MySQL 8/InnoDB، Blade، Bootstrap 5، Tabler، Vanilla JS + Fetch API، فونت Vazirmatn، تقویم جلالی inline. Laravel به‌صورت سروررندر اجرا شود؛ فایل‌های CSS/JS استفاده‌شده، build شده و نسخه‌بندی‌شده در `public/assets/` نگهداری شوند. @vite / asset pipeline وابسته به npm در تولید نسخه اول مجاز نیست.
 
 ## 2. محدوده ماژول‌ها
 | ماژول | مسئولیت مالک | وابستگی مجاز |
@@ -175,3 +175,6 @@ Billing/DiscountService قفل سهمیه و snapshot قیمت را در ترا�
 
 ## Website module extension (2026-10-27)
 Website remains a module of the Laravel monolith, with Blade templates and prebuilt assets. MediaService owns upload/replacement/removal; the existing private website_media registry uses allowlisted article/section/service owner types and a unique owner pair. Service image publication joins the real catalog visibility and published WebsiteServiceContent. Catalog archive and service image mutations share the catalog row lock; archive cleanup runs after commit. ThemeService owns singleton brand/contact/SEO JSON plus hex palette settings. No appointment/payment/patient schema or provider contract changes. Detailed schema, migration/rollback and delivery scope: docs/WEBSITE-CMS-PLAN.md, docs/WEBSITE-CMS-VALIDATION.md.
+
+## Installation diagnostics and upgrade validation
+Operations/InstallationCheckService is a console-only, read-only probe for configured key, runtime directories, DB reachability and schema currency. scripts/check-install.php validates the runtime before Composer boot; scripts/start-local.ps1 checks before invoking the existing server/scheduler. Both preserve .env, keys and DB. tests/Support/website-upgrade-fixture.php is excluded from releases and destructive only inside the explicitly guarded disposable CI DB; it simulates old schema, reproduces 500, migrates and compares core-data fingerprints before rechecking public routes. See docs/INSTALL-LOCAL.md and docs/INSTALLATION-AUDIT.md.

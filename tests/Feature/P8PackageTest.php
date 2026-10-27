@@ -18,7 +18,7 @@ final class P8PackageTest extends TestCase
             $this->writeFixture($path, 'synthetic');
         }
         $this->writeFixture('.env.example', "APP_KEY=\nDB_PASSWORD=\nSMS_IR_API_KEY=\nZARINPAL_MERCHANT_ID=\n");
-        foreach (['INSTALL-LOCAL.md', 'INSTALL-SHARED-HOSTING.md', 'P8.md', 'P8-VALIDATION.md', 'WEBSITE-CMS-PLAN.md', 'WEBSITE-CMS-VALIDATION.md'] as $guide) {
+        foreach (['INSTALL-LOCAL.md', 'INSTALL-SHARED-HOSTING.md', 'P8.md', 'P8-VALIDATION.md', 'WEBSITE-CMS-PLAN.md', 'WEBSITE-CMS-VALIDATION.md', 'INSTALLATION-AUDIT.md'] as $guide) {
             $this->writeFixture('docs/'.$guide, 'Reviewed synthetic guide fixture');
         }
     }
