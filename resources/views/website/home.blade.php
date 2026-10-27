@@ -12,10 +12,11 @@
     @endunless
     <link rel="stylesheet" href="{{ asset('assets/vendor/bootstrap.rtl.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/website.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/studio.css') }}">
     @include('website.partials.theme-css')
     <script defer src="{{ asset('assets/website-slider.js') }}"></script>
 </head>
-<body>
+<body class="clinic-site">
 <a class="visually-hidden-focusable" href="#main">رفتن به محتوای اصلی</a>
 <header class="website-header">
     <div class="container header-inner">
@@ -68,12 +69,12 @@
                     <div class="hero-actions"><a class="btn-primary-site" href="{{ route('calendar') }}">رزرو نوبت آنلاین</a><a class="btn-outline-site" href="#services">مشاهده خدمات</a></div>
                 @endif
             </div>
-            <div class="hero-art" aria-hidden="true"><span class="art-flower">✿</span><span class="art-heart">♡</span><span class="art-label">همراه شما در مسیر سلامتی</span></div>
+            <div class="hero-art" aria-hidden="true"><img class="hero-illustration" src="{{ asset('assets/clinic-art.svg') }}" width="640" height="600" alt=""><div class="hero-art-caption"><x-ui-icon name="shield"/><span><strong>همراه شما در مسیر سلامتی</strong><small>مراقبتی همراه با آرامش و احترام</small></span></div></div>
         </div>
         <div class="container hero-highlights">
-            <div><strong>نوبت‌دهی آنلاین</strong><span>با مشاهده تقویم و ساعات آزاد</span></div>
-            <div><strong>پیگیری نوبت</strong><span>از طریق سامانه فعلی مطب</span></div>
-            <div><strong>مشاوره تخصصی</strong><span>با رعایت حریم خصوصی</span></div>
+            <div><x-ui-icon name="calendar"/><strong>نوبت‌دهی آنلاین</strong><span>با مشاهده تقویم و ساعات آزاد</span></div>
+            <div><x-ui-icon name="file"/><strong>پیگیری نوبت</strong><span>از طریق سامانه فعلی مطب</span></div>
+            <div><x-ui-icon name="shield"/><strong>مشاوره تخصصی</strong><span>با رعایت حریم خصوصی</span></div>
         </div>
     </section>
     @foreach($sections as $section)
@@ -89,7 +90,7 @@
     @endforeach
     <section class="section about-section" id="about">
         <div class="container about-grid">
-            <div class="about-symbol" aria-hidden="true">✿</div>
+            <div class="about-symbol" aria-hidden="true"><x-ui-icon name="heart"/></div>
             <div><p class="eyebrow">درباره پزشک</p><h2>درباره خانم {{ $websiteTheme['brand_name'] }}</h2><p>{{ $websiteTheme['brand_subtitle'] }} با رویکردی مبتنی بر احترام، آرامش و حفظ حریم خصوصی مراجعان.</p><p>برای آشنایی با خدمات قابل رزرو از فهرست خدمات و تقویم آنلاین مطب استفاده کنید.</p><a class="btn-outline-site" href="#contact">اطلاعات تماس و مطب</a></div>
         </div>
     </section>
@@ -99,7 +100,7 @@
             <p class="section-intro">فهرست زیر مستقیماً از خدمات فعال و قابل رزرو در سامانه مطب دریافت می‌شود.</p>
             <div class="service-grid">
             @forelse($services as $service)
-                <article class="service-card"><span class="service-icon" aria-hidden="true">✿</span><h3>{{ $service->name }}</h3><p>جزئیات زمان‌های قابل رزرو را در تقویم مشاهده کنید.</p><a href="{{ route('website.services.show', $service->id) }}">جزئیات خدمت <span aria-hidden="true">←</span></a></article>
+                <article class="service-card"><span class="service-icon"><x-ui-icon name="heart"/></span><h3>{{ $service->name }}</h3><p>جزئیات زمان‌های قابل رزرو را در تقویم مشاهده کنید.</p><a href="{{ route('website.services.show', $service->id) }}">جزئیات خدمت <span aria-hidden="true">←</span></a></article>
             @empty
                 <p class="empty-services">در حال حاضر خدمتی برای رزرو اینترنتی منتشر نشده است.</p>
             @endforelse
@@ -109,7 +110,7 @@
     </section>
     <section class="section why-section"><div class="container"><h2 class="text-center">چرا مطب {{ $websiteTheme['brand_name'] }}؟</h2><div class="why-grid"><div><strong>حریم خصوصی</strong><span>احترام به محرمانگی اطلاعات مراجعان</span></div><div><strong>رزرو منظم</strong><span>انتخاب از بین زمان‌های قابل رزرو</span></div><div><strong>پیگیری آسان</strong><span>دسترسی به وضعیت نوبت در سامانه</span></div></div></div></section>
     <section class="section appointment-section" id="appointment"><div class="container appointment-panel"><div><p class="eyebrow">رزرو نوبت آنلاین</p><h2>زمان مناسب خود را انتخاب کنید</h2><p>تقویم شمسی و ساعات آزاد از سامانه اصلی نوبت‌دهی مطب دریافت می‌شوند. نوبت فقط پس از طی مراحل تأیید و پرداخت مربوطه قطعی است.</p></div><a class="btn-primary-site" href="{{ route('calendar') }}">ورود به تقویم نوبت‌دهی</a></div></section>
-    <section class="section contact-section" id="contact"><div class="container"><h2>اطلاعات تماس و موقعیت مطب</h2><div class="contact-grid"><div><h3>آدرس مطب</h3><p>{{ $websiteTheme['contact_address'] }}</p><h3>شماره تماس</h3><p><a href="tel:{{ $websiteTheme['contact_phone'] }}" dir="ltr">{{ $websiteTheme['contact_phone'] }}</a></p><h3>وب‌سایت</h3><p><a href="https://drzahrabagheri.ir" rel="noopener noreferrer">drzahrabagheri.ir</a></p></div><div class="contact-cta"><span aria-hidden="true">♡</span><p>سلامتی شما برای ما ارزشمند است.</p><a class="btn-primary-site" href="{{ route('calendar') }}">دریافت نوبت</a></div></div></div></section>
+    <section class="section contact-section" id="contact"><div class="container"><h2>اطلاعات تماس و موقعیت مطب</h2><div class="contact-grid"><div><h3>آدرس مطب</h3><p>{{ $websiteTheme['contact_address'] }}</p><h3>شماره تماس</h3><p><a href="tel:{{ $websiteTheme['contact_phone'] }}" dir="ltr">{{ $websiteTheme['contact_phone'] }}</a></p><h3>وب‌سایت</h3><p><a href="https://drzahrabagheri.ir" rel="noopener noreferrer">drzahrabagheri.ir</a></p></div><div class="contact-cta"><x-ui-icon name="heart"/><p>سلامتی شما برای ما ارزشمند است.</p><a class="btn-primary-site" href="{{ route('calendar') }}">دریافت نوبت</a></div></div></div></section>
 </main>
 <footer class="website-footer"><div class="container footer-inner"><div><strong>{{ $websiteTheme['brand_name'] }}</strong><p>{{ $websiteTheme['brand_subtitle'] }}</p></div><nav aria-label="دسترسی فوتر">@forelse($footerLinks as $link)
             <a href="{{ $link->url }}" @if($link->new_tab) target="_blank" rel="noopener noreferrer" @endif>{{ $link->label }}</a>

@@ -7,7 +7,8 @@ const results = [];
 await mkdir('results', {recursive: true});
 async function test(name, run) { await run(); results.push({name, passed: true}); console.log(`PASS ${name}`); }
 const context = await browser.newContext({viewport: {width: 1440, height: 1000}});
-await context.route('**/*', route => new URL(route.request().url()).origin === base ? route.continue() : route.abort());
+const externalRequests = [];
+await context.route('**/*', route => { if (new URL(route.request().url()).origin === base) return route.continue(); externalRequests.push(route.request().url()); return route.abort(); });
 const page = await context.newPage();
 const errors = []; page.on('pageerror', error => errors.push(error.message));
 const violations = [];
@@ -15,6 +16,29 @@ await context.exposeFunction('__recordCsp', value => violations.push(value));
 await context.addInitScript(() => document.addEventListener('securitypolicyviolation', e => window.__recordCsp(`${e.violatedDirective}: ${e.blockedURI}`)));
 const widget = id => page.locator(`#${id}`).locator('..');
 try {
+    await test('public studio design uses local assets and fits desktop, tablet and small mobile', async () => {
+        for (const width of [1440, 768, 320]) {
+            await page.setViewportSize({width, height: 1000});
+            for (const path of ['/', '/services', '/articles']) {
+                const response = await page.goto(`${base}${path}`); assert.equal(response.status(), 200);
+                await page.evaluate(() => document.fonts.ready);
+                assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `${path} at ${width}px`);
+            }
+            await page.goto(base); await page.screenshot({path: `results/website-${width}.png`, fullPage: true});
+            if (width === 1440) await page.screenshot({path: 'results/website-cover.png'});
+        }
+        await page.setViewportSize({width: 1440, height: 1000});
+    });
+    await test('real administrative desk shows data-backed overview and responsive shortcuts', async () => {
+        await page.goto(`${base}/admin`); await page.locator('.desk-summary').waitFor();
+        assert.equal(await page.locator('.workspace-actions a').count(), 3);
+        await page.screenshot({path: 'results/admin-overview.png', fullPage: true});
+        await page.screenshot({path: 'results/admin-cover.png'});
+        await page.setViewportSize({width: 320, height: 820});
+        assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+        await page.screenshot({path: 'results/admin-overview-mobile.png', fullPage: true});
+        await page.setViewportSize({width: 1440, height: 1000});
+    });
     await page.goto(`${base}/__ui-fixture`); await page.locator('#kind[data-hcg-ready]').waitFor({state: 'attached'});
     await test('live search, normal native value and no navigation', async () => {
         await widget('kind').locator('.hcg-select-control').click();
@@ -116,6 +140,7 @@ try {
         assert.equal(JSON.parse(await native.locator('body').innerText()).kind, 'finance'); await fallback.close();
     });
     assert.deepEqual(errors, []);
+    assert.deepEqual(externalRequests, []);
     assert.deepEqual(violations, []);
     await writeFile('results/summary.json', JSON.stringify({passed: true, checks: results, javascriptErrors: errors, cspViolations: violations}, null, 2));
 } catch (error) {

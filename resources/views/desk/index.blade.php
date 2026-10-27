@@ -1,6 +1,11 @@
 @extends('layouts.app')
 @section('content')
 <h1 class="h3">میز کار مطب</h1>
+<div class="workspace-actions">
+@can('desk.book')<a class="workspace-action" href="{{ route('desk.create') }}"><x-ui-icon name="calendar"/><span><strong>ثبت نوبت جدید</strong><small>رزرو تلفنی و مراجعه فوری</small></span></a>@endcan
+@can('patients.manage')<a class="workspace-action" href="{{ route('patients.index') }}"><x-ui-icon name="users"/><span><strong>مراجعان مطب</strong><small>جستجو و پیگیری سوابق نوبت</small></span></a>@endcan
+@can('website.manage')<a class="workspace-action" href="{{ route('website.pages.index') }}"><x-ui-icon name="grid"/><span><strong>وب‌سایت مطب</strong><small>مدیریت صفحات و محتوای سایت</small></span></a>@else<a class="workspace-action" href="{{ route('reports.index') }}"><x-ui-icon name="chart"/><span><strong>گزارش نوبت‌ها</strong><small>مرور عملکرد و خروجی‌ها</small></span></a>@endcan
+</div>
 <p>نوبت‌های <bdi>{{ $jalaliDay }}</bdi> به وقت تهران؛ آمار این روز مستقل از فیلتر فهرست است.</p>
 <nav class="d-flex gap-3 flex-wrap mb-3" aria-label="روز و عملیات مطب">
 <a href="{{ route('desk', ['date'=>$previousDay]) }}">روز قبل</a><a href="{{ route('desk') }}">امروز</a><a href="{{ route('desk', ['date'=>$nextDay]) }}">روز بعد</a>

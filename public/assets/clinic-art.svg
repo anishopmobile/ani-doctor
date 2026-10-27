@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="600" viewBox="0 0 640 600" fill="none">
+<defs><linearGradient id="a" x1="110" y1="60" x2="520" y2="560" gradientUnits="userSpaceOnUse"><stop stop-color="#e1e5ff"/><stop offset="1" stop-color="#e7f6ee"/></linearGradient><linearGradient id="b" x1="230" y1="150" x2="420" y2="490" gradientUnits="userSpaceOnUse"><stop stop-color="#6575c8"/><stop offset="1" stop-color="#243e65"/></linearGradient></defs>
+<circle cx="320" cy="300" r="246" fill="url(#a)"/><circle cx="320" cy="300" r="282" stroke="#dce1eb" stroke-dasharray="4 12"/>
+<path d="M150 502V270a170 170 0 0 1 340 0v232H150Z" fill="#fff" stroke="#dfe5ee" stroke-width="2"/>
+<path d="M174 476V273a146 146 0 0 1 292 0v203H174Z" fill="url(#b)"/>
+<circle cx="320" cy="249" r="68" fill="#f8ddd4"/>
+<path d="M249 241c0-58 27-86 70-86 53 0 77 41 72 98-17-7-35-23-44-45-26 24-60 29-98 33Z" fill="#253553"/>
+<path d="M230 476v-56c0-63 40-99 90-99s90 36 90 99v56H230Z" fill="#f8fafc"/>
+<path d="m292 325 28 39 28-39m-28 39v111" stroke="#dce4ee" stroke-width="4"/>
+<path d="M278 339v53a24 24 0 0 0 48 0v-30m29-23v44" stroke="#52717a" stroke-width="7" stroke-linecap="round"/><circle cx="355" cy="397" r="14" fill="#52717a"/><circle cx="355" cy="397" r="7" fill="#dceee8"/>
+<rect x="65" y="329" width="140" height="100" rx="24" fill="#fff" stroke="#dfe5ee" stroke-width="2"/><circle cx="104" cy="366" r="16" fill="#e6f4ed"/><path d="m97 366 5 5 9-10" stroke="#337960" stroke-width="3" stroke-linecap="round"/><path d="M133 361h44m-44 12h29m-44 28h59" stroke="#c8d5e4" stroke-width="7" stroke-linecap="round"/>
+<rect x="418" y="139" width="146" height="105" rx="24" fill="#fff" stroke="#dfe5ee" stroke-width="2"/><rect x="438" y="162" width="43" height="43" rx="13" fill="#eef0ff"/><path d="M460 173v21m-10-10h20" stroke="#5a68ad" stroke-width="5" stroke-linecap="round"/><path d="M497 174h45m-45 16h30m-59 32h73" stroke="#c8d5e4" stroke-width="6" stroke-linecap="round"/>
+<path d="M511 489c-20-32-12-65 10-91 6 32 1 59-10 91Zm0 0c9-34 34-50 62-53-11 26-31 43-62 53Z" fill="#88b5a0"/><path d="m509 506 4-54" stroke="#527a67" stroke-width="4"/>
+<circle cx="137" cy="167" r="11" fill="#d89eab"/><circle cx="511" cy="320" r="8" fill="#98bbaa"/><circle cx="215" cy="100" r="5" fill="#9da5d4"/>
+</svg>

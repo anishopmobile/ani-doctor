@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="{{ asset('assets/vendor/pardis.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/app.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/panel.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/studio.css') }}">
     <script src="{{ asset('assets/auth.js') }}" defer></script>
     <script type="module" src="{{ asset('assets/form-controls.js') }}"></script>
     @stack('assets')
@@ -17,17 +18,17 @@
 <body class="panel-app page">
 <a class="visually-hidden-focusable" href="#main">رفتن به محتوای اصلی</a>
 <header class="navbar app-topbar"><div class="container-fluid">
-    <a href="{{ route('dashboard') }}" class="navbar-brand app-brand"><span class="app-brand-mark" aria-hidden="true">آ</span><span>آنی دکتر<small>همراه شما در مسیر سلامت</small></span></a>
-    <div class="d-flex gap-2 align-items-center"><a class="btn btn-primary" href="{{ route('calendar') }}">رزرو نوبت</a><button type="button" class="btn btn-outline-primary app-menu-toggle" data-menu-toggle aria-controls="panel-navigation" aria-expanded="false" hidden>فهرست بخش‌ها</button></div>
+    <a href="{{ route('dashboard') }}" class="navbar-brand app-brand"><span class="app-brand-mark"><x-ui-icon name="heart"/></span><span>آنی دکتر<small>همراه شما در مسیر سلامت</small></span></a>
+    <div class="panel-context"><x-ui-icon name="calendar"/><span>امروز</span><bdi>{{ app(App\Modules\Scheduling\Application\JalaliDate::class)->format(now()) }}</bdi></div><div class="d-flex gap-2 align-items-center"><a class="btn btn-primary" href="{{ route('calendar') }}">رزرو نوبت</a><button type="button" class="btn btn-outline-primary app-menu-toggle" data-menu-toggle aria-controls="panel-navigation" aria-expanded="false" hidden>فهرست بخش‌ها</button></div>
 </div></header>
 <div class="app-frame">
     <aside class="app-sidebar" id="panel-navigation" aria-label="منوی پنل">
-        <div class="app-workspace"><span class="badge bg-blue-lt">فضای کار شما</span><p>دسترسی سریع و امن به خدمات</p></div>
+        <div class="app-workspace"><div class="workspace-title"><x-ui-icon name="grid"/><span>فضای کار شما</span></div><p>دسترسی سریع و امن به خدمات</p></div>
         @include('layouts.panel-navigation')
         <div class="app-sidebar-footer">@auth<form method="post" action="{{ route('logout') }}">@csrf<button class="btn btn-outline-secondary w-100">خروج از حساب</button></form>@else<a class="btn btn-outline-primary w-100" href="{{ route('login') }}">ورود به حساب</a>@endauth<p>اطلاعات ورود خود را در اختیار دیگران نگذارید.</p></div>
     </aside>
     <div class="page-wrapper app-content">
-        <div class="app-welcome"><p class="page-pretitle">نوبت‌دهی و خدمات آنلاین</p><p class="app-welcome-title">با آرامش، برنامه‌ریزی کنید</p><p>همه ابزارهای مورد نیاز شما، در یک فضای ساده و منظم.</p></div>
+        <div class="app-welcome"><div><p class="page-pretitle"><x-ui-icon name="spark"/>آنی دکتر / فضای همراه سلامت</p><p class="app-welcome-title">@can('desk.view')یک روز منظم، یک تجربه بهتر@elseبا آرامش، برای سلامتی برنامه‌ریزی کنید@endcan</p><p class="welcome-description">@can('desk.view')از برنامه امروز تا مدیریت خدمات؛ ابزارهای مطب در دسترس شماست.@elseانتخاب زمان مراجعه، پیگیری نوبت و خدمات مطب، در یک فضای امن و ساده.@endcan</p></div><div class="welcome-badge"><x-ui-icon name="calendar"/></div></div>
         <main id="main" class="page-body">
     @if(app(\App\Modules\Payments\Application\LocalPaymentMode::class)->enabled())<p class="alert alert-warning" role="status">درگاه آزمایشی لوکال فعال است؛ پرداخت‌ها و اعتبار حاصل از آن ساختگی‌اند و هیچ وجهی دریافت نمی‌شود. این داده‌ها را به هاست واقعی منتقل نکنید.</p>@endif
 
