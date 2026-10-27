@@ -5,6 +5,7 @@ use App\Http\Controllers\Web\OtpController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [\App\Http\Controllers\Web\WebsiteController::class, 'home'])->name('website.home');
+Route::get('/sitemap.xml', \App\Http\Controllers\Web\SitemapController::class)->name('website.sitemap');
 Route::get('/articles', [\App\Http\Controllers\Web\PublicArticleController::class, 'index'])->name('website.articles.index');
 Route::middleware(['auth', 'can:website.manage'])->prefix('admin/website-taxonomies')->group(function (): void {
     Route::get('/', [\App\Http\Controllers\Admin\WebsiteTaxonomyController::class, 'index'])->name('website.taxonomies.index');
