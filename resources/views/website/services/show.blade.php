@@ -1,6 +1,6 @@
 @extends('website.layout')
-@section('title', $service->name)
-@section('meta_description', 'اطلاعات نوبت‌دهی خدمت ' . $service->name . ' در مطب دکتر زهرا باقری')
+@section('title', e($service->name))
+@section('meta_description', e('اطلاعات نوبت‌دهی خدمت '.$service->name.' در مطب دکتر زهرا باقری'))
 @section('content')
 <nav aria-label="مسیر صفحه"><a href="{{ route('website.home') }}">خانه</a> / <a href="{{ route('website.services.index') }}">خدمات</a> / {{ $service->name }}</nav>
 <article class="service-detail mt-4">
