@@ -25,6 +25,7 @@ final class P7MigrationTest extends TestCase
         $this->service = $this->bookingServiceFixture($this->admin);
         $this->offer();
         $appointment = $this->collect($this->discounted());
+        $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful(); // Website CMS migration, added after P7.
         $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful();
         $this->assertFalse(Schema::hasTable('discounts'));
         $this->assertFalse(Schema::hasTable('report_access_events'));
