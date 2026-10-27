@@ -37,6 +37,8 @@ final class ThemeService
         $colors = array_intersect_key($values, self::DEFAULTS);
         $brand = array_intersect_key($values, self::BRAND_DEFAULTS);
         $theme = WebsiteTheme::query()->firstOrNew(['id' => 1]);
+        // MySQL AUTO_INCREMENT is not rewound by transaction rollback.
+        $theme->forceFill(['id' => 1]);
         $theme->fill($colors);
         if ($brand !== []) {
             $theme->brand_settings = array_replace($theme->brand_settings ?? [], $brand);

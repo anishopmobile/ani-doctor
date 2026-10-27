@@ -108,4 +108,14 @@ final class WebsiteThemeTest extends TestCase
         ]))->assertSessionHasErrors('text_color');
         $this->assertDatabaseCount('website_theme_settings', 0);
     }
+
+    public function test_singleton_does_not_depend_on_the_database_auto_increment_counter(): void
+    {
+        $temporary = \App\Modules\Website\Infrastructure\WebsiteTheme::create(ThemeService::DEFAULTS);
+        $temporary->delete();
+        app(ThemeService::class)->save(ThemeService::DEFAULTS + ['brand_name' => 'برند ثبت شده']);
+        $this->assertDatabaseHas('website_theme_settings', ['id' => 1]);
+        $this->assertDatabaseCount('website_theme_settings', 1);
+        $this->assertSame('برند ثبت شده', app(ThemeService::class)->settings()['brand_name']);
+    }
 }

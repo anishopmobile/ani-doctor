@@ -11,3 +11,6 @@ Base: `857b312`, PR #12, branch `feat/doctor-website-dynamic-cms`.
 - Chrome zoom 200%: hero text reflows into the viewport and the booking CTA retains a visible keyboard focus ring. This is a targeted homepage review, not certification of every administrative/operational screen or a screen-reader audit.
 - Upload formats remain JPEG/PNG/WebP, 2 MiB maximum, required alt text. Files remain outside DocumentRoot. No malware scanning, image transformations or CDN is claimed.
 - Operational release scope is isolated CI staging. Clinic hosting credentials, DNS, live gateway/SMS and clinical editorial approval were not verified by this work.
+
+## MySQL CI correction
+Run `40497485027` at `80c59b7` passed SQLite (266 tests / 1848 assertions) but failed the MySQL brand-render assertion. MySQL retains an incremented AUTO_INCREMENT counter after rolled-back test inserts; the new singleton save used firstOrNew with guarded id, so a subsequent insert could receive an id other than 1 and the public query correctly fell back to defaults. ThemeService now explicitly force-fills id=1, and a regression advances the counter by inserting/deleting a temporary row before saving. Local theme tests: 6 tests / 49 assertions, passed. The corrected revision requires a fresh full MySQL/ZIP/staging CI result.
