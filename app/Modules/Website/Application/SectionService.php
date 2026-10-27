@@ -7,9 +7,16 @@ use Illuminate\Database\Eloquent\Collection;
 
 final class SectionService
 {
-    public function published(): Collection
+    public function published(?string $type = null): Collection
     {
-        return WebsiteSection::query()->where('is_published', true)->orderBy('sort_order')->orderBy('id')->get();
+        $query = WebsiteSection::query()->where('is_published', true);
+        if ($type !== null) {
+            $query->where('type', $type);
+        } else {
+            $query->where('type', '!=', 'slide');
+        }
+
+        return $query->orderBy('sort_order')->orderBy('id')->get();
     }
 
     public function save(array $data, ?WebsiteSection $section = null): WebsiteSection
