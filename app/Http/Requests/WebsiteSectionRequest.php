@@ -14,7 +14,7 @@ final class WebsiteSectionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'type' => ['required', 'in:hero,about,cta'],
+            'type' => ['required', 'in:hero,about,cta,slide'],
             'title' => ['required', 'string', 'max:180'],
             'subtitle' => ['nullable', 'string', 'max:240'],
             'body' => ['nullable', 'string', 'max:3000'],
