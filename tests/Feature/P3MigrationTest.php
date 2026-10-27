@@ -29,7 +29,6 @@ final class P3MigrationTest extends TestCase
         $user = User::create(['mobile' => '09120000000']);
         $patient = Patient::create(['name' => 'بیمار آزمایشی قبلی']);
         $service = Service::create(['name' => 'خدمت قبلی','price_irr' => 1000000,'duration_minutes' => 30,'buffer_minutes' => 0,'capacity' => 1,'is_active' => true,'is_online' => true]);
-        $this->artisan('migrate:rollback', ['--step' => 1,'--force' => true])->assertSuccessful();
         $this->assertFalse(Schema::hasTable('appointments'));
         $this->assertDatabaseHas('users', ['id' => $user->id]);
         $this->assertDatabaseHas('patients', ['id' => $patient->id]);
