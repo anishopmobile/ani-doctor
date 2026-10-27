@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="معرفی مطب خانم دکتر زهرا باقری، متخصص زنان، زایمان و نازایی؛ مشاهده خدمات و نوبت‌دهی آنلاین.">
     <title>دکتر زهرا باقری | متخصص زنان، زایمان و نازایی</title>
+    <link rel="sitemap" type="application/xml" href="{{ route('website.sitemap') }}">
+    @unless(request()->hasAny(['category', 'tag', 'page']))
+        <link rel="canonical" href="{{ url()->current() }}">
+    @endunless
     <link rel="stylesheet" href="{{ asset('assets/vendor/bootstrap.rtl.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/website.css') }}">
     <script defer src="{{ asset('assets/website-slider.js') }}"></script>
