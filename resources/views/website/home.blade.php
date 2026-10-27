@@ -37,6 +37,16 @@
             <div><strong>مشاوره تخصصی</strong><span>با رعایت حریم خصوصی</span></div>
         </div>
     </section>
+    @foreach($sections as $section)
+    <section class="section cms-section cms-{{ $section->background }}" aria-label="{{ $section->title }}">
+        <div class="container">
+            @if($section->subtitle)<p class="eyebrow">{{ $section->subtitle }}</p>@endif
+            <h2>{{ $section->title }}</h2>
+            @if($section->body)<p class="cms-copy">{{ $section->body }}</p>@endif
+            @if($section->button_url && $section->button_text)<a class="btn-outline-site" href="{{ $section->button_url }}">{{ $section->button_text }}</a>@endif
+        </div>
+    </section>
+    @endforeach
     <section class="section about-section" id="about">
         <div class="container about-grid">
             <div class="about-symbol" aria-hidden="true">✿</div>
