@@ -140,6 +140,54 @@ jobs:
           php artisan migrate:rollback --force
           php artisan migrate --seed --force
 
+      - name: Install isolated browser verification tools
+        if: steps.detect.outputs.app == 'true'
+        run: |
+          npm ci --prefix tests/Browser --ignore-scripts --no-audit --no-fund
+          tests/Browser/node_modules/.bin/playwright install --with-deps chromium
+
+      - name: Verify RTL panels and progressive form controls in Chromium
+        if: steps.detect.outputs.app == 'true'
+        shell: bash
+        env:
+          APP_ENV: local
+          APP_DEBUG: 'false'
+          APP_URL: http://127.0.0.1:18558
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ${{ runner.temp }}/browser-panel-ui.sqlite
+          SESSION_DRIVER: file
+          SESSION_SECURE_COOKIE: 'false'
+          CACHE_STORE: array
+          QUEUE_CONNECTION: sync
+          ZARINPAL_ENABLED: 'false'
+          EVENT_SMS_ENABLED: 'false'
+          SMS_IR_API_KEY: ''
+          LOCAL_OTP_PREVIEW: 'false'
+          LOCAL_PAYMENT_SIMULATOR: 'false'
+          PANEL_SYNTHETIC_FIXTURE: '1'
+        run: |
+          set -euo pipefail
+          touch "$DB_DATABASE"
+          php tests/Support/panel-browser-seed.php
+          php -S 127.0.0.1:18558 -t public tests/Support/panel-browser-router.php > "$RUNNER_TEMP/panel-browser.log" 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid"' EXIT
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:18558/__ui-fixture > /dev/null; then break; fi
+            sleep 1
+          done
+          cd tests/Browser
+          npm test
+
+      - name: Upload browser verification evidence
+        if: always() && steps.detect.outputs.app == 'true'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ani-doctor-panel-browser-${{ github.run_number }}
+          path: tests/Browser/results/
+          if-no-files-found: warn
+          retention-days: 30
+
       - name: Verify frontend assets are prebuilt
         if: steps.detect.outputs.app == 'true'
         shell: bash
