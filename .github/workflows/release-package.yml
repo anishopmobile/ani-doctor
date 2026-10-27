@@ -260,10 +260,15 @@ jobs:
           cat "$RUNNER_TEMP/security-results/http-probes.json"
           docker pull ghcr.io/zaproxy/zaproxy:stable
           docker inspect ghcr.io/zaproxy/zaproxy:stable --format '{{json .RepoDigests}}' > "$RUNNER_TEMP/security-results/engine-digest.json"
+          set +e
           timeout 900 docker run --rm --network host \
             -v "$GITHUB_WORKSPACE/tests/Security/zap-plan.yaml:/zap/wrk/plan.yaml:ro" \
             -v "$RUNNER_TEMP/security-results:/zap/wrk/results:rw" \
             ghcr.io/zaproxy/zaproxy:stable zap.sh -cmd -autorun /zap/wrk/plan.yaml
+          scan_status=$?
+          set -e
+          python3 tests/Security/summarize-zap.py "$RUNNER_TEMP/security-results/zap-report.json"
+          test "$scan_status" -eq 0
 
       - name: Upload isolated security scan evidence
         if: always() && steps.detect.outputs.app == 'true'

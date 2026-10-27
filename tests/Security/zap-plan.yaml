@@ -4,7 +4,7 @@ env:
       urls:
         - https://localhost:18443
       includePaths:
-        - 'https://localhost:18443/(?:|services(?:/.*)?|articles(?:/.*)?|pages/security-audit(?:\?.*)?|website-media/.*|website-theme\.css(?:\?.*)?|assets/.*|sitemap\.xml|robots\.txt)'
+        - 'https://localhost:18443/(?:|services(?:/.*)?|articles(?:/.*)?|pages/security-audit|website-media/.*|website-theme\.css|assets/.*|sitemap\.xml|robots\.txt)(?:\?.*)?'
   parameters:
     failOnError: true
     failOnWarning: false
@@ -23,6 +23,13 @@ jobs:
       maxDepth: 5
       parseRobotsTxt: false
       parseSitemapXml: false
+    tests:
+      - name: Public crawl must discover at least five URLs
+        type: stats
+        statistic: automation.spider.urls.added
+        operator: '>='
+        value: 5
+        onFail: error
   - type: passiveScan-wait
     parameters:
       maxDuration: 2
