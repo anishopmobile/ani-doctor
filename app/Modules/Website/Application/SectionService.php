@@ -16,7 +16,7 @@ final class SectionService
             $query->where('type', '!=', 'slide');
         }
 
-        return $query->orderBy('sort_order')->orderBy('id')->get();
+        return $query->with('media')->orderBy('sort_order')->orderBy('id')->get();
     }
 
     public function save(array $data, ?WebsiteSection $section = null): WebsiteSection
