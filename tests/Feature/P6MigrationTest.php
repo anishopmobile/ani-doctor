@@ -29,7 +29,6 @@ final class P6MigrationTest extends TestCase
         $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful(); // Website links migration, added after CMS sections.
         $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful(); // Website CMS migration, added after P7.
         $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful(); // P7
-        $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful();
         $this->assertFalse(Schema::hasTable('form_submissions'));
         $this->assertFalse(Schema::hasTable('message_outbox'));
         $this->assertFalse(Schema::hasColumn('appointments', 'notification_mobile'));
