@@ -19,6 +19,7 @@
         @include('admin.partials.website-section-fields', ['section' => $section])
         <button class="btn btn-primary mt-3">ذخیره تغییرات</button>
     </form>
+    @include('admin.partials.website-media-editor', ['ownerType' => 'section', 'owner' => $section])
     <form method="post" action="{{ route('website.sections.destroy', $section) }}" class="mt-2" data-confirm="سکشن از سایت حذف شود؟">
         @csrf
         @method('DELETE')
