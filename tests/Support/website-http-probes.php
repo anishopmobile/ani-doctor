@@ -11,13 +11,17 @@ $checks = [];
 try {
     $sessionFor = static function (int $user): array {
         $session = app('session')->driver();
-        $session->setId(Illuminate\Support\Str::random(40));
+        // Reset the database handler's existence state as well as the ID.
+        $session->migrate(false);
         $session->start();
         $session->flush();
         $session->put('login_web_'.sha1(Illuminate\Auth\SessionGuard::class), $user);
         $token = Illuminate\Support\Str::random(40);
         $session->put('_token', $token);
         $session->save();
+        if (!Illuminate\Support\Facades\DB::table(config('session.table'))->where('id', $session->getId())->exists()) {
+            throw new RuntimeException('SYNTHETIC_SESSION_NOT_PERSISTED');
+        }
         $name = config('session.cookie');
         $prefix = Illuminate\Cookie\CookieValuePrefix::create($name, app('encrypter')->getKey());
         $cookie = $name.'='.rawurlencode(app('encrypter')->encrypt($prefix.$session->getId(), false));
