@@ -46,3 +46,10 @@ This file documents a *source-inspected subset*, not a complete schema audit. No
 
 ## A2.2 text slideshow (2026-10-27)
 The existing `website_sections` table now also accepts the allowlisted `slide` type, with its own published-only sorted query. No new schema, patient-data changes, or payment API is introduced. The public homepage uses these rows as the hero carousel, with escaped text, manual previous/next navigation, keyboard arrows, no autoplay, and the original static hero as a zero-slide fallback. An unpublished slide never appears. This is deliberately a **text-and-color slideshow**; secure image/media storage and upload management remain separate work. The UI editor is the existing `/admin/website-sections`; set type to «اسلاید صفحه اصلی», sort order, and published state. Existing section background values remain allowlisted.
+
+## A3 public service pages (2026-10-27)
+- `GET /services` and `GET /services/{service}` present real Catalog `Service` records; both require `is_active=true` and `is_online=true` and honor soft deletion. Lists are paginated (12/page).
+- All service labels and other fields are rendered through Blade escaped tags. No clinical claims or invented procedure details are seeded.
+- Price is labeled as the stored catalog amount in **ریال**; actual payable totals must still be verified by the existing booking flow. The CTA links to `/calendar` rather than creating a parallel hold/payment path.
+- This is the public index/details baseline, not yet an editorial service CMS: categories, photographs and physician-approved rich descriptions remain pending.
+- New `PublicServicesTest` covers visibility, 404 for offline/inactive/deleted, HTML escaping and links to the original booking surface. Full CI/ZIP acceptance must pass before treating A3 as approved.
