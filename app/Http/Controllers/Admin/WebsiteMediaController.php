@@ -28,17 +28,20 @@ final class WebsiteMediaController extends Controller
 
         try {
             $old = WebsiteMedia::query()->where('owner_type', $type)->where('owner_id', $id)->first();
-            if ($old !== null) {
-                $old->deleteWithFile();
-            }
-
-            WebsiteMedia::create([
+            $oldPath = $old?->path;
+            $media = $old ?? new WebsiteMedia();
+            $media->fill([
                 'owner_type' => $type,
                 'owner_id' => $id,
                 'path' => $path,
                 'mime_type' => $upload->getMimeType(),
                 'alt_text' => $request->validated('alt_text'),
             ]);
+            $media->save();
+
+            if ($oldPath !== null && $oldPath !== $path) {
+                Storage::disk('local')->delete($oldPath);
+            }
         } catch (\Throwable $exception) {
             Storage::disk('local')->delete($path);
             throw $exception;
