@@ -18,7 +18,7 @@
             @forelse($headerLinks as $link)
                 <a href="{{ $link->url }}" @if($link->new_tab) target="_blank" rel="noopener noreferrer" @endif>{{ $link->label }}</a>
             @empty
-                <a href="#main">خانه</a><a href="#about">درباره پزشک</a><a href="{{ route('website.services.index') }}">خدمات</a><a href="#contact">تماس با ما</a>
+                <a href="#main">خانه</a><a href="#about">درباره پزشک</a><a href="{{ route('website.services.index') }}">خدمات</a><a href="{{ route('website.articles.index') }}">مقالات</a><a href="#contact">تماس با ما</a>
             @endforelse
         </nav>
         <a class="btn-primary-site" href="{{ route('calendar') }}">رزرو نوبت آنلاین <span aria-hidden="true">◷</span></a>
