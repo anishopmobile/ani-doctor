@@ -5,6 +5,10 @@ use App\Http\Controllers\Web\OtpController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [\App\Http\Controllers\Web\WebsiteController::class, 'home'])->name('website.home');
+Route::middleware(['auth', 'can:website.manage'])->prefix('admin/website-theme')->group(function (): void {
+    Route::get('/', [\App\Http\Controllers\Admin\WebsiteThemeController::class, 'edit'])->name('website.theme.edit');
+    Route::put('/', [\App\Http\Controllers\Admin\WebsiteThemeController::class, 'update'])->name('website.theme.update');
+});
 Route::get('/sitemap.xml', \App\Http\Controllers\Web\SitemapController::class)->name('website.sitemap');
 Route::get('/website-media/{media}', \App\Http\Controllers\Web\WebsiteMediaController::class)->whereNumber('media')->name('website.media.show');
 Route::middleware(['auth', 'can:website.manage'])->group(function (): void {
