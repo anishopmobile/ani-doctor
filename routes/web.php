@@ -5,6 +5,14 @@ use App\Http\Controllers\Web\OtpController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [\App\Http\Controllers\Web\WebsiteController::class, 'home'])->name('website.home');
+Route::get('/articles', [\App\Http\Controllers\Web\PublicArticleController::class, 'index'])->name('website.articles.index');
+Route::get('/articles/{slug}', [\App\Http\Controllers\Web\PublicArticleController::class, 'show'])->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')->name('website.articles.show');
+Route::middleware(['auth', 'can:website.manage'])->prefix('admin/website-articles')->group(function (): void {
+    Route::get('/', [\App\Http\Controllers\Admin\WebsiteArticleController::class, 'index'])->name('website.articles.manage');
+    Route::post('/', [\App\Http\Controllers\Admin\WebsiteArticleController::class, 'store'])->name('website.articles.store');
+    Route::put('/{article}', [\App\Http\Controllers\Admin\WebsiteArticleController::class, 'update'])->name('website.articles.update');
+    Route::delete('/{article}', [\App\Http\Controllers\Admin\WebsiteArticleController::class, 'destroy'])->name('website.articles.destroy');
+});
 Route::get('/services', [\App\Http\Controllers\Web\PublicServiceController::class, 'index'])->name('website.services.index');
 Route::get('/services/{service}', [\App\Http\Controllers\Web\PublicServiceController::class, 'show'])->whereNumber('service')->name('website.services.show');
 Route::middleware(['auth', 'can:website.manage'])->prefix('admin/website-links')->group(function (): void {
