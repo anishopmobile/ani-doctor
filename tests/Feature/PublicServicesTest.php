@@ -77,6 +77,7 @@ final class PublicServicesTest extends TestCase
         $response->assertSee('data-price="900000" selected', false);
         $this->get(route('calendar', ['service_id' => $offline->id]))->assertOk()->assertDontSee('حضوری');
         $this->get(route('calendar', ['service_id' => '<script>']))->assertOk()->assertDontSee('<script>', false);
+        $this->get(route('calendar', ['service_id' => [$selected->id]]))->assertOk();
         $this->assertDatabaseCount('appointments', 0);
     }
 }
