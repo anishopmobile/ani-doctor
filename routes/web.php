@@ -5,6 +5,8 @@ use App\Http\Controllers\Web\OtpController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [\App\Http\Controllers\Web\WebsiteController::class, 'home'])->name('website.home');
+Route::get('/services', [\App\Http\Controllers\Web\PublicServiceController::class, 'index'])->name('website.services.index');
+Route::get('/services/{service}', [\App\Http\Controllers\Web\PublicServiceController::class, 'show'])->whereNumber('service')->name('website.services.show');
 Route::middleware(['auth', 'can:website.manage'])->prefix('admin/website-links')->group(function (): void {
     Route::get('/', [\App\Http\Controllers\Admin\WebsiteLinkController::class, 'index'])->name('website.links.index');
     Route::post('/', [\App\Http\Controllers\Admin\WebsiteLinkController::class, 'store'])->name('website.links.store');
