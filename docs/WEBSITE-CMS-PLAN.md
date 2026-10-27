@@ -84,3 +84,10 @@ The existing `website_sections` table now also accepts the allowlisted `slide` t
 - No CSS file rebuild and no additional frontend dependencies are needed for host ZIP deployments.
 - Tests verify defaults, admin-only updates, singleton persistence, rejection of malformed CSS values, and cross-page rendering. Historical P3–P7 rollback tests include the new migration. Await the entire CI, ZIP and Apache staging acceptance before merging.
 - This is a **minimal palette editor**, not a full visual page builder, typographic editor or theme preset/contrast audit.
+
+## A8 editorial service descriptions (2026-10-27)
+- Additive `website_service_contents` table owns per-service public summary, plain-text description and explicit publication flag. A unique foreign key references the real Catalog service; catalog prices, duration, capacity and payment data are untouched.
+- Admin `GET/PUT /admin/website-service-content/{service}` requires authentication and `website.manage`. Publishing is off by default; clinically sensitive copy must be approved by the physician prior to publication.
+- The public detail page displays editorial copy only for active, online Catalog services when the editorial record is marked published, with Blade HTML escaping. Booking remains a link to the existing `/calendar` and never duplicates holds, OTP or payments.
+- Feature tests cover rejection of unauthenticated mutations, draft invisibility, escaped HTML and validation; full MySQL rollback, ZIP and staging acceptance await CI verification.
+- Editorial service images are not part of this increment; they require the same private-storage and publication checks as the existing article/section media registry.
