@@ -60,3 +60,11 @@ The existing `website_sections` table now also accepts the allowlisted `slide` t
 - Admin CRUD `/admin/website-articles` reuses `auth` plus `website.manage` and the existing Tabler-compatible operational layout. Slugs are constrained and unique; use English lowercase letters/digits/hyphens. Physicians must review factual clinical content before publication.
 - This is **not** the finished article platform: categories/tags, editorial revisions, image uploads and graphical editor await separate security-reviewed stages.
 - Historical P3–P7 rollback tests now explicitly account for the additional final article migration. All changes require fresh CI and staging ZIP acceptance.
+
+## A5 public SEO discovery baseline (2026-10-27)
+- Public `GET /sitemap.xml` provides a dynamic XML sitemap of the homepage, public service directory, published online services, public article directory, and published/non-future articles. It does not include `admin`, APIs, booking tickets, patients or private appointment URLs.
+- The root `public/robots.txt` prevents cooperative bots from crawling operational routes and advertises the real clinic domain sitemap. **robots.txt is not access control**; application authentication and authorization remain mandatory.
+- Public pages link their sitemap and use a canonical URL on unfiltered/non-paginated pages; query-filtered articles intentionally omit a canonical for now.
+- On production, confirm `APP_URL=https://drzahrabagheri.ir` and verify reverse-proxy HTTPS trust, the actual final DNS hostname, and `robots.txt` Sitemap URL before indexing. On non-production installs, adapt the absolute robots.txt sitemap host or exclude the page from indexing.
+- New sitemap tests verify published-only visibility and prevent draft/offline/soft-deleted objects or operational routes from entering the listing.
+- Remaining SEO roadmap: editor-managed global SEO settings, explicit robots controls per environment, social previews and a sitemap index for high-volume catalogs (50,000 URL sitemap limit).
