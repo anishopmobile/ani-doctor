@@ -16,6 +16,7 @@
     @include('website.partials.favicon')
     <script src="{{ asset('assets/ui.js') }}" defer></script>
     <script src="{{ asset('assets/booking-ux.js') }}" defer></script>
+    <script src="{{ asset('assets/workspace-ux.js') }}" defer></script>
     <script src="{{ asset('assets/auth.js') }}" defer></script>
     <script type="module" src="{{ asset('assets/form-controls.js') }}"></script>
     @stack('assets')
@@ -42,7 +43,7 @@
     <div class="{{ request()->is('login') ? 'auth-card' : 'work-card' }} card shadow-sm mx-auto"><div class="card-body p-3 p-md-4">
         @if(session('status'))<p class="alert alert-success" role="status">{{ session('status') }}</p>@endif
         @if($errors->any())
-            <div class="alert alert-danger" role="alert" tabindex="-1" data-errors>
+            <div class="alert alert-danger" role="alert" tabindex="-1" data-errors data-error-context="{{ is_string(old('_ux_context')) && preg_match('/\A[a-z0-9-]{1,100}\z/', old('_ux_context')) ? old('_ux_context') : '' }}">
                 <p class="mb-1">درخواست تکمیل نشد:</p>
                 <ul class="mb-0">@foreach($errors->getMessages() as $errorField => $messages)@foreach($messages as $error)<li data-field-error="{{ $errorField }}">{{ $error }}</li>@endforeach @endforeach</ul>
             </div>

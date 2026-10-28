@@ -222,7 +222,7 @@ jobs:
 
           # Ship only the reviewed installation guides, not arbitrary project/reference files.
           mkdir -p "$stage/docs"
-          cp docs/INSTALL-LOCAL.md docs/INSTALL-SHARED-HOSTING.md docs/P8.md docs/P8-VALIDATION.md docs/WEBSITE-CMS-PLAN.md docs/WEBSITE-CMS-VALIDATION.md docs/INSTALLATION-AUDIT.md docs/UI-CMS-REDESIGN-AUDIT.md docs/UI-CMS-VALIDATION.md docs/GUIDED-BOOKING-UX.md "$stage/docs/"
+          cp docs/INSTALL-LOCAL.md docs/INSTALL-SHARED-HOSTING.md docs/P8.md docs/P8-VALIDATION.md docs/WEBSITE-CMS-PLAN.md docs/WEBSITE-CMS-VALIDATION.md docs/INSTALLATION-AUDIT.md docs/UI-CMS-REDESIGN-AUDIT.md docs/UI-CMS-VALIDATION.md docs/GUIDED-BOOKING-UX.md docs/ADMIN-WORKSPACE-UX.md "$stage/docs/"
 
           # Runtime state from CI must never be included in an installation package.
           rm -rf "$stage/bootstrap/cache"
