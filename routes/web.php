@@ -5,9 +5,13 @@ use App\Http\Controllers\Web\OtpController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [\App\Http\Controllers\Web\WebsiteController::class, 'home'])->name('website.home');
+Route::view('/about', 'website.about')->name('website.about');
+Route::view('/contact', 'website.contact')->name('website.contact');
 Route::middleware(['auth', 'can:website.manage'])->prefix('admin/website-theme')->group(function (): void {
     Route::get('/', [\App\Http\Controllers\Admin\WebsiteThemeController::class, 'edit'])->name('website.theme.edit');
     Route::put('/', [\App\Http\Controllers\Admin\WebsiteThemeController::class, 'update'])->name('website.theme.update');
+    Route::put('/preview', [\App\Http\Controllers\Admin\WebsiteThemeController::class, 'preview'])->name('website.theme.preview');
+    Route::get('/preview.css', [\App\Http\Controllers\Admin\WebsiteThemeController::class, 'previewCss'])->name('website.theme.preview-css');
 });
 Route::get('/website-theme.css', \App\Http\Controllers\Web\WebsiteThemeCssController::class)->name('website.theme.css');
 Route::get('/pages/{slug}', \App\Http\Controllers\Web\PublicPageController::class)->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')->name('website.pages.show');
@@ -29,7 +33,7 @@ Route::middleware(['auth', 'can:website.manage', 'throttle:website-editor'])->pr
 Route::get('/sitemap.xml', \App\Http\Controllers\Web\SitemapController::class)->name('website.sitemap');
 Route::get('/website-media/{media}', \App\Http\Controllers\Web\WebsiteMediaController::class)->whereNumber('media')->name('website.media.show');
 Route::middleware(['auth', 'can:website.manage'])->group(function (): void {
-    Route::post('/admin/website-media/{type}/{id}', [\App\Http\Controllers\Admin\WebsiteMediaController::class, 'store'])->whereIn('type', ['article', 'section', 'service', 'brand'])->whereNumber('id')->name('website.media.store');
+    Route::post('/admin/website-media/{type}/{id}', [\App\Http\Controllers\Admin\WebsiteMediaController::class, 'store'])->whereIn('type', ['article', 'section', 'service', 'brand', 'portrait', 'favicon'])->whereNumber('id')->name('website.media.store');
     Route::delete('/admin/website-media/{media}', [\App\Http\Controllers\Admin\WebsiteMediaController::class, 'destroy'])->whereNumber('media')->name('website.media.destroy');
 });
 Route::get('/articles', [\App\Http\Controllers\Web\PublicArticleController::class, 'index'])->name('website.articles.index');

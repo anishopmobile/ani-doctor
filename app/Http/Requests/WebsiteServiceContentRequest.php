@@ -17,6 +17,7 @@ final class WebsiteServiceContentRequest extends FormRequest
             'summary' => ['nullable', 'string', 'max:350'],
             'description' => ['nullable', 'string', 'max:10000'],
             'is_published' => ['required', 'boolean'],
+            'sort_order' => ['sometimes', 'required', 'integer', 'min:0', 'max:100000'],
         ];
     }
 }

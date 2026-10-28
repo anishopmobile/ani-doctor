@@ -21,7 +21,7 @@ if (config('database.default') !== 'sqlite' || !str_ends_with(config('database.c
     abort(403);
 }
 $mobile = match ($request->header('X-UI-Actor')) {
-    'patient' => '09000000552', 'guest' => null, default => '09000000551'
+    'patient' => '09000000552', 'secretary' => '09000000554', 'guest' => null, default => '09000000551'
 };
 if ($mobile) {
     $app['auth']->onceUsingId(App\Modules\Identity\Infrastructure\User::where('mobile', $mobile)->sole()->id);

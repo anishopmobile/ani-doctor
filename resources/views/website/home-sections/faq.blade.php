@@ -1,0 +1,1 @@
+@if($websiteTheme['faq_items'])<section class="section" id="faq"><div class="container"><h2>{{ $websiteTheme['faq_title'] }}</h2>@foreach($websiteTheme['faq_items'] as $item)<details class="page-faq"><summary>{{ $item['title'] }}</summary><p class="preserve-lines">{{ $item['text'] }}</p></details>@endforeach</div></section>@endif

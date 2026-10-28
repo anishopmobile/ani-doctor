@@ -1,0 +1,5 @@
+<h3>آدرس مطب</h3><p>{{ $websiteTheme['contact_address'] }}</p><h3>شماره تماس</h3><p><a href="tel:{{ $websiteTheme['contact_phone'] }}"><bdi dir="ltr">{{ $websiteTheme['contact_phone'] }}</bdi></a></p>
+@if($websiteTheme['contact_email'])<h3>ایمیل</h3><p><a href="mailto:{{ $websiteTheme['contact_email'] }}"><bdi dir="ltr">{{ $websiteTheme['contact_email'] }}</bdi></a></p>@endif
+@if($websiteTheme['contact_hours'])<h3>ساعات پاسخ‌گویی</h3><p class="preserve-lines">{{ $websiteTheme['contact_hours'] }}</p><small>زمان‌های قابل رزرو را از تقویم بررسی کنید.</small>@endif
+@if($websiteTheme['contact_website'])<h3>وب‌سایت</h3><p><a href="{{ $websiteTheme['contact_website'] }}" rel="noopener noreferrer"><bdi dir="ltr">{{ parse_url($websiteTheme['contact_website'], PHP_URL_HOST) }}</bdi></a></p>@endif
+@if($websiteTheme['contact_map_url'])<p><a class="btn-outline-site" href="{{ $websiteTheme['contact_map_url'] }}" target="_blank" rel="noopener noreferrer">مشاهده موقعیت مطب روی نقشه <x-ui-icon name="arrow"/></a></p>@endif

@@ -25,9 +25,9 @@ final class WebsiteThemeTest extends TestCase
 
     public function test_public_pages_show_default_colors_before_any_admin_change(): void
     {
-        $this->get('/website-theme.css')->assertOk()->assertSee('--pink: #c83c7b;', false);
-        $this->get('/website-theme.css')->assertOk()->assertSee('--purple: #362147;', false);
-        $this->get('/website-theme.css')->assertOk()->assertSee('--paper: #fffafc;', false);
+        $this->get('/website-theme.css')->assertOk()->assertSee('--pink: #087b80;', false);
+        $this->get('/website-theme.css')->assertOk()->assertSee('--purple: #20344d;', false);
+        $this->get('/website-theme.css')->assertOk()->assertSee('--paper: #ffffff;', false);
     }
 
     public function test_only_verified_administrator_can_update_public_color_palette(): void

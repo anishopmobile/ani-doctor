@@ -26,7 +26,7 @@
                 @empty<p>هنوز مقاله‌ای منتشر نشده است.</p>@endforelse
             </div>
         @elseif($block['type'] === 'contact')
-            <address class="page-block-full"><p>{{ $websiteTheme['contact_address'] }}</p><a href="tel:{{ $websiteTheme['contact_phone'] }}" dir="ltr">{{ $websiteTheme['contact_phone'] }}</a></address>
+            <address class="page-block-full">@include('website.partials.contact-details')</address>
         @elseif($block['type'] === 'features')
             <div class="service-grid page-block-full">@foreach($block['items'] as $item)<article><h3>{{ $item['title'] }}</h3><p class="preserve-lines">{{ $item['text'] ?? '' }}</p></article>@endforeach</div>
         @elseif($block['type'] === 'faq')

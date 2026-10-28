@@ -1,0 +1,1 @@
+<section class="section appointment-section" id="appointment"><div class="container appointment-panel"><div><p class="eyebrow">رزرو نوبت آنلاین</p><h2>{{ $websiteTheme['appointment_title'] }}</h2><p>{{ $websiteTheme['appointment_text'] }}</p></div><a class="btn-primary-site" href="{{ route('calendar') }}">{{ $websiteTheme['appointment_button_label'] }}</a></div></section>

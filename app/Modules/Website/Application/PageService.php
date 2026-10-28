@@ -160,7 +160,7 @@ final class PageService
         $services = collect();
         $articles = collect();
         if (collect($blocks)->contains('type', 'services')) {
-            $services = \App\Modules\Catalog\Infrastructure\Service::query()->where('is_active', true)->where('is_online', true)->orderBy('name')->limit(12)->get();
+            $services = app(ServiceContentService::class)->catalogQuery()->limit(12)->get();
         }
         if (collect($blocks)->contains('type', 'articles')) {
             $articles = app(ArticleService::class)->publicQuery()->with('media')->orderByDesc('published_at')->limit(12)->get();

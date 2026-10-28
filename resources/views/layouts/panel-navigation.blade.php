@@ -4,24 +4,24 @@
     <a href="{{ route('calendar') }}" @class(['app-nav-link', 'active' => request()->routeIs('calendar')])><x-ui-icon name="calendar"/><span>تقویم خدمات</span></a>
     <a href="{{ route('appointments.index') }}" @class(['app-nav-link', 'active' => request()->routeIs('appointments.*')])><x-ui-icon name="file"/><span>نوبت‌های من</span></a>
     <a href="{{ route('wallet') }}" @class(['app-nav-link', 'active' => request()->routeIs('wallet')])><x-ui-icon name="wallet"/><span>اعتبار و استرداد</span></a>
-    @can('desk.view')<span class="app-nav-caption">عملیات مطب</span><a class="app-nav-link" href="{{ route('desk') }}"><x-ui-icon name="grid"/><span>میز کار امروز</span></a>@endcan
-    @can('desk.book')<a class="app-nav-link" href="{{ route('desk.create') }}"><x-ui-icon name="calendar"/><span>نوبت تلفنی / فوری</span></a>@endcan
-    @can('patients.manage')<a class="app-nav-link" href="{{ route('patients.index') }}"><x-ui-icon name="users"/><span>بیماران</span></a>@endcan
-    @can('catalog.manage')<a class="app-nav-link" href="{{ route('services.index') }}"><x-ui-icon name="heart"/><span>مدیریت خدمات</span></a>@endcan
-    @can('schedules.manage')<a class="app-nav-link" href="{{ route('schedule.index') }}"><x-ui-icon name="calendar"/><span>برنامه کاری</span></a>@endcan
-    @can('reports.appointments')<a class="app-nav-link" href="{{ route('reports.index') }}"><x-ui-icon name="chart"/><span>گزارش‌ها و خروجی</span></a>@endcan
-    @can('discounts.manage')<a class="app-nav-link" href="{{ route('discounts.index') }}"><x-ui-icon name="wallet"/><span>تخفیف خدمات</span></a>@endcan
-    @can('payments.review')<a class="app-nav-link" href="{{ route('finance') }}"><x-ui-icon name="wallet"/><span>مدیریت مالی</span></a>@endcan
-    @can('booking.settings')<a class="app-nav-link" href="{{ route('booking.settings') }}"><x-ui-icon name="settings"/><span>سیاست رزرو</span></a>@endcan
-    @can('forms.manage')<a class="app-nav-link" href="{{ route('forms.manage') }}"><x-ui-icon name="file"/><span>فرم‌های خصوصی</span></a>@endcan
-    @can('notifications.manage')<a class="app-nav-link" href="{{ route('notifications.manage') }}"><x-ui-icon name="file"/><span>اعلان‌های پیامکی</span></a>@endcan
+    @can('desk.view')<span class="app-nav-caption">عملیات مطب</span><x-panel-link route="desk" icon="grid" active="desk">میز کار امروز</x-panel-link>@endcan
+    @can('desk.book')<x-panel-link route="desk.create" icon="calendar" active="desk.create">نوبت تلفنی / فوری</x-panel-link>@endcan
+    @can('patients.manage')<x-panel-link route="patients.index" icon="users" active="patients.*">بیماران</x-panel-link>@endcan
+    @can('catalog.manage')<x-panel-link route="services.index" icon="heart" active="services.*">مدیریت خدمات</x-panel-link>@endcan
+    @can('schedules.manage')<x-panel-link route="schedule.index" icon="calendar" active="schedule.*">برنامه کاری</x-panel-link>@endcan
+    @can('reports.appointments')<x-panel-link route="reports.index" icon="chart" active="reports.*">گزارش‌ها و خروجی</x-panel-link>@endcan
+    @can('discounts.manage')<x-panel-link route="discounts.index" icon="wallet" active="discounts.*">تخفیف خدمات</x-panel-link>@endcan
+    @can('payments.review')<x-panel-link route="finance" icon="wallet" active="finance">مدیریت مالی</x-panel-link>@endcan
+    @can('booking.settings')<x-panel-link route="booking.settings" icon="settings" active="booking.settings">سیاست رزرو</x-panel-link>@endcan
+    @can('forms.manage')<x-panel-link route="forms.manage" icon="file" active="forms.*">فرم‌های خصوصی</x-panel-link>@endcan
+    @can('notifications.manage')<x-panel-link route="notifications.manage" icon="file" active="notifications.*">اعلان‌های پیامکی</x-panel-link>@endcan
     @can('website.manage')
-        <span class="app-nav-caption">وب‌سایت مطب</span>
-        <a class="app-nav-link" href="{{ route('website.pages.index') }}"><x-ui-icon name="grid"/><span>صفحه‌ساز</span></a>
-        <a class="app-nav-link" href="{{ route('website.sections.index') }}"><x-ui-icon name="grid"/><span>مدیریت سکشن‌های سایت</span></a>
-        <a class="app-nav-link" href="{{ route('website.links.index') }}"><x-ui-icon name="settings"/><span>منو و فوتر سایت</span></a>
-        <a class="app-nav-link" href="{{ route('website.articles.manage') }}"><x-ui-icon name="file"/><span>مدیریت مقالات</span></a>
-        <a class="app-nav-link" href="{{ route('website.taxonomies.index') }}"><x-ui-icon name="file"/><span>دسته‌بندی و برچسب</span></a>
-        <a class="app-nav-link" href="{{ route('website.theme.edit') }}"><x-ui-icon name="settings"/><span>رنگ‌بندی سایت</span></a>
+        <details class="app-nav-group" @if(request()->routeIs('website.*')) open @endif><summary>وب‌سایت مطب</summary>
+        <x-panel-link route="website.pages.index" icon="grid" active="website.pages.*">صفحه‌ساز</x-panel-link>
+        <x-panel-link route="website.sections.index" icon="grid" active="website.sections.*">مدیریت سکشن‌های سایت</x-panel-link>
+        <x-panel-link route="website.links.index" icon="settings" active="website.links.*">منو و فوتر سایت</x-panel-link>
+        <x-panel-link route="website.articles.manage" icon="file" active="website.articles.*">مدیریت مقالات</x-panel-link>
+        <x-panel-link route="website.taxonomies.index" icon="file" active="website.taxonomies.*">دسته‌بندی و برچسب</x-panel-link>
+        <x-panel-link route="website.theme.edit" icon="settings" active="website.theme.*">برند و محتوای سایت</x-panel-link></details>
     @endcan
 </nav>

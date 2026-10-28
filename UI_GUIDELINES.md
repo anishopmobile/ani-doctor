@@ -2,7 +2,7 @@
 **نسخه:** 1.0.0 · **پلتفرم:** وب فارسی، موبایل‌اول، RTL
 
 ## 1. رویکرد طراحی
-- وب عمومی و پنل بیمار: Bootstrap 5 (RTL)، صفحات Blade و JavaScript ساده.
+- وب عمومی: Bootstrap 5 RTL؛ پنل‌های عملیاتی: Tabler سازگار با Bootstrap؛ صفحات Blade و JavaScript ساده.
 - پنل مدیریت، منشی و کاربر: Tabler محلی RTL، کارت‌های نرم، گرادیان آبی و طراحی mobile-first؛ جستجوی داخلی select و انتخابگر تاریخ شمسی مطابق docs/PANEL-UI.md.
 - فونت سراسری: Vazirmatn با fallback فارسی/سیستمی؛ فایل محلی مجاز و نسخه‌بندی‌شده در `public/assets/fonts`.
 - تقویم رزرو: Pardis Jalali Datepicker در **حالت inline**؛ همیشه در صفحه دیده شود، نه field و popup. اتصال ظرفیت با AJAX و استایل اختصاصی.
@@ -13,21 +13,23 @@
 ## 2. سامانه طراحی (Design tokens پیشنهادی)
 | نقش | مقدار پیشنهادی | کاربرد |
 |---|---|---|
-| Primary | `#176F78` | عمل اصلی، روز انتخاب‌شده |
-| Primary-dark | `#10525A` | hover/focus |
+| Primary | `#087B80` | عمل اصلی، روز انتخاب‌شده |
+| Primary-dark | `#06686C` | hover/focus |
 | Surface | `#FFFFFF` | کارت‌ها |
-| Page | `#F7FAFB` | زمینه |
-| Text | `#22323C` | متن پایه |
-| Muted | `#637681` | متن فرعی |
-| Success | `#177245` | ظرفیت آزاد/موفق |
-| Warning | `#9C6515` | رزرو موقت/هشدار |
-| Danger | `#B83C4C` | خطا/تعطیل |
-| Border | `#DDE6E9` | جداکننده |
-| Focus | `#184DAD` | فوکوس واضح |
+| Page | `#F5F7FA` | زمینه |
+| Text | `#20344D` | متن پایه |
+| Muted | `#52657A` | متن فرعی |
+| Success | `#237355` | ظرفیت آزاد/موفق |
+| Warning | `#956019` | رزرو موقت/هشدار |
+| Danger | `#B33B4C` | خطا/تعطیل |
+| Border | `#D6E1EA` | جداکننده |
+| Secondary | `#204D93` | سربرگ‌ها و رنگ مکمل |
+| Accent | `#A64B1F` | تأکید محدود |
+| Focus | `#204D93` | فوکوس واضح |
 
 این مقادیر تصمیم بصری اولیه‌اند و پس از تست کنتراست WCAG قابل اصلاح‌اند. از رنگ به‌تنهایی برای انتقال وضعیت استفاده نکن؛ متن/آیکون هم لازم است.
 
-**Spacing:** مقیاس 4/8/12/16/24/32 پیکسل؛ radius کارت 12px؛ کنترل لمسی ترجیحاً حداقل 44×44px؛ ارتفاع فرم استاندارد 44px؛ عرض فرم ساده رزرو خوانا و محدود باشد.
+**Spacing:** مقیاس 4/8/12/16/24/32 پیکسل؛ radius کارت 20px؛ کنترل لمسی ترجیحاً حداقل 44×44px؛ ارتفاع فرم استاندارد 44px؛ عرض فرم ساده رزرو خوانا و محدود باشد.
 
 **Typography:** متن بدنه 14–16px در موبایل (ترجیحاً 16 برای ورودی‌ها)، عنوان صفحه 24–30px، line-height فارسی 1.7، فاصله پاراگراف مناسب. وزن فونت 400/500/600/700. فاصله افقی کافی برای اعداد و تاریخ‌ها.
 
@@ -149,3 +151,6 @@ P6 فرم‌ساز عادی با افزودن/حذف فیلد، شرط نمای�
 
 ## Visual CMS editor
 Persian RTL labels, status announcements, explicit save/publish, stale-write messages retaining local input, keyboard up/down alternatives to drag, undo/redo, 320px canvas and a separate authenticated full-template preview. Raw HTML/CSS/JS inputs are absent. Image upload requires alt; destructive actions confirm. Unsaved edits block upload/restore/delete navigation. Public templates share escaped brand and menus.
+
+## مرجع فعلی رابط و تنظیمات
+از این بازطراحی، design-system.css توکن مشترک و website.css/workspace.css ساختارهای جدا هستند؛ panel.css و studio.css قدیمی حذف شده‌اند. CSS خارجی ThemeService رنگ‌های معتبر ذخیره‌شده را به هر دو محیط می‌دهد؛ حالت‌های عملیاتی رنگ و متن ثابت دارند. ممیزی، مدیریت محتوا و راهنمای ارتقا در docs/UI-CMS-REDESIGN-AUDIT.md و docs/UI-CMS-VALIDATION.md است.

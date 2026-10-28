@@ -12,11 +12,7 @@ final class PublicServiceController extends Controller
     public function index(): View
     {
         return view('website.services.index', [
-            'services' => Service::query()
-                ->where('is_active', true)
-                ->where('is_online', true)
-                ->orderBy('name')
-                ->paginate(12, ['id', 'name', 'duration_minutes', 'price_irr']),
+            'services' => app(ServiceContentService::class)->catalogQuery()->paginate(12, ['id', 'name', 'duration_minutes', 'price_irr']),
         ]);
     }
 

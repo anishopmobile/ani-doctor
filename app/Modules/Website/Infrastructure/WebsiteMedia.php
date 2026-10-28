@@ -18,10 +18,11 @@ final class WebsiteMedia extends Model
 
             return $asset?->page?->referencesAsset($asset->id, true) ?? false;
         }
-        if ($this->owner_type === 'brand') {
+        if (in_array($this->owner_type, ['brand', 'portrait', 'favicon'], true)) {
             $theme = WebsiteTheme::query()->find($this->owner_id);
 
-            return (int) $this->owner_id === 1 && ($theme?->brand_settings['logo_is_published'] ?? false) === true;
+            $flag = $this->owner_type === 'brand' ? 'logo_is_published' : $this->owner_type.'_is_published';
+            return (int) $this->owner_id === 1 && ($theme?->brand_settings[$flag] ?? false) === true;
         }
         if ($this->owner_type === 'service') {
             return \App\Modules\Catalog\Infrastructure\Service::query()

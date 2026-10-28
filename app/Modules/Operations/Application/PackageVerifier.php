@@ -35,7 +35,7 @@ final class PackageVerifier
             if (!$file->isFile()) {
                 continue;
             }
-            if ($top === 'docs' && !in_array($path, ['docs/INSTALL-LOCAL.md', 'docs/INSTALL-SHARED-HOSTING.md', 'docs/P8.md', 'docs/P8-VALIDATION.md', 'docs/WEBSITE-CMS-PLAN.md', 'docs/WEBSITE-CMS-VALIDATION.md', 'docs/INSTALLATION-AUDIT.md'], true)) {
+            if ($top === 'docs' && !in_array($path, ['docs/INSTALL-LOCAL.md', 'docs/INSTALL-SHARED-HOSTING.md', 'docs/P8.md', 'docs/P8-VALIDATION.md', 'docs/WEBSITE-CMS-PLAN.md', 'docs/WEBSITE-CMS-VALIDATION.md', 'docs/INSTALLATION-AUDIT.md', 'docs/UI-CMS-REDESIGN-AUDIT.md', 'docs/UI-CMS-VALIDATION.md'], true)) {
                 throw new RuntimeException('PACKAGE_UNEXPECTED_ENTRY');
             }
             if ($top !== 'vendor') {

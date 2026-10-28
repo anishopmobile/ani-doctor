@@ -1,0 +1,1 @@
+@if($websiteTheme['why_items'])<section class="section why-section"><div class="container"><h2 class="text-center">{{ $websiteTheme['why_title'] }}</h2><div class="why-grid">@foreach($websiteTheme['why_items'] as $item)<div><strong>{{ $item['title'] }}</strong><span>{{ $item['text'] }}</span></div>@endforeach</div></div></section>@endif

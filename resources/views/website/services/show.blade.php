@@ -4,7 +4,7 @@
 @section('content')
 <nav aria-label="مسیر صفحه"><a href="{{ route('website.home') }}">خانه</a> / <a href="{{ route('website.services.index') }}">خدمات</a> / {{ $service->name }}</nav>
 <article class="service-detail mt-4">
-    <span class="service-icon" aria-hidden="true">✿</span>
+    <span class="service-icon" aria-hidden="true"><x-ui-icon name="heart"/></span>
     <h1>{{ $service->name }}</h1>
     @if($editorial)
         @if($service->media)

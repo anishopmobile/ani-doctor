@@ -1,0 +1,1 @@
+@if($websiteFavicon ?? null)<link rel="icon" type="{{ $websiteFavicon->mime_type }}" href="{{ route('website.media.show', $websiteFavicon) }}">@else<link rel="icon" type="image/svg+xml" href="{{ asset('assets/clinic-mark.svg') }}">@endif

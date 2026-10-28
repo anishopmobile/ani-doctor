@@ -82,6 +82,21 @@ try {
     $probe('stale_publication_denied', 'POST', $base.'/publish', 422, $editor, ['expected_version' => 3]);
     $probe('stale_deletion_denied', 'DELETE', $base, 422, $editor, ['expected_version' => 3]);
     $probe('private_image_path_denied', 'GET', '/storage/app/private/website-media/probe.png', 404);
+    $themeValues = App\Modules\Website\Application\ThemeService::DEFAULTS + App\Modules\Website\Application\ThemeService::EXTRA_COLORS;
+    $probe('patient_theme_denied', 'GET', '/admin/website-theme', 403, $ordinary);
+    $probe('guest_theme_preview_css_denied', 'GET', '/admin/website-theme/preview.css', 401);
+    $probe('admin_theme_allowed', 'GET', '/admin/website-theme', 200, $editor);
+    $probe('theme_saved', 'PUT', '/admin/website-theme', 302, $editor, $themeValues);
+    $probe('theme_preview_csrf_required', 'PUT', '/admin/website-theme/preview', 419, $editor, $themeValues, false);
+    $probe('patient_theme_preview_denied', 'PUT', '/admin/website-theme/preview', 403, $ordinary, $themeValues);
+    $probe('theme_preview_allowed', 'PUT', '/admin/website-theme/preview', 200, $editor, array_replace($themeValues, ['hero_title' => 'THEME_PRIVATE_PREVIEW_SENTINEL', 'primary_color' => '#112233']));
+    $previewCss = $probe('theme_preview_css_allowed', 'GET', '/admin/website-theme/preview.css', 200, $editor);
+    $publicCss = $probe('theme_public_css_unchanged', 'GET', '/website-theme.css', 200);
+    $publicHome = $probe('theme_home_unchanged', 'GET', '/', 200);
+    $checks['theme_preview_does_not_publish'] = ['passed' => str_contains($previewCss, '#112233') && !str_contains($publicCss, '#112233') && !str_contains($publicHome, 'THEME_PRIVATE_PREVIEW_SENTINEL')];
+    if (!$checks['theme_preview_does_not_publish']['passed']) {
+        throw new RuntimeException('THEME_PREVIEW_DISCLOSED');
+    }
     $temporary = tempnam(sys_get_temp_dir(), 'cms-probe-');
     try {
         $image = imagecreatetruecolor(2, 2);
@@ -106,6 +121,21 @@ try {
         $probe('draft_image_still_private', 'GET', $imagePath, 404);
         $probe('publish_image_snapshot', 'POST', $base.'/publish', 200, $editor, ['expected_version' => 5]);
         $probe('published_image_available', 'GET', $imagePath, 200);
+        $probe('patient_portrait_upload_denied', 'POST', '/admin/website-media/portrait/1', 403, $ordinary, []);
+        $upload = ['image' => new CURLFile($temporary, 'image/png', 'portrait.png'), 'alt_text' => 'تصویر ساختگی هویت'];
+        $probe('portrait_uploaded', 'POST', '/admin/website-media/portrait/1', 302, $editor, $upload, true, true);
+        $portrait = App\Modules\Website\Infrastructure\WebsiteMedia::where('owner_type', 'portrait')->where('owner_id', 1)->sole();
+        $portraitPath = '/website-media/'.$portrait->id;
+        $probe('portrait_private_preview', 'GET', $portraitPath, 200, $editor);
+        $probe('portrait_unpublished_denied', 'GET', $portraitPath, 404);
+        $version = app(App\Modules\Website\Application\ThemeService::class)->settings()['settings_version'];
+        $probe('portrait_explicit_publication', 'PUT', '/admin/website-theme', 302, $editor, $themeValues + ['portrait_is_published' => 1, 'expected_settings_version' => $version]);
+        $probe('portrait_public_read', 'GET', $portraitPath, 200);
+        $probe('portrait_referenced_delete_denied', 'DELETE', '/admin/website-media/'.$portrait->id, 422, $editor);
+        $probe('theme_stale_write_denied', 'PUT', '/admin/website-theme', 422, $editor, $themeValues + ['expected_settings_version' => $version]);
+        $probe('portrait_replacement', 'POST', '/admin/website-media/portrait/1', 302, $editor, $upload, true, true);
+        $probe('portrait_replacement_private', 'GET', $portraitPath, 404);
+        $probe('portrait_unpublished_delete', 'DELETE', '/admin/website-media/'.$portrait->id, 302, $editor);
         file_put_contents($temporary, '<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>');
         $probe(
             'svg_upload_denied',

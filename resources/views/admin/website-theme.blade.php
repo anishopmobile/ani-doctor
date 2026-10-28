@@ -1,30 +1,57 @@
 @extends('layouts.app')
 @section('content')
-<h1 class="h3">تنظیمات برند، تماس و رنگ‌بندی سایت عمومی</h1>
-@if(session('status')) <p role="status" class="alert alert-success">{{ session('status') }}</p> @endif
-<p>رنگ‌های اصلی وب‌سایت را بدون تغییر ظاهر تقویم رزرو و پنل مدیریت تنظیم کنید. مقادیر فقط به‌شکل کد رنگ شش‌رقمی پذیرفته می‌شوند.</p>
-<form method="post" action="{{ route('website.theme.update') }}">
-    @csrf
-    @method('PUT')
-    @foreach(['brand_name' => 'نام برند یا پزشک', 'brand_subtitle' => 'عنوان حرفه‌ای', 'contact_phone' => 'شماره تماس (ارقام لاتین)', 'contact_address' => 'نشانی مطب', 'seo_description' => 'توضیح پیش‌فرض موتور جستجو'] as $field => $label)
-        <label class="d-block mb-3">{{ $label }}
-            <input class="form-control" type="text" name="{{ $field }}" value="{{ old($field, $theme[$field]) }}" required maxlength="{{ $field === 'contact_address' ? 500 : ($field === 'seo_description' ? 300 : ($field === 'brand_name' ? 120 : ($field === 'contact_phone' ? 16 : 180))) }}">
-        </label>
-        @error($field) <p role="alert" class="text-danger">{{ $message }}</p> @enderror
-    @endforeach
-    @foreach(['primary_color' => 'رنگ اصلی و دکمه‌ها', 'text_color' => 'رنگ متن و تیترها', 'surface_color' => 'زمینه کارت‌ها و خدمات'] as $field => $label)
-        <label class="d-block mb-3">{{ $label }}
-            <input class="form-control" type="color" name="{{ $field }}" value="{{ old($field, $theme[$field]) }}" required>
-        </label>
-    @endforeach
-    <button class="btn btn-primary">ذخیره تنظیمات سایت</button>
-    <label class="form-check mt-3"><input type="hidden" name="logo_is_published" value="0"><input class="form-check-input" type="checkbox" name="logo_is_published" value="1" @checked(old('logo_is_published', $theme['logo_is_published']))> انتشار لوگوی برند در تمام صفحات عمومی</label>
+<h1 class="h3">تنظیمات برند، محتوا و رنگ‌بندی سایت</h1>
+<p>اطلاعات مشترک مطب از این صفحه خوانده می‌شود. اطلاعات زیر عمومی‌اند؛ اطلاعات بیمار یا کلید سرویس‌ها را اینجا وارد نکنید.</p>
+<nav class="settings-sections" aria-label="تنظیمات وب‌سایت"><a href="#identity">هویت و تماس</a><a href="#palette">رنگ‌بندی</a><a href="#home-content">محتوای صفحه اصلی</a><a href="#home-order">ترتیب بخش‌ها</a><a href="#identity-media">تصاویر هویتی</a><a href="{{ route('website.pages.index') }}">صفحه‌ساز</a><a href="{{ route('website.links.index') }}">منو و لینک‌های اجتماعی</a></nav>
+@if($homePage)<p class="alert alert-info">صفحه اصلی از نسخه منتشرشده صفحه‌ساز خوانده می‌شود. متن و ترتیب پیش‌فرض زیر، جایگزین آن نسخه نمی‌شود؛ برای تغییر چیدمان، <a href="{{ route('website.pages.edit', $homePage) }}">صفحه اصلی را در صفحه‌ساز ویرایش کنید</a>. اطلاعات برند، تماس و رنگ‌ها در هر دو حالت مشترک‌اند.</p>@endif
+@if($hasPublishedSlides)<p class="alert alert-info">اسلایدهای منتشرشده بر عنوان معرفی نخست اولویت دارند؛ آن‌ها را از <a href="{{ route('website.sections.index') }}">مدیریت اسلایدها</a> ویرایش کنید.</p>@endif
+<form method="post" action="{{ route('website.theme.update') }}" data-unsaved-guard data-theme-settings>
+@csrf @method('PUT')
+<input type="hidden" name="expected_settings_version" value="{{ $theme['settings_version'] }}">
+<details class="settings-group" id="identity" open><summary>هویت پزشک و اطلاعات مطب</summary><div class="field-grid">
+@foreach(['brand_name' => ['نام پزشک یا برند',120], 'brand_subtitle' => ['عنوان تخصصی تأییدشده',180], 'contact_phone' => ['شماره تماس عمومی (لاتین)',16], 'contact_address' => ['نشانی مطب',500], 'seo_description' => ['توضیح پیش‌فرض موتور جستجو',300]] as $key => [$label,$max])
+@php($value = old($key, $theme[$key]))
+<label class="form-label">{{ $label }}<input class="form-control" name="{{ $key }}" required maxlength="{{ $max }}" value="{{ is_scalar($value) ? $value : $theme[$key] }}" @if($key === 'contact_phone') dir="ltr" @endif></label>
+@endforeach
+</div><p class="form-text mt-3">ایمیل، ساعات پاسخ‌گویی و نقشه در گروه اطلاعات مطب قرار دارند. ساعات قابل رزرو فقط از <a href="{{ route('schedule.index') }}">برنامه کاری</a> تعیین می‌شوند.</p></details>
+<details class="settings-group" id="palette"><summary>تنظیمات ظاهری و رنگ‌ها</summary><p>رنگ برند در سایت و پنل مشترک است. کنتراست متن‌ها و دکمه‌ها پیش از ذخیره بررسی می‌شود. تنظیمات قبلی خودکار جایگزین نمی‌شوند.</p>
+<button type="button" class="btn btn-outline-primary mb-3" data-palette-preset="{{ json_encode(App\Modules\Website\Application\ThemeService::DEFAULTS + App\Modules\Website\Application\ThemeService::EXTRA_COLORS) }}" hidden>انتخاب پالت پیشنهادی آبی و فیروزه‌ای</button>
+<div class="theme-preview-grid">@foreach(['primary_color'=>'رنگ اصلی و دکمه‌ها','primary_hover_color'=>'دکمه هنگام اشاره','secondary_color'=>'رنگ مکمل','accent_color'=>'رنگ تأکیدی','text_color'=>'متن اصلی','surface_color'=>'کارت‌ها و سطوح','background_color'=>'زمینه صفحات'] as $key => $label)
+@php($value=old($key,$theme[$key]))
+<label class="form-label" for="palette-{{ $key }}">{{ $label }}<input class="form-control" id="palette-{{ $key }}" type="color" name="{{ $key }}" required value="{{ is_string($value) ? $value : $theme[$key] }}"><output dir="ltr" data-color-value="palette-{{ $key }}"></output></label>
+@endforeach</div><p class="form-text mt-3">فونت Vazirmatn، رنگ وضعیت‌های عملیاتی، هندسه و قواعد امنیتی در کد ثابت‌اند؛ URL فونت، HTML و CSS آزاد پذیرفته نمی‌شود.</p></details>
+<div id="home-content">
+@foreach(collect(App\Modules\Website\Application\SiteContent::FIELDS)->groupBy(fn($field)=>$field[0], true) as $group => $fields)
+<details class="settings-group"><summary>{{ $group }}</summary><div class="field-grid">
+@foreach($fields as $key => $field)
+@php($value=old($key,$theme[$key]))
+<label class="form-label">{{ $field[1] }}
+@if($field[2] >= 500 && !str_ends_with($key,'url'))<textarea class="form-control" name="{{ $key }}" rows="4" maxlength="{{ $field[2] }}">{{ is_scalar($value) ? $value : '' }}</textarea>
+@else<input class="form-control" type="{{ $key==='contact_email' ? 'email' : 'text' }}" name="{{ $key }}" value="{{ is_scalar($value) ? $value : '' }}" maxlength="{{ $field[2] }}" @if(str_ends_with($key,'url') || in_array($key,['contact_email','contact_website'])) dir="ltr" @endif>@endif
+</label>
+@endforeach</div></details>
+@endforeach
+</div>
+<details class="settings-group" id="home-order"><summary>ترتیب و نمایش بخش‌های پیش‌فرض صفحه اصلی</summary><p>دکمه‌های بالا و پایین با صفحه‌کلید نیز قابل استفاده‌اند. بخش معرفی نخست و مسیر رزرو اصلی همیشه در دسترس می‌مانند.</p><div data-order-list>
+@php($order = array_values(array_unique([...array_filter((array)old('section_order',$theme['section_order']),'is_string'),...array_keys(App\Modules\Website\Application\SiteContent::SECTIONS)])))
+@foreach($order as $key)@continue(!isset(App\Modules\Website\Application\SiteContent::SECTIONS[$key]))
+<div class="settings-order-row" data-order-row><input type="hidden" name="section_order[]" value="{{ $key }}"><label class="form-check"><input type="hidden" name="show_{{ $key }}" value="0"><input class="form-check-input" type="checkbox" name="show_{{ $key }}" value="1" @checked(old('show_'.$key,$theme['show_'.$key]))> {{ App\Modules\Website\Application\SiteContent::SECTIONS[$key] }}</label><button type="button" class="btn btn-outline-secondary" data-order-move="up" aria-label="انتقال {{ App\Modules\Website\Application\SiteContent::SECTIONS[$key] }} به بالا" hidden>بالا</button><button type="button" class="btn btn-outline-secondary" data-order-move="down" aria-label="انتقال {{ App\Modules\Website\Application\SiteContent::SECTIONS[$key] }} به پایین" hidden>پایین</button></div>
+@endforeach</div></details>
+@foreach(['highlight_items'=>'نکات کوتاه زیر معرفی','why_items'=>'نکات همراهی مطب','faq_items'=>'پرسش‌ها و پاسخ‌های تأییدشده'] as $key=>$label)
+<details class="settings-group" data-settings-repeater="{{ $key }}"><summary>{{ $label }}</summary><p>حداکثر ۸ مورد؛ فقط اطلاعات واقعی و متن تأییدشده منتشر کنید. سؤالات متداول باید در بخش نمایش نیز فعال شوند.</p><input type="hidden" name="{{ $key }}_present" value="1"><div data-settings-rows>
+@php($rows=old($key,$theme[$key]))
+@foreach(is_array($rows)?$rows:[] as $index=>$row)@continue(!is_array($row))
+<div class="settings-row" data-settings-row><label class="form-label">عنوان<input class="form-control" data-setting-key="title" name="{{ $key }}[{{ $index }}][title]" value="{{ is_string($row['title']??null) ? $row['title'] : '' }}" required maxlength="180"></label><label class="form-label">توضیح<textarea class="form-control" data-setting-key="text" name="{{ $key }}[{{ $index }}][text]" required maxlength="1000">{{ is_string($row['text']??null) ? $row['text'] : '' }}</textarea></label><button class="btn btn-outline-danger mt-2" type="button" data-settings-remove hidden>حذف این مورد</button></div>
+@endforeach</div><template><div class="settings-row" data-settings-row><label class="form-label">عنوان<input class="form-control" data-setting-key="title" required maxlength="180"></label><label class="form-label">توضیح<textarea class="form-control" data-setting-key="text" required maxlength="1000"></textarea></label><button class="btn btn-outline-danger mt-2" type="button" data-settings-remove hidden>حذف این مورد</button></div></template><button type="button" class="btn btn-outline-primary mt-3" data-settings-add hidden>افزودن مورد</button></details>
+@endforeach
+<details class="settings-group"><summary>انتشار تصاویر هویتی</summary><p>پس از بارگذاری یا جایگزینی، تصویر خصوصی می‌ماند. پیش‌نمایش را بررسی و انتشار را صریحاً فعال کنید.</p>
+@foreach(['logo_is_published'=>'لوگوی برند','portrait_is_published'=>'تصویر واقعی و مجاز پزشک','favicon_is_published'=>'آیکون تب مرورگر'] as $key=>$label)<label class="form-check"><input type="hidden" name="{{ $key }}" value="0"><input class="form-check-input" type="checkbox" name="{{ $key }}" value="1" @checked(old($key,$theme[$key]))> انتشار {{ $label }}</label>@endforeach
+</details>
+<div class="settings-actions"><button class="btn btn-primary" type="submit">ذخیره تنظیمات سایت</button><button class="btn btn-outline-primary" type="submit" formaction="{{ route('website.theme.preview') }}" formtarget="_blank">پیش‌نمایش خصوصی</button><a class="btn btn-outline-secondary" href="{{ route('website.home') }}" target="_blank" rel="noopener">مشاهده سایت</a><a class="btn btn-outline-secondary" href="{{ route('dashboard') }}">انصراف</a><span class="unsaved-indicator" data-unsaved-status role="status"></span></div>
 </form>
+<section id="identity-media"><h2>لوگو، تصویر پزشک و favicon</h2><p>فقط PNG، JPEG و WebP تا ۲ مگابایت؛ برای favicon یک PNG مربعی مناسب است. تصویر پزشک باید واقعی و دارای اجازه استفاده باشد.</p>
 @if($themeRecord)
-    <h2 class="h4 mt-4">لوگوی مستقل برند</h2>
-    <p>لوگو از تصاویر خدمت و مقاله مستقل است. پیش از انتشار می‌توانید تصویر را در همین پنل بررسی کنید.</p>
-    @include('admin.partials.website-media-editor', ['owner' => $themeRecord, 'ownerType' => 'brand'])
-@else
-    <p class="mt-3">برای فعال‌شدن فرم بارگذاری لوگو، تنظیمات برند را یک بار ذخیره کنید.</p>
-@endif
+@foreach(['brand'=>['لوگوی مستقل برند','media'],'portrait'=>['تصویر معرفی پزشک','portraitMedia'],'favicon'=>['آیکون مرورگر','faviconMedia']] as $type=>[$label,$relation])<h3 class="h5 mt-4">{{ $label }}</h3>@include('admin.partials.website-media-editor',['owner'=>$themeRecord,'ownerType'=>$type,'mediaRelation'=>$relation])@endforeach
+@else<p>برای فعال‌شدن بارگذاری، تنظیمات را یک بار ذخیره کنید.</p>@endif
+</section>
 @endsection
