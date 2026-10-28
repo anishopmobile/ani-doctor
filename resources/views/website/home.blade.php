@@ -55,12 +55,13 @@
                 @else
                     <p class="eyebrow">{{ $websiteTheme['brand_name'] }}</p>
                     <p class="hero-subtitle">{{ $websiteTheme['brand_subtitle'] }}</p>
-                    <h1>{{ $websiteTheme['hero_title'] }}</h1>
+                    @php($heroTitleParts = explode('،', $websiteTheme['hero_title'], 2))
+                    <h1><span>{{ $heroTitleParts[0] }}@if(count($heroTitleParts) > 1)،@endif</span>@if(count($heroTitleParts) > 1)<span class="hero-title-accent">{{ trim($heroTitleParts[1]) }}</span>@endif</h1>
                     <p class="lead">{{ $websiteTheme['hero_text'] }}</p>
-                    <div class="hero-actions"><a class="btn-primary-site" href="{{ $websiteTheme['hero_button_url'] }}">{{ $websiteTheme['hero_button_label'] }}</a><a class="btn-outline-site" href="{{ $websiteTheme['hero_secondary_url'] }}">{{ $websiteTheme['hero_secondary_label'] }}</a></div>
+                    <div class="hero-actions"><a class="btn-primary-site" href="{{ $websiteTheme['hero_button_url'] }}">{{ $websiteTheme['hero_button_label'] }}<x-ui-icon name="arrow"/></a><a class="btn-outline-site" href="{{ $websiteTheme['hero_secondary_url'] }}">{{ $websiteTheme['hero_secondary_label'] }}<x-ui-icon name="arrow"/></a></div>
                 @endif
             </div>
-            <div class="hero-art">@if($websitePortrait)<img class="doctor-portrait" src="{{ route('website.media.show', $websitePortrait) }}" alt="{{ $websitePortrait->alt_text }}" fetchpriority="high">@else<img class="hero-illustration" src="{{ asset('assets/clinic-art.svg') }}" width="640" height="600" alt="">@endif<div class="hero-art-caption"><x-ui-icon name="shield"/><span><strong>{{ $websiteTheme['hero_art_title'] }}</strong><small>{{ $websiteTheme['hero_art_subtitle'] }}</small></span></div></div>
+            <div class="hero-art">@if($websitePortrait)<img class="doctor-portrait" src="{{ route('website.media.show', $websitePortrait) }}" alt="{{ $websitePortrait->alt_text }}" fetchpriority="high"><div class="hero-art-caption"><x-ui-icon name="shield"/><span><strong>{{ $websiteTheme['hero_art_title'] }}</strong><small>{{ $websiteTheme['hero_art_subtitle'] }}</small></span></div>@else<img class="hero-illustration" src="{{ asset('assets/clinic-art.svg') }}" width="1254" height="1254" alt="{{ $websiteTheme['brand_name'] }} — {{ $websiteTheme['brand_subtitle'] }}" fetchpriority="high">@endif</div>
         </div>
         @if($websiteTheme['highlight_items'])<div class="container hero-highlights">
             @foreach($websiteTheme['highlight_items'] as $highlight)<div><x-ui-icon :name="['calendar','file','shield'][$loop->index % 3]"/><strong>{{ $highlight['title'] }}</strong><span>{{ $highlight['text'] }}</span></div>@endforeach

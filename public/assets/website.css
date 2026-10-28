@@ -747,3 +747,52 @@
     order:0
   }
 }
+
+/* Doctor hero: preserve editable content while matching the approved artwork. */
+.hero {
+  --hero-navy:#102e55;
+  --hero-teal:#00858d;
+  --hero-muted:#6b7899;
+  padding-top:0;
+  background:radial-gradient(ellipse at 15% 45%,rgba(190,222,255,.5),transparent 60%),linear-gradient(135deg,#f0f8ff 0%,#fff 75%);
+}
+.hero .hero-content {
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:clamp(24px,4vw,64px);
+  padding-block:clamp(40px,6vw,88px);
+  direction:rtl;
+}
+.hero .hero-copy { min-width:0; text-align:right; direction:rtl; }
+.hero .hero-copy .eyebrow { gap:12px; margin:0 0 14px; color:var(--hero-teal); font-size:18px; font-weight:700; }
+.hero .hero-copy .eyebrow::before { flex:0 0 28px; }
+.hero .hero-copy .hero-subtitle { margin:0 0 28px; color:var(--hero-muted); font-size:clamp(16px,1.5vw,20px); line-height:1.9; }
+.hero .hero-copy h1 { margin:0; color:var(--hero-navy); font-size:clamp(32px,3.6vw,60px); font-weight:800; line-height:1.65; letter-spacing:normal; }
+.hero .hero-copy h1 > span { display:block; }
+.hero .hero-copy h1 .hero-title-accent { color:var(--hero-teal); }
+.hero .hero-copy .lead { max-width:560px; margin:24px 0 0; color:var(--hero-muted); font-size:clamp(16px,1.4vw,20px); font-weight:400; line-height:2; }
+.hero .hero-copy .hero-actions { gap:12px; margin-top:32px; }
+.hero .hero-copy .hero-actions a {
+  display:inline-flex; align-items:center; justify-content:center; gap:16px;
+  min-height:60px; padding:14px 24px; box-sizing:border-box;
+  border:1px solid var(--hero-teal); border-radius:14px;
+  font-family:inherit; font-size:17px; font-weight:700; line-height:1.6;
+  transition:background-color .2s,box-shadow .2s;
+}
+.hero .hero-copy .btn-primary-site { background:var(--hero-teal); color:#fff; }
+.hero .hero-copy .btn-outline-site { background:rgba(255,255,255,.8); color:var(--hero-teal); }
+.hero .hero-copy .btn-primary-site:hover { background:#006e76; }
+.hero .hero-copy .btn-outline-site:hover { background:#eaf8f7; }
+.hero .hero-copy .hero-actions a:focus-visible { outline:3px solid var(--hero-teal); outline-offset:4px; }
+.hero .hero-copy .hero-actions svg { flex:0 0 20px; width:20px; height:20px; }
+.hero .hero-illustration { max-width:680px; margin-inline:auto; }
+@media (min-width:768px) {
+  .hero .hero-art { max-width:none; }
+}
+@media (max-width:767px) {
+  .hero .hero-content { grid-template-columns:minmax(0,1fr); gap:32px; padding-block:32px; }
+  .hero .hero-copy .hero-subtitle { margin-bottom:20px; }
+  .hero .hero-copy h1 { font-size:clamp(28px,6.5vw,42px); }
+  .hero .hero-copy .lead { margin-top:20px; }
+  .hero .hero-copy .hero-actions { margin-top:24px; }
+  .hero .hero-copy .hero-actions a { flex:1 1 180px; padding-inline:16px; font-size:16px; }
+}
