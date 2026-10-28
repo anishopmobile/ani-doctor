@@ -1,9 +1,9 @@
 @extends('layouts.app')
 @push('assets')<script src="{{ asset('assets/forms.js') }}" defer></script>@endpush
 @section('content')
-<h1 class="h4">فرم خصوصی نوبت</h1><p>{{ $form->title }} — نسخه {{ $version->number }}</p>
+<div class="ux-page-heading"><h1 class="h4">فرم خصوصی نوبت</h1><a class="btn btn-outline-primary" href="{{ route('appointments.show', $appointment->reference) }}">بازگشت به نوبت</a></div><p>{{ $form->title }} — نسخه {{ $version->number }}</p>
 <p class="alert alert-info">این فرم برای اطلاعات ضروری نوبت است؛ اطلاعات درمانی اضافی ننویسید. پاسخ‌ها رمزگذاری و دسترسی به آن‌ها ثبت می‌شود. رزروکننده مسئول داشتن اجازه بیمار برای ثبت و مشاهده این اطلاعات است.</p>
-<form method="post" action="{{ route('private-forms.store', [$appointment->reference, $form->id]) }}" autocomplete="off" data-private-form data-confirm="با اجازه بیمار، پاسخ خصوصی ثبت شود؟">
+<div class="ux-card"><form method="post" action="{{ route('private-forms.store', [$appointment->reference, $form->id]) }}" autocomplete="off" data-private-form data-confirm="با اجازه بیمار، پاسخ خصوصی ثبت شود؟">
 @csrf<input type="hidden" name="version_id" value="{{ $version->id }}"><input type="hidden" name="expected_submission_id" value="{{ $latestId }}"><input type="hidden" name="idempotency_key" value="{{ (string) Illuminate\Support\Str::uuid() }}">
 @foreach($fields as $field)
 <div class="mb-3" data-answer-field data-key="{{ $field['key'] }}" @isset($field['condition']) data-source="{{ $field['condition']['field'] }}" data-equals="{{ is_bool($field['condition']['equals']) ? (int)$field['condition']['equals'] : $field['condition']['equals'] }}" @endisset>
@@ -23,7 +23,7 @@
 @error($field['key'])<p class="text-danger" role="alert">{{ $message }}</p>@enderror
 </div>@endforeach
 @if($canWrite && $appointment->active() && $appointment->attendance_status === 'scheduled')<label class="d-block"><input type="checkbox" name="consent" value="1" required> با اطلاع از نگهداری خصوصی و داشتن اجازه بیمار، پاسخ را ثبت می‌کنم.</label><button class="btn btn-primary mt-3">ثبت پاسخ خصوصی</button>@else<p>این صفحه فقط برای مشاهده است؛ وضعیت نوبت یا مجوز اجازه ثبت نمی‌دهد.</p>@endif
-</form>
+</form></div>
 <noscript><p>برای نمایش شرطی، JavaScript را فعال کنید؛ پاسخ فیلدهای نامرتبط در سرور کنار گذاشته می‌شود.</p></noscript>
 @if($errors->any())<p>برای محرمانگی، ورودی ناموفق در نشست ذخیره نشده است؛ پاسخ را دوباره وارد کنید.</p>@endif
 <details class="mt-4"><summary>تاریخچه پاسخ‌ها (۲۰ نسخه آخر)</summary>@foreach($history as $entry)<div class="border rounded p-3 mt-2"><p>{{ $entry->created_at }} UTC</p><dl>@foreach($fields as $field)@if(array_key_exists($field['key'], $entry->answers))<dt>{{ $field['label'] }}</dt><dd>{{ is_array($entry->answers[$field['key']]) ? implode('، ', $entry->answers[$field['key']]) : (is_bool($entry->answers[$field['key']]) ? ($entry->answers[$field['key']] ? 'بله' : 'خیر') : $entry->answers[$field['key']]) }}</dd>@endif @endforeach</dl></div>@endforeach</details>

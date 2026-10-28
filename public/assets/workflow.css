@@ -1,0 +1,44 @@
+/* Task-oriented layouts; colors remain owned by the shared design system. */
+.ux-page-heading,.ux-section-heading { display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap }
+.ux-page-heading { margin-bottom:24px }
+.ux-page-heading p { margin-bottom:0; color:var(--text-secondary) }
+.ux-card { border:1px solid var(--border); border-radius:var(--radius-card); padding:24px; background:var(--surface); min-width:0; margin-bottom:20px }
+.ux-card h2 { margin-bottom:16px }
+.ux-two-columns { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); align-items:start; gap:24px }
+.ux-column { min-width:0 }
+.ux-next-step { padding:20px; border:1px solid var(--border); border-inline-start:5px solid var(--brand-primary); border-radius:var(--radius-control); background:var(--soft); color:var(--ink) }
+.ux-next-step strong { display:block; margin-bottom:8px }
+.ux-money { font-size:1.1rem; font-weight:700 }
+.ux-steps { display:flex; gap:16px; padding:0; margin:0 0 24px; list-style:none; flex-wrap:wrap }
+.ux-steps li { display:flex; align-items:center; gap:8px; font-weight:700 }
+.ux-steps li span,.ux-step-number { display:inline-grid; place-items:center; width:32px; height:32px; flex-shrink:0; border-radius:50%; background:var(--brand-primary); color:var(--surface) }
+.ux-step-number { margin-inline-end:8px }
+.ux-disclosure,.ux-discount { border:1px solid var(--border); border-radius:var(--radius-control); padding:16px }
+.ux-disclosure summary,.ux-discount summary { cursor:pointer; font-weight:700; min-height:28px }
+.ux-disclosure[open] summary { margin-bottom:16px }
+.ux-danger summary { color:var(--danger) }
+.ux-quick-links p { display:flex; flex-wrap:wrap; gap:12px }
+.ux-quick-links a { display:inline-flex; padding:10px 14px; border:1px solid var(--border); border-radius:var(--radius-control); text-decoration:none }
+.patient-selection,.patient-option,.ux-search-row { display:flex; gap:12px; align-items:center; justify-content:space-between }
+.patient-selection { padding:16px; border:1px solid var(--border); border-radius:var(--radius-control); background:var(--page-bg) }
+.patient-dialog { width:min(640px,calc(100% - 24px)); max-height:85dvh; padding:24px; border:1px solid var(--border); border-radius:var(--radius-card); color:var(--text-primary); background:var(--surface); overflow:auto }
+.patient-dialog::backdrop { background:#17324d80 }
+.patient-option { border:1px solid var(--border); padding:12px; border-radius:var(--radius-control); margin-bottom:8px; overflow-wrap:anywhere }
+.patient-option .btn { flex-shrink:0 }
+.patient-options { max-height:35dvh; overflow:auto; padding:2px }
+.ux-search-row .form-control { min-width:0 }
+.appointment-workspace bdi { overflow-wrap:anywhere }
+.booking-details > label,.booking-details > .ui-field { margin-bottom:16px }
+.booking-details fieldset { min-width:0 }
+.panel-app:has(#booking-calendar) .app-welcome,.panel-app:has(.appointment-workspace) .app-welcome { display:none }
+@media (max-width:991px) { .ux-two-columns { grid-template-columns:1fr; gap:0 } }
+@media (max-width:575px) {
+  .ux-card { padding:16px }
+  .ux-steps { gap:12px; font-size:.85rem }
+  .ux-steps li span { width:26px; height:26px }
+  .patient-selection { align-items:stretch; flex-direction:column }
+  .patient-option { align-items:stretch; flex-direction:column }
+  .patient-dialog { padding:16px }
+  .ux-next-step { padding:16px }
+  .booking-details > .btn { width:100% }
+}

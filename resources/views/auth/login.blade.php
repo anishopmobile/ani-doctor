@@ -9,7 +9,7 @@
 @else
 <p class="text-secondary">کد تأیید برای شماره شما پیامک می‌شود.</p>
 @endif
-<form method="post" action="{{ route('otp.request') }}" data-submit-message="در حال ارسال کد…">
+<details class="ux-disclosure" @if(!session('otp') || $errors->has('mobile')) open @endif><summary>۱. شماره موبایل و دریافت کد</summary><form method="post" action="{{ route('otp.request') }}" data-submit-message="در حال ارسال کد…">
     @csrf
     <div class="mb-3">
         <label class="form-label" for="mobile">شماره موبایل <span aria-hidden="true">*</span></label>
@@ -26,12 +26,13 @@
     <p class="form-text">بین درخواست‌های ارسال کد، دست‌کم یک دقیقه فاصله لازم است.</p>
     <p class="mb-0" role="status" aria-live="polite" data-form-status></p>
 </form>
+</details>
 @if(session('otp'))
-<hr>
+<h2 class="h5 mt-4">۲. کد پیامک‌شده را وارد کنید</h2>
 <form method="post" action="{{ route('otp.verify') }}" data-submit-message="در حال بررسی کد…">
     @csrf
     <label class="form-label" for="code">کد تأیید شش رقمی</label>
-    <input class="form-control mb-2" id="code" name="code" inputmode="numeric" autocomplete="one-time-code" dir="ltr" maxlength="6" required aria-describedby="code-help code-error">
+    <input class="form-control mb-2" id="code" name="code" autofocus inputmode="numeric" autocomplete="one-time-code" dir="ltr" maxlength="6" required aria-describedby="code-help code-error">
     <p id="code-help" class="form-text">اعتبار کد دو دقیقه است. پس از پایان مهلت، کد جدید درخواست کنید.</p>
     <p id="code-error" class="text-danger">@error('code'){{ $message }}@enderror</p>
     <button class="btn btn-primary w-100" type="submit">تأیید شماره و ادامه</button>

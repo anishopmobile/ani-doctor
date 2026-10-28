@@ -20,7 +20,7 @@ function detachLabel(input) {
 }
 
 function enhanceSelect(select) {
-    if (select.dataset.uiSelect || !select.isConnected || select.closest('template')) return;
+    if (select.dataset.uiSelect || select.hasAttribute('data-native-select') || !select.isConnected || select.closest('template')) return;
     select.dataset.uiSelect = 'ready';
     detachLabel(select);
     if (select.multiple) {

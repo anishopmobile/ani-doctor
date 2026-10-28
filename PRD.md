@@ -192,3 +192,6 @@ NFR-03 and AC-WEB-RELEASE include upgrading a P8 database to the current CMS wit
 FR-WEB-05: independent brand logo upload/replacement/deletion and explicit public visibility, private storage and required alt.
 FR-WEB-06: visual typed-block page builder, shared menus/footer, SEO, mobile canvas, keyboard reorder, duplication/undo, private preview, versioned drafts/public snapshots and page-scoped revision restoration. Ownership and stale-write defenses must be tested; real catalog/article widgets retain publication and booking rules.
 FR-WEB-07: independent DAST engine and adversarial authorization/CSRF/upload/publication/concurrency checks on disposable synthetic staging, with raw reports and candid limitations. Independent human/company pentest and live bank/SMS certification cannot be inferred from automation. Multiple real gateways and live providers are deferred by explicit user direction.
+
+## رابط وظیفه‌محور بیمار و منشی
+FR-APT و NFR-01: ترتیب زمان ← بیمار ← تخفیف/ثبت، انتخاب بیمار مجاز با نام/تماس و تغییر آسان، مخفی و disabled شدن مشخصات جدید برای بیمار قبلی، پیام اقدام بعدی هر وضعیت، کارت‌بندی responsive جزئیات و لغو همراه دلیل/تأیید. پاک‌شدن زمان قبلی در تغییر روز و retry شبکه باید با مرورگر واقعی آزمایش شوند. docs/GUIDED-BOOKING-UX.md.

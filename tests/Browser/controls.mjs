@@ -211,6 +211,93 @@ try {
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
         await page.screenshot({path: 'results/patient-calendar-mobile.png', fullPage: true});
     });
+    await test('guided patient booking selects an existing person, rejects stale time and creates then cancels a real hold', async () => {
+        await page.setExtraHTTPHeaders({'X-UI-Actor': 'patient'});
+        await page.setViewportSize({width: 1440, height: 1000});
+        await page.goto(`${base}/calendar`);
+        await page.waitForFunction(() => document.querySelector('#inline-calendar').getAttribute('aria-busy') === 'false');
+        if (await page.locator('.pardis-day.day-available:not([disabled])').count() < 4) {
+            const nextMonth = page.waitForResponse(response => response.url().includes('/api/v1/calendar?') && response.status() === 200);
+            await page.locator('#inline-calendar [data-action="nextMonth"]').click(); await nextMonth;
+            await page.waitForFunction(() => document.querySelector('#inline-calendar').getAttribute('aria-busy') === 'false');
+        }
+        assert.ok(await page.locator('.pardis-day.day-available:not([disabled])').count() >= 4);
+        await page.locator('[data-patient-open]').click();
+        assert.equal(await page.locator('[data-patient-dialog]').evaluate(el => el.open), true);
+        await page.locator('[data-patient-filter]').fill('UI-SYNTHETIC-01');
+        await page.locator('[data-patient-options] button').click();
+        assert.equal(await page.locator('[data-new-patient]').isVisible(), false);
+        assert.equal(await page.locator('[data-new-patient]').evaluate(el => el.disabled), true);
+        assert.equal(await page.locator('[data-selected-patient]').innerText().then(t => t.includes('09000000552')), true);
+        assert.equal(await page.locator('[data-patient-open]').evaluate(el => el === document.activeElement), true);
+        await page.locator('[data-patient-open]').click(); await page.keyboard.press('Escape');
+        assert.equal(await page.locator('[data-patient-dialog]').evaluate(el => el.open), false);
+        await page.locator('[data-patient-open]').click(); await page.locator('[data-patient-new]').click();
+        assert.equal(await page.locator('[data-patient-name]').isVisible(), true);
+        await page.locator('[data-patient-open]').click(); await page.locator('[data-patient-options] button').click();
+        await page.locator('.pardis-day.day-available:not([disabled])').nth(2).click();
+        await page.locator('#slots button:not([disabled])').first().click();
+        assert.equal(await page.locator('[data-booking-submit]').isEnabled(), true);
+        assert.equal(await page.locator('[data-summary-continue]').isVisible(), true);
+        await page.route('**/api/v1/availability?**', route => route.fulfill({status:503, contentType:'application/json', body:JSON.stringify({success:false})}));
+        await page.locator('.pardis-day.day-available:not([disabled])').nth(3).click();
+        await page.locator('#calendar-retry').waitFor({state:'visible'});
+        assert.equal(await page.locator('[data-booking-submit]').isDisabled(), true);
+        assert.equal(await page.locator('[data-booking-start]').inputValue(), '');
+        await page.unroute('**/api/v1/availability?**'); await page.locator('#calendar-retry').click();
+        await page.locator('#slots button:not([disabled])').first().click();
+        const payload = await page.locator('[data-booking-form]').evaluate(el => Object.fromEntries(new FormData(el)));
+        assert.ok(payload.patient_id); assert.equal('patient_name' in payload, false); assert.equal('contact_mobile' in payload, false);
+        await page.screenshot({path:'results/guided-booking-desktop.png', fullPage:true});
+        await page.locator('[data-booking-submit]').click(); await page.waitForURL(/\/appointments\/[a-f0-9-]+$/);
+        assert.ok((await page.locator('.ux-next-step').first().innerText()).includes('گام بعدی: پرداخت'));
+        const columns = await page.locator('.appointment-workspace').evaluate(el => getComputedStyle(el).gridTemplateColumns.split(' ').length);
+        assert.equal(columns, 2);
+        await page.screenshot({path:'results/appointment-desktop.png',fullPage:true});
+        await page.setViewportSize({width:320,height:844});
+        assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+        await page.screenshot({path:'results/appointment-mobile.png',fullPage:true});
+        const cancel = page.locator('form[action$="/cancel"]');
+        await cancel.locator('..').locator('summary').click();
+        await cancel.locator('[name="reason"]').fill('لغو رزرو ساختگی آزمون رابط');
+        await cancel.locator('button[type="submit"]').click();
+        await page.locator('[data-confirm-choice="confirm"]').click();
+        await page.waitForLoadState('networkidle');
+        assert.ok((await page.locator('.ux-next-step').first().innerText()).includes('این نوبت لغو شده است'));
+    });
+    await test('secretary searches private patients in a modal and chooses without creating a duplicate', async () => {
+        await page.setExtraHTTPHeaders({'X-UI-Actor':'secretary'});
+        await page.setViewportSize({width:390,height:844});
+        await page.goto(`${base}/management/bookings/new`);
+        await page.locator('[data-patient-open]').click();
+        await page.locator('[data-patient-search]').fill('UI-SYNTHETIC-01');
+        await page.locator('[data-patient-find]').click();
+        await page.locator('[data-patient-results] button').click();
+        assert.equal(await page.locator('[data-patient-dialog]').evaluate(el => el.open), false);
+        assert.equal(await page.locator('[data-new-patient]').isVisible(), false);
+        assert.ok((await page.locator('[data-selected-patient]').innerText()).includes('UI-SYNTHETIC-01'));
+        await page.locator('[data-patient-open]').click(); await page.locator('[data-patient-filter]').fill('نام ناموجود');
+        assert.equal(await page.locator('[data-patient-empty]').isVisible(), true);
+        await page.keyboard.press('Escape');
+        assert.equal(await page.locator('[data-patient-dialog]').evaluate(el => el.open), false);
+        assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+        await page.screenshot({path:'results/secretary-booking-mobile.png',fullPage:true});
+        await page.setExtraHTTPHeaders({'X-UI-Actor':'patient'});
+    });
+    await test('guest login and patient account routes keep a clear action and fit mobile', async () => {
+        for (const width of [1440,320]) {
+            await page.setViewportSize({width,height:900});
+            await page.setExtraHTTPHeaders({'X-UI-Actor':'guest'});
+            assert.equal((await page.goto(`${base}/login`)).status(), 200);
+            assert.equal(await page.locator('form[action$="/otp/request"]').isVisible(), true);
+            assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+            await page.setExtraHTTPHeaders({'X-UI-Actor':'patient'});
+            for (const path of ['/dashboard','/patient']) {
+                assert.equal((await page.goto(`${base}${path}`)).status(),200);
+                assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),true);
+            }
+        }
+    });
     await test('JavaScript-off fallback retains native fields and submission', async () => {
         const fallback = await browser.newContext({javaScriptEnabled: false}); const native = await fallback.newPage();
         await native.goto(`${base}/__ui-fixture`); assert.equal(await native.locator('#kind').isVisible(), true);

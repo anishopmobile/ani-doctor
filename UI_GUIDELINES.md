@@ -154,3 +154,6 @@ Persian RTL labels, status announcements, explicit save/publish, stale-write mes
 
 ## مرجع فعلی رابط و تنظیمات
 از این بازطراحی، design-system.css توکن مشترک و website.css/workspace.css ساختارهای جدا هستند؛ panel.css و studio.css قدیمی حذف شده‌اند. CSS خارجی ThemeService رنگ‌های معتبر ذخیره‌شده را به هر دو محیط می‌دهد؛ حالت‌های عملیاتی رنگ و متن ثابت دارند. ممیزی، مدیریت محتوا و راهنمای ارتقا در docs/UI-CMS-REDESIGN-AUDIT.md و docs/UI-CMS-VALIDATION.md است.
+
+## قرارداد UX روزمره
+پیام اقدام بعدی بالای جزئیات، اطلاعات مراجعه و پرداخت کنار هم در دسکتاپ و پشت‌سرهم در موبایل. لغو، سوابق و گزینه‌های اختیاری جمع‌شونده باشند، اما خطا و هشدار پرداخت نامشخص پنهان نشود. dialog انتخاب بیمار Escape/focus معتبر داشته باشد؛ انتخاب موجود فیلدهای شخص جدید را هم پنهان و هم disabled کند. تغییر زمان، انتخاب قبلی را فوراً بی‌اعتبار کند. جزئیات: docs/GUIDED-BOOKING-UX.md.

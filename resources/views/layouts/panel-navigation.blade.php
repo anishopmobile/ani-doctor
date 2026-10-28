@@ -1,8 +1,8 @@
 <nav class="app-navigation" aria-label="دسترسی بخش‌ها">
     <span class="app-nav-caption">حساب و نوبت‌ها</span>
     <a href="{{ route('dashboard') }}" @class(['app-nav-link', 'active' => request()->routeIs('dashboard', 'panel.*')]) @if(request()->routeIs('dashboard', 'panel.*')) aria-current="page" @endif><x-ui-icon name="grid"/><span>نمای کلی حساب</span></a>
-    <a href="{{ route('calendar') }}" @class(['app-nav-link', 'active' => request()->routeIs('calendar')])><x-ui-icon name="calendar"/><span>تقویم خدمات</span></a>
-    <a href="{{ route('appointments.index') }}" @class(['app-nav-link', 'active' => request()->routeIs('appointments.*')])><x-ui-icon name="file"/><span>نوبت‌های من</span></a>
+    <a href="{{ route('calendar') }}" @class(['app-nav-link', 'active' => request()->routeIs('calendar')])><x-ui-icon name="calendar"/><span>رزرو نوبت جدید</span></a>
+    <a href="{{ route('appointments.index') }}" @class(['app-nav-link', 'active' => request()->routeIs('appointments.*')])><x-ui-icon name="file"/><span>@can('desk.view')فهرست نوبت‌های مطب@elseنوبت‌های من@endcan</span></a>
     <a href="{{ route('wallet') }}" @class(['app-nav-link', 'active' => request()->routeIs('wallet')])><x-ui-icon name="wallet"/><span>اعتبار و استرداد</span></a>
     @can('desk.view')<span class="app-nav-caption">عملیات مطب</span><x-panel-link route="desk" icon="grid" active="desk">میز کار امروز</x-panel-link>@endcan
     @can('desk.book')<x-panel-link route="desk.create" icon="calendar" active="desk.create">نوبت تلفنی / فوری</x-panel-link>@endcan

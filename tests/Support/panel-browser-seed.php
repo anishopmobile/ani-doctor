@@ -52,4 +52,10 @@ if (!Illuminate\Support\Facades\DB::table('forms')->exists()) {
         ['key' => 'date', 'label' => 'روز ساختگی', 'type' => 'date', 'required' => false],
     ]]);
 }
+$appointment = App\Modules\Booking\Infrastructure\Appointment::where('reference', $reference)->sole();
+Illuminate\Support\Facades\DB::table('patient_user_links')->insertOrIgnore(['patient_id' => $appointment->patient_id, 'user_id' => $appointment->booker_user_id, 'created_at' => now()]);
+$appointment->patient->update(['contact_mobile' => '09000000552', 'file_number' => 'UI-SYNTHETIC-01']);
+foreach (range(1, 7) as $weekday) {
+    app(App\Modules\Scheduling\Application\ScheduleService::class)->saveWeekly(['weekday' => $weekday, 'is_closed' => false, 'confirm_affected' => true, 'shifts' => [['start_minute' => 8 * 60, 'end_minute' => 22 * 60, 'step_minutes' => 30, 'capacity' => 1]]], $admin->id);
+}
 echo "SYNTHETIC_PANEL_FIXTURE_READY\n";
