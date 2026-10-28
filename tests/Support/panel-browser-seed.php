@@ -26,6 +26,7 @@ if (!App\Modules\Catalog\Infrastructure\Service::exists()) {
 if (!App\Modules\Website\Infrastructure\WebsiteTheme::find(1)) {
     app(App\Modules\Website\Application\ThemeService::class)->save(App\Modules\Website\Application\ThemeService::DEFAULTS);
 }
+App\Modules\Catalog\Infrastructure\Service::firstOrCreate(['name' => 'خدمت دوم ساختگی آزمون مدیریت'], ['price_irr' => 2000000, 'duration_minutes' => 30, 'buffer_minutes' => 0, 'capacity' => 1, 'is_active' => true, 'is_online' => false]);
 if (app(App\Modules\Website\Application\ThemeService::class)->settings()['hero_title'] === 'عنوان ساختگی پیش‌نمایش رابط') {
     app(App\Modules\Website\Application\ThemeService::class)->save(['hero_title' => App\Modules\Website\Application\SiteContent::defaults()['hero_title']]);
 }

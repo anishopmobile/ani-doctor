@@ -3,7 +3,7 @@
 @section('content')
 <h1 class="h4">{{ $definition ? 'انتشار نسخه جدید فرم' : 'فرم جدید' }}</h1>
 <p>پاسخ‌های قبلی با ساختار قبلی حفظ می‌شوند. اطلاعات درمانی غیرضروری و فایل پزشکی جمع‌آوری نکنید. تاریخ در فرم به‌صورت شمسی دریافت می‌شود.</p>
-<form method="post" action="{{ $definition ? route('forms.update', $definition->id) : route('forms.store') }}" data-form-builder data-confirm="نسخه تازه منتشر شود؟ پاسخ‌های قبلی حفظ می‌شوند.">
+<section class="ux-card"><h2 class="h5">تعریف فرم و فیلدهای موردنیاز</h2><form method="post" action="{{ $definition ? route('forms.update', $definition->id) : route('forms.store') }}" data-form-builder data-confirm="نسخه تازه منتشر شود؟ پاسخ‌های قبلی حفظ می‌شوند.">
 @csrf<input type="hidden" name="expected_version" value="{{ $definition?->published_version ?? 0 }}">
 <div class="row g-3 mb-3"><div class="col-md-6"><label class="form-label">عنوان<input class="form-control" name="title" value="{{ $definition?->title }}" required maxlength="150"></label></div>
 <div class="col-md-6"><label class="form-label">خدمت مرتبط<select class="form-select" name="service_id"><option value="">بدون خدمت اختصاصی</option>@foreach($services as $service)<option value="{{ $service->id }}" @selected($definition?->service_id === $service->id)>{{ $service->name }}</option>@endforeach</select></label></div>
@@ -14,5 +14,5 @@
 <template data-field-template>@include('forms.field-builder', ['index'=>'NEW', 'field'=>[]])</template>
 <button class="btn btn-outline-primary mb-3" type="button" data-add-field>افزودن فیلد</button><p role="status" data-builder-status></p>
 <label class="form-label d-block">دلیل انتشار<textarea class="form-control" name="reason" maxlength="500" required></textarea></label>
-<button class="btn btn-primary mt-3">انتشار نسخه جدید</button></form>
+<button class="btn btn-primary mt-3">انتشار نسخه جدید</button></form></section>
 @endsection

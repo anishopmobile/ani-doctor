@@ -195,3 +195,6 @@ FR-WEB-07: independent DAST engine and adversarial authorization/CSRF/upload/pub
 
 ## رابط وظیفه‌محور بیمار و منشی
 FR-APT و NFR-01: ترتیب زمان ← بیمار ← تخفیف/ثبت، انتخاب بیمار مجاز با نام/تماس و تغییر آسان، مخفی و disabled شدن مشخصات جدید برای بیمار قبلی، پیام اقدام بعدی هر وضعیت، کارت‌بندی responsive جزئیات و لغو همراه دلیل/تأیید. پاک‌شدن زمان قبلی در تغییر روز و retry شبکه باید با مرورگر واقعی آزمایش شوند. docs/GUIDED-BOOKING-UX.md.
+
+## Administration UX acceptance
+NFR-01 and existing Website/FR-SRV/SCH/REP/FRM/DIS flows include compact expandable editors, honest current-page search, explicit draft/publication state, record-scoped validation restoration, secretary schedule guidance and report-kind-specific filters. No business permission or financial rule changes. Scope and evidence: docs/ADMIN-WORKSPACE-UX.md.

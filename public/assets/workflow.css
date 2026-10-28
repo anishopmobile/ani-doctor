@@ -42,3 +42,40 @@
   .ux-next-step { padding:16px }
   .booking-details > .btn { width:100% }
 }
+
+/* Collapsible record editors and daily administration. */
+.ux-task-links { display:flex; flex-wrap:wrap; gap:8px; padding:12px; border:1px solid var(--border); border-radius:var(--radius-control); margin-bottom:24px; background:var(--page-bg) }
+.ux-task-links a { padding:8px 12px; border:1px solid var(--border); border-radius:8px; background:var(--surface); text-decoration:none }
+.ux-task-links a[aria-current=page] { border-color:var(--brand-primary); color:var(--brand-primary); font-weight:700 }
+.ux-record-tools { padding:16px; border:1px solid var(--border); border-radius:var(--radius-control); margin-bottom:20px }
+.ux-record > summary { display:flex; align-items:center; flex-wrap:wrap; gap:12px; cursor:pointer; list-style:none; min-height:44px }
+.ux-record > summary::before { content:'+'; color:var(--brand-primary); font-size:24px; font-weight:700 }
+.ux-record[open] > summary::before { content:'−' }
+.ux-record > summary > span:first-of-type { flex:1; min-width:0; overflow-wrap:anywhere }
+.ux-record summary small { display:block; color:var(--text-secondary); font-weight:400; margin-top:4px }
+.ux-record-action { color:var(--brand-primary); font-size:.85rem; font-weight:700 }
+.ux-status { background:var(--page-bg); color:var(--text-primary); border:1px solid var(--border); white-space:normal }
+.ux-record-body { border-top:1px solid var(--border); margin-top:16px; padding-top:20px }
+.ux-record-body > form > label,.ux-record-body > form > .ui-field { margin-bottom:16px }
+.ux-record-body .field-grid { margin-bottom:16px }
+.ux-week-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin-bottom:24px }
+.ux-week-grid > details { margin:0 }
+.ux-week-grid > details[open] { grid-column:1/-1 }
+.ux-stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px }
+.ux-stat-grid > div { border:1px solid var(--border); border-radius:var(--radius-control); padding:16px }
+.ux-stat-grid dt { color:var(--text-secondary); font-size:.9rem }
+.ux-stat-grid dd { font-size:1.25rem; font-weight:700; margin:8px 0 0 }
+.panel-app:has(.ux-record-tools) .app-welcome { display:none }
+@media (max-width:767px) {
+ .ux-week-grid { grid-template-columns:1fr }
+ .ux-record-action { width:100%; padding-inline-start:26px }
+ .ux-task-links a { flex:1 1 140px; text-align:center }
+ .ux-record-tools .ux-search-row { flex-wrap:wrap }
+ .ux-record-tools .ux-search-row > button { width:100% }
+}
+
+.ux-site-map { margin-bottom:24px; border:1px solid var(--border); border-radius:var(--radius-control); padding:12px 16px }
+.ux-site-map > summary { cursor:pointer; color:var(--brand-primary); font-weight:700; min-height:30px }
+.ux-site-map > .ux-task-links { margin:12px 0 0 }
+
+.ux-taxonomy-row > div { min-width:0; overflow-wrap:anywhere }

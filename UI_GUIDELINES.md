@@ -157,3 +157,6 @@ Persian RTL labels, status announcements, explicit save/publish, stale-write mes
 
 ## قرارداد UX روزمره
 پیام اقدام بعدی بالای جزئیات، اطلاعات مراجعه و پرداخت کنار هم در دسکتاپ و پشت‌سرهم در موبایل. لغو، سوابق و گزینه‌های اختیاری جمع‌شونده باشند، اما خطا و هشدار پرداخت نامشخص پنهان نشود. dialog انتخاب بیمار Escape/focus معتبر داشته باشد؛ انتخاب موجود فیلدهای شخص جدید را هم پنهان و هم disabled کند. تغییر زمان، انتخاب قبلی را فوراً بی‌اعتبار کند. جزئیات: docs/GUIDED-BOOKING-UX.md.
+
+## Remaining staff and CMS workflows
+Prefer compact record summaries with explicit status, separate create/edit actions and native keyboard-operable details. Current-page filters must state their scope and preserve server pagination. Rejected edits reopen and restore only the corresponding form; focus/error links must not point at another record with the same field name. Separate weekly schedule from date exceptions and keep hidden schedule payloads intact. Report-kind filters may hide and disable only irrelevant report fields. docs/ADMIN-WORKSPACE-UX.md.

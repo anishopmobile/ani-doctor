@@ -4,10 +4,10 @@
 <script src="{{ asset('assets/page-builder.js') }}" defer></script>
 @endpush
 @section('content')
+<x-website-workflow/>
 <h1 class="h3">طراحی صفحه: {{ $page->title }}</h1>
 <p>شناسه ثابت: <code>{{ $page->slug }}</code>. ذخیره پیش‌نویس انتشار نیست. برای ترتیب بلوک‌ها می‌توانید بکشید یا از دکمه‌های بالا/پایین استفاده کنید. تاریخچه، نسخه‌های قبلی را به پیش‌نویس برمی‌گرداند و نسخه عمومی را عوض نمی‌کند.</p>
-@if(session('status'))<p role="status" class="alert alert-success">{{ session('status') }}</p>@endif
-@if($errors->any())<div role="alert" class="alert alert-danger">@foreach($errors->all() as $error)<p>{{ $error }}</p>@endforeach</div>@endif
+<ol class="ux-steps" aria-label="مراحل طراحی صفحه"><li><span>۱</span> ویرایش محتوا</li><li><span>۲</span> ذخیره پیش‌نویس</li><li><span>۳</span> پیش‌نمایش و انتشار</li></ol>
 <div data-page-builder data-publish-url="{{ route('website.pages.publish', $page) }}" data-unpublish-url="{{ route('website.pages.unpublish', $page) }}">
     <form data-builder-form method="post" action="{{ route('website.pages.update', $page) }}">
         @csrf @method('PUT')

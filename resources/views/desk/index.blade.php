@@ -13,14 +13,14 @@
 @can('patients.manage')<a class="btn btn-outline-primary" href="{{ route('patients.index') }}">بیماران و سابقه نوبت</a>@endcan
 </nav>
 <dl class="desk-summary">@foreach(['total'=>'کل نوبت‌ها','scheduled'=>'قطعی در انتظار مراجعه','arrived'=>'مراجعه کرده','completed'=>'انجام‌شده','no_show'=>'عدم مراجعه','holds'=>'رزرو موقت معتبر','cancelled'=>'لغوشده','expired'=>'منقضی'] as $key=>$label)<div class="border rounded p-2"><dt>{{ $label }}</dt><dd class="mb-0">{{ $summary[$key] }}</dd></div>@endforeach</dl>
-<form method="post" action="{{ route('desk.filter') }}" class="field-grid border rounded p-3 mb-4">@csrf
+<section class="ux-card"><h2 class="h5">پیداکردن مراجعه‌کننده یا نوبت</h2><p class="form-text">روز را انتخاب کنید؛ نام، شماره تماس یا وضعیت حضور را فقط در صورت نیاز وارد کنید.</p><form method="post" action="{{ route('desk.filter') }}" class="field-grid">@csrf
 <label>روز شمسی<input class="form-control" data-persian-date name="date" value="{{ $jalaliDay }}" placeholder="1405-08-03" dir="ltr" required></label>
 <label>نام، شماره تماس کامل یا پرونده<input class="form-control" name="query" maxlength="100" value="{{ $filters['query'] ?? '' }}" autocomplete="off"></label>
 <label>حضور<select class="form-select" name="attendance"><option value="">همه وضعیت‌ها</option>@foreach(['scheduled'=>'در انتظار مراجعه','arrived'=>'مراجعه کرده','completed'=>'انجام‌شده','no_show'=>'عدم مراجعه'] as $value=>$label)<option value="{{ $value }}" @selected(($filters['attendance'] ?? '')===$value)>{{ $label }}</option>@endforeach</select></label>
 <label>خدمت<select class="form-select" name="service_id"><option value="">همه خدمات</option>@foreach($services as $service)<option value="{{ $service->id }}" @selected(($filters['service_id'] ?? '')==$service->id)>{{ $service->name }}</option>@endforeach</select></label>
 <div class="d-flex gap-2 align-items-end"><button class="btn btn-primary">نمایش</button><button class="btn btn-outline-secondary" name="clear" value="1">پاک‌کردن فیلتر</button></div>
-</form>
-<div aria-live="polite">
+</form></section>
+<h2 class="h4">نوبت‌های این روز</h2><div aria-live="polite">
 @forelse($appointments as $appointment)
 <article class="ux-card">
 <h2 class="h5"><bdi>{{ $appointment->start_at->setTimezone('Asia/Tehran')->format('H:i') }}</bdi> — {{ $appointment->patient->name }} — {{ $appointment->service_title }}</h2>

@@ -1,9 +1,9 @@
 @extends('layouts.app')
 @section('content')
+<x-website-workflow/>
 <h1 class="h3">محتوای عمومی خدمت: {{ $service->name }}</h1>
 <p class="text-secondary">تغییر این محتوا هیچ اثری بر قیمت، ظرفیت یا شیوه رزرو ندارد. پیش از انتشار، متن پزشکی باید بررسی شود.</p>
-@if(session('status')) <p role="status" class="alert alert-success">{{ session('status') }}</p> @endif
-<form method="post" action="{{ route('website.service-content.update', $service->id) }}">
+<div class="ux-two-columns"><section class="ux-card"><h2 class="h5">۱. متن و ترتیب نمایش</h2><form method="post" action="{{ route('website.service-content.update', $service->id) }}">
     @csrf
     @method('PUT')
     <label class="form-label mb-3">ترتیب نمایش عمومی (عدد کمتر، زودتر)<input class="form-control" type="number" name="sort_order" min="0" max="100000" required value="{{ old('sort_order', $content?->sort_order ?? 0) }}"></label>
@@ -23,6 +23,7 @@
         <span class="form-check-label">انتشار در سایت عمومی</span>
     </label>
     <button type="submit" class="btn btn-primary">ذخیره محتوا</button>
-</form>
+</form></section><section class="ux-card"><h2 class="h5">۲. تصویر خدمت</h2>
 @include('admin.partials.website-media-editor', ['owner' => $service, 'ownerType' => 'service'])
+</section></div>
 @endsection

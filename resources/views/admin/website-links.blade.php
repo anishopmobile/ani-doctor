@@ -1,19 +1,19 @@
 @extends('layouts.app')
 @section('content')
-<h1 class="h3">مدیریت منو و فوتر عمومی</h1>
+<div class="ux-page-heading"><h1 class="h3">مدیریت منو و فوتر عمومی</h1><a class="btn btn-primary" href="#link-create" data-open-record="link-create">افزودن پیوند جدید</a></div>
+<x-website-workflow/>
+<x-record-tools/>
 <p>لینک‌های منتشرشده در بخش انتخابی نمایش داده می‌شوند. برای حفظ امنیت، فقط مسیر داخلی یا لینک HTTPS پذیرفته می‌شود.</p>
-<section class="border rounded p-3 mb-4">
-    <h2 class="h5">افزودن لینک</h2>
-    <form method="post" action="{{ route('website.links.store') }}">
+<x-work-record id="link-create" title="افزودن پیوند جدید" :create="true" :open="$links->isEmpty()">
+<form method="post" action="{{ route('website.links.store') }}">
         @csrf
         @include('admin.partials.website-link-fields', ['link' => null])
         <button class="btn btn-primary mt-3">ثبت لینک</button>
     </form>
-</section>
+</x-work-record>
 @forelse($links as $link)
-<section class="border rounded p-3 mb-3">
-    <h2 class="h5">{{ $link->label }} <small class="text-secondary">{{ $link->placement === 'header' ? 'هدر' : 'فوتر' }} / {{ $link->is_published ? 'منتشرشده' : 'پیش‌نویس' }}</small></h2>
-    <form method="post" action="{{ route('website.links.update', $link) }}">
+<x-work-record :id="'link-'.$link->id" :title="$link->label" :status="$link->is_published ? 'منتشرشده' : 'پیش‌نویس'">
+<form method="post" action="{{ route('website.links.update', $link) }}">
         @csrf
         @method('PUT')
         @include('admin.partials.website-link-fields', ['link' => $link])
@@ -24,7 +24,7 @@
         @method('DELETE')
         <button class="btn btn-outline-danger">حذف</button>
     </form>
-</section>
+</x-work-record>
 @empty
 <p>لینکی در CMS تعریف نشده است؛ لینک‌های پیش‌فرض سایت همچنان نمایش داده می‌شوند.</p>
 @endforelse

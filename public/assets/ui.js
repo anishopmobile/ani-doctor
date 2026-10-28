@@ -18,9 +18,9 @@ document.querySelectorAll('.account-menu').forEach(menu => {
 });
 document.querySelectorAll('form').forEach(form => {
     const method = form.querySelector('[name="_method"]')?.value || form.getAttribute('method') || 'get';
-    if (!form.closest('[data-page-builder]') && method.toUpperCase() !== 'DELETE' && /\/admin\/website-(theme|articles|sections|links|service-content|taxonomies)(\/|$)/.test(new URL(form.getAttribute('action') || location.href, document.baseURI).pathname)) form.dataset.unsavedGuard = '';
+    if (!form.closest('[data-page-builder]') && method.toUpperCase() !== 'DELETE' && (form.closest('[data-record-panel]') || /\/admin\/website-(theme|articles|sections|links|service-content|taxonomies)(\/|$)/.test(new URL(form.getAttribute('action') || location.href, document.baseURI).pathname))) form.dataset.unsavedGuard = '';
     if (!form.hasAttribute('data-unsaved-guard')) return;
-    const status = form.querySelector('[data-unsaved-status]');
+    const status = form.querySelector('[data-unsaved-status]') || form.closest('[data-record-panel]')?.querySelector('[data-record-unsaved]');
     const mark = () => { dirtyForms.add(form); if (status) status.textContent = 'تغییرات ذخیره‌نشده دارید.'; };
     form.addEventListener('input', mark); form.addEventListener('change', mark);
     form.addEventListener('reset', () => { dirtyForms.delete(form); if (status) status.textContent = ''; });
@@ -94,7 +94,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let sequence = 0;
     document.querySelectorAll('[data-field-error]').forEach(item => {
         const key = item.dataset.fieldError, name = key.replace(/\.([^\.]+)/g, '[$1]');
-        const input = [...document.querySelectorAll('input,select,textarea')].find(control => [key, name, name + '[]'].includes(control.name) && control.type !== 'hidden');
+        const context = document.querySelector('[data-errors]')?.dataset.errorContext;
+        const scope = [...document.querySelectorAll('[data-record-panel]')].find(panel => panel.id === context) || document;
+        const input = [...scope.querySelectorAll('input,select,textarea')].find(control => [key, name, name + '[]'].includes(control.name) && control.type !== 'hidden');
         if (!input) return;
         input.id ||= `error-field-${++sequence}`;
         const patientPicker = input.hasAttribute('data-patient-choice') ? input.closest('[data-patient-picker]') : null;
@@ -102,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const message = document.createElement('span'); message.className = 'field-error'; message.id = `field-message-${++sequence}`; message.textContent = item.textContent;
         (patientPicker || input.closest('.ui-field') || input.closest('label') || input.parentElement).append(message);
         for (const control of new Set([input, visible])) { control.setAttribute('aria-invalid', 'true'); control.setAttribute('aria-describedby', [control.getAttribute('aria-describedby'), message.id].filter(Boolean).join(' ')); control.classList.add('field-invalid'); }
-        const details = input.closest('details'); if (details) details.open = true;
+        let details = input.parentElement; while (details) { if (details instanceof HTMLDetailsElement) details.open = true; if (details.hasAttribute('data-schedule-shifts')) details.hidden = false; details = details.parentElement; }
         const link = document.createElement('a'); link.href = `#${input.id}`; link.textContent = item.textContent;
         link.addEventListener('click', event => { event.preventDefault(); visible.focus(); }); item.replaceChildren(link);
     });

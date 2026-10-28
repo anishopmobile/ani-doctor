@@ -1,5 +1,6 @@
 @extends('layouts.app')
 @section('content')
+<x-website-workflow/>
 <h1 class="h3">تنظیمات برند، محتوا و رنگ‌بندی سایت</h1>
 <p>اطلاعات مشترک مطب از این صفحه خوانده می‌شود. اطلاعات زیر عمومی‌اند؛ اطلاعات بیمار یا کلید سرویس‌ها را اینجا وارد نکنید.</p>
 <nav class="settings-sections" aria-label="تنظیمات وب‌سایت"><a href="#identity">هویت و تماس</a><a href="#palette">رنگ‌بندی</a><a href="#home-content">محتوای صفحه اصلی</a><a href="#home-order">ترتیب بخش‌ها</a><a href="#identity-media">تصاویر هویتی</a><a href="{{ route('website.pages.index') }}">صفحه‌ساز</a><a href="{{ route('website.links.index') }}">منو و لینک‌های اجتماعی</a></nav>
