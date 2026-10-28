@@ -215,7 +215,13 @@ try {
         await page.setExtraHTTPHeaders({'X-UI-Actor': 'patient'});
         await page.setViewportSize({width: 1440, height: 1000});
         await page.goto(`${base}/calendar`);
-        await page.locator('.pardis-day.day-available:not([disabled])').first().waitFor();
+        await page.waitForFunction(() => document.querySelector('#inline-calendar').getAttribute('aria-busy') === 'false');
+        if (await page.locator('.pardis-day.day-available:not([disabled])').count() < 4) {
+            const nextMonth = page.waitForResponse(response => response.url().includes('/api/v1/calendar?') && response.status() === 200);
+            await page.locator('#inline-calendar [data-action="nextMonth"]').click(); await nextMonth;
+            await page.waitForFunction(() => document.querySelector('#inline-calendar').getAttribute('aria-busy') === 'false');
+        }
+        assert.ok(await page.locator('.pardis-day.day-available:not([disabled])').count() >= 4);
         await page.locator('[data-patient-open]').click();
         assert.equal(await page.locator('[data-patient-dialog]').evaluate(el => el.open), true);
         await page.locator('[data-patient-filter]').fill('UI-SYNTHETIC-01');
