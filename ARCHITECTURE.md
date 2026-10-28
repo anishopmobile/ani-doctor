@@ -183,3 +183,5 @@ Operations/InstallationCheckService is a console-only, read-only probe for confi
 
 ## Versioned Website pages
 PageService owns page mutation/publication/history and file lifecycle. PageSchema accepts only typed text/image/catalog widgets and bounded values. Controllers use FormRequest + website.manage; public rendering uses published_snapshot exclusively. Lock order is page then asset/media; expected_version protects simultaneous editors. Revisions restore draft only. Migration 000009 adds three Website tables without modifying reservation/payment/patient state. See docs/WEBSITE-CMS-PLAN.md A10.
+
+Guided-booking UX adds only display columns to the existing scoped patient choices query; staff without patients.manage retain id/name only. No new endpoint, schema or business transition; private POST search, backend ownership and financial concurrency contracts remain authoritative. See docs/GUIDED-BOOKING-UX.md.

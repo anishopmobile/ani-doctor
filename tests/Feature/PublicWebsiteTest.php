@@ -21,6 +21,6 @@ final class PublicWebsiteTest extends TestCase
 
     public function test_existing_calendar_route_is_still_available(): void
     {
-        $this->get('/calendar')->assertOk()->assertSee('تقویم خدمات مطب');
+        $this->get('/calendar')->assertOk()->assertSee('رزرو نوبت')->assertSee('booking-calendar', false);
     }
 }

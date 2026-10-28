@@ -36,7 +36,7 @@ class AppServiceProvider extends ServiceProvider
         foreach (['forms.manage', 'forms.answers.view', 'forms.answers.write', 'notifications.manage', 'discounts.manage', 'reports.appointments', 'reports.finance', 'website.manage'] as $permission) {
             Gate::define($permission, fn (User $user) => $user->hasPermission($permission));
         }
-        \Illuminate\Support\Facades\View::composer('layouts.app', function ($view): void {
+        \Illuminate\Support\Facades\View::composer(['layouts.app', 'calendar'], function ($view): void {
             $until = \Illuminate\Support\Facades\DB::table('payment_settings')->where('id', 1)->value('emergency_until');
             $view->with('clinicEmergencyActive', $until && now()->lessThan($until));
         });

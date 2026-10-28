@@ -113,6 +113,7 @@ if (root) {
     }
 
     async function loadDay() {
+        clearSlots();
         dayAbort?.abort();
         const controller = new AbortController();
         dayAbort = controller;
@@ -141,7 +142,7 @@ if (root) {
                     }
                     slots.querySelectorAll('button').forEach(item => item.setAttribute('aria-pressed', 'false'));
                     button.setAttribute('aria-pressed', 'true');
-                    selection.textContent = `زمان انتخابی: ${slot.local_start_time}؛ هنوز نوبتی ثبت نشده است.`;
+                    selection.textContent = `زمان انتخابی: ${persianDate}، ساعت ${slot.local_start_time} به وقت تهران؛ هنوز نوبتی ثبت نشده است.`;
                     const form = root.querySelector('[data-booking-form]');
                     if (form) {
                         form.querySelector('[data-booking-start]').value = slot.start_at_utc;

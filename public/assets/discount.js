@@ -6,6 +6,7 @@ for (const box of document.querySelectorAll('[data-discount-quote]')) {
     const invalidate = () => { generation++; result.textContent = 'برای مبلغ تازه دوباره برآورد را بزنید؛ تأیید نهایی در سرور است.'; };
     box.querySelector('input').addEventListener('input', invalidate);
     document.querySelector('#service')?.addEventListener('change', invalidate);
+    document.querySelector('#booking-calendar')?.addEventListener('booking:selection-reset', invalidate);
     button.addEventListener('click', async () => {
         const service = form.querySelector('[data-booking-service]').value;
         if (!service) { result.textContent = 'ابتدا خدمت و ساعت را انتخاب کنید.'; return; }

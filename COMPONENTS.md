@@ -187,3 +187,6 @@ ProductionGuard و ConfiguredProxies مرز محیط HTTP؛ Operations/Readiness
 
 ## Visual CMS components
 Website PageSchema/PageService, WebsitePage/Revision/Asset, admin WebsitePageController and public PublicPageController implement bounded block authoring, versioned publication and private images. Vanilla page-builder.js uses DOM textContent and same-origin Fetch; page-builder.css requires no build. WebsiteThemeCssController serves validated palette CSS under strict CSP; brand logo reuses MediaService.
+
+## Guided booking UX
+فرم‌های رزرو/جزئیات/کیف اعتبار از کارت‌های workflow.css و انتخابگر بومی dialog در booking-ux.js استفاده می‌کنند. action/name، CSRF، نسخه و idempotency قبلی حفظ‌اند؛ قرارداد و سناریوهای پذیرش در docs/GUIDED-BOOKING-UX.md است.

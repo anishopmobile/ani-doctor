@@ -15,7 +15,8 @@ final class BookingPatientService
         if (!$actor->staff()) {
             $query->whereIn('id', $actor->userId ? DB::table('patient_user_links')->where('user_id', $actor->userId)->select('patient_id') : DB::table('guest_patient_links')->where('mobile_hash', $actor->mobileHash)->select('patient_id'));
         }
-        return $query->orderBy('name')->limit(100)->get(['id','name']);
+        $columns = !$actor->staff() || $actor->can('patients.manage') ? ['id','name','contact_mobile','file_number'] : ['id','name'];
+        return $query->orderBy('name')->limit(100)->get($columns);
     }
     public function resolve(BookingActor $actor, array $data, string $ownerHash): Patient
     {

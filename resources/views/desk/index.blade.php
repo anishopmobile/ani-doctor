@@ -22,13 +22,16 @@
 </form>
 <div aria-live="polite">
 @forelse($appointments as $appointment)
-<article class="border rounded p-3 mb-3">
+<article class="ux-card">
 <h2 class="h5"><bdi>{{ $appointment->start_at->setTimezone('Asia/Tehran')->format('H:i') }}</bdi> — {{ $appointment->patient->name }} — {{ $appointment->service_title }}</h2>
 <p>تماس بیمار: <bdi>{{ $appointment->patient->contact_mobile ?? 'ثبت نشده' }}</bdi>؛ پرونده: <bdi>{{ $appointment->patient->file_number ?? 'ندارد' }}</bdi></p>
 <p>{{ ['pending_payment'=>'رزرو موقت','confirmed'=>'قطعی','expired'=>'منقضی','cancelled'=>'لغوشده','completed'=>'انجام‌شده','no_show'=>'عدم مراجعه'][$appointment->effectiveStatus()] ?? 'نیازمند بررسی' }}؛ حضور: {{ ['scheduled'=>'در انتظار مراجعه','arrived'=>'مراجعه کرده','completed'=>'انجام‌شده','no_show'=>'عدم مراجعه'][$appointment->attendance_status] }}؛ {{ ['phone'=>'تلفنی','urgent'=>'فوری','secretary'=>'ثبت منشی','user'=>'حساب کاربر','guest'=>'مهمان'][$appointment->channel] ?? 'ثبت قبلی' }}</p>
 <p>مالی: {{ ['paid'=>'تسویه‌شده','unpaid'=>'پرداخت‌نشده','credited'=>'برگشته به اعتبار'][$appointment->payment_status] ?? 'نیازمند بررسی' }}؛ بدهی: {{ number_format($appointment->balance_due_irr) }} ریال.</p>
 @if($appointment->is_override)<p class="text-danger">خارج از ظرفیت عادی؛ ثبت‌کننده: {{ $appointment->created_by }}</p>@endif
-<a class="btn btn-outline-primary" href="{{ route('appointments.show', $appointment->reference) }}">حضور، دریافت وجه و مدیریت</a>
+<a class="btn btn-outline-primary" href="{{ route('appointments.show', $appointment->reference) }}">مشاهده نوبت و اقدام بعدی</a>
+@can('attendance.manage')<a class="btn btn-outline-primary" href="{{ route('appointments.show', $appointment->reference) }}#attendance-title">ثبت مراجعه</a>@endcan
+@can('payments.collect')@if($appointment->balance_due_irr > 0)<a class="btn btn-outline-primary" href="{{ route('appointments.show', $appointment->reference) }}#appointment-payment">ثبت دریافت وجه</a>@endif
+@endcan
 </article>
 @empty<p class="alert alert-info">نوبتی با این روز و فیلتر پیدا نشد. می‌توانید فیلتر را پاک کنید یا روز دیگری ببینید.</p>@endforelse
 </div>

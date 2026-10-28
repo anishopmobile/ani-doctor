@@ -97,9 +97,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const input = [...document.querySelectorAll('input,select,textarea')].find(control => [key, name, name + '[]'].includes(control.name) && control.type !== 'hidden');
         if (!input) return;
         input.id ||= `error-field-${++sequence}`;
-        const visible = input._hcgApi?.element.querySelector('.hcg-select-control') || input;
+        const patientPicker = input.hasAttribute('data-patient-choice') ? input.closest('[data-patient-picker]') : null;
+        const visible = patientPicker?.querySelector('[data-patient-open]') || input._hcgApi?.element.querySelector('.hcg-select-control') || input;
         const message = document.createElement('span'); message.className = 'field-error'; message.id = `field-message-${++sequence}`; message.textContent = item.textContent;
-        (input.closest('.ui-field') || input.closest('label') || input.parentElement).append(message);
+        (patientPicker || input.closest('.ui-field') || input.closest('label') || input.parentElement).append(message);
         for (const control of new Set([input, visible])) { control.setAttribute('aria-invalid', 'true'); control.setAttribute('aria-describedby', [control.getAttribute('aria-describedby'), message.id].filter(Boolean).join(' ')); control.classList.add('field-invalid'); }
         const details = input.closest('details'); if (details) details.open = true;
         const link = document.createElement('a'); link.href = `#${input.id}`; link.textContent = item.textContent;

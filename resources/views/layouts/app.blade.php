@@ -11,9 +11,11 @@
     <link rel="stylesheet" href="{{ asset('assets/design-system.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/app.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/workspace.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/workflow.css') }}">
     @include('website.partials.theme-css')
     @include('website.partials.favicon')
     <script src="{{ asset('assets/ui.js') }}" defer></script>
+    <script src="{{ asset('assets/booking-ux.js') }}" defer></script>
     <script src="{{ asset('assets/auth.js') }}" defer></script>
     <script type="module" src="{{ asset('assets/form-controls.js') }}"></script>
     @stack('assets')
@@ -22,7 +24,7 @@
 <a class="visually-hidden-focusable" href="#main">رفتن به محتوای اصلی</a>
 <header class="navbar app-topbar"><div class="container-fluid">
     <a href="{{ route('dashboard') }}" class="navbar-brand app-brand">@if($websiteLogo)<img class="brand-logo" src="{{ route('website.media.show', $websiteLogo) }}" alt="{{ $websiteLogo->alt_text }}">@else<span class="app-brand-mark"><x-ui-icon name="heart"/></span>@endif<span>{{ $websiteTheme['brand_name'] }}<small>{{ $websiteTheme['brand_subtitle'] }}</small></span></a>
-    <div class="panel-context"><x-ui-icon name="calendar"/><span>امروز</span><bdi>{{ app(App\Modules\Scheduling\Application\JalaliDate::class)->format(now()) }}</bdi></div><div class="d-flex gap-2 align-items-center header-tools"><details class="account-menu"><summary><x-ui-icon name="users"/>حساب کاربری</summary><div>@auth<a class="d-block mb-3" href="{{ route('dashboard') }}">نمای کلی حساب</a><form method="post" action="{{ route('logout') }}">@csrf<button class="btn btn-outline-secondary w-100">خروج از حساب</button></form>@else<a href="{{ route('login') }}">ورود به حساب</a>@endauth</div></details><a class="btn btn-primary" href="{{ route('calendar') }}">رزرو نوبت</a><button type="button" class="btn btn-outline-primary app-menu-toggle" data-menu-toggle aria-controls="panel-navigation" aria-expanded="false" hidden>فهرست بخش‌ها</button></div>
+    <div class="panel-context"><x-ui-icon name="calendar"/><span>امروز</span><bdi>{{ app(App\Modules\Scheduling\Application\JalaliDate::class)->format(now()) }}</bdi></div><div class="d-flex gap-2 align-items-center header-tools"><details class="account-menu"><summary><x-ui-icon name="users"/>حساب کاربری</summary><div>@auth<a class="d-block mb-3" href="{{ route('dashboard') }}">نمای کلی حساب</a><form method="post" action="{{ route('logout') }}">@csrf<button class="btn btn-outline-secondary w-100">خروج از حساب</button></form>@else<a href="{{ route('login') }}">ورود به حساب</a>@endauth</div></details><a class="btn btn-primary" href="{{ auth()->user()?->hasPermission('desk.book') ? route('desk.create') : route('calendar') }}">رزرو نوبت</a><button type="button" class="btn btn-outline-primary app-menu-toggle" data-menu-toggle aria-controls="panel-navigation" aria-expanded="false" hidden>فهرست بخش‌ها</button></div>
 </div></header>
 <div class="app-frame">
     <aside class="app-sidebar" id="panel-navigation" aria-label="منوی پنل">

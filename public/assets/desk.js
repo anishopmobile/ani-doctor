@@ -14,12 +14,14 @@ if (deskForm) {
         deskForm.querySelector('[data-booking-service]').value = service.value;
         deskForm.querySelector('[data-booking-price]').value = service.selectedOptions[0]?.dataset.price || '';
         submit.disabled = !time.value || !service.value;
+        root.querySelector('#slot-selection').textContent = time.value ? `زمان انتخابی: امروز، ساعت ${time.value} به وقت تهران؛ ثبت فوری` : '';
     }
     function changeKind() {
         urgentFields.hidden = kind() !== 'urgent';
         urgentFields.querySelectorAll('input,button').forEach(input => { input.disabled = urgentFields.hidden; });
         time.required = !urgentFields.hidden;
         start.value = '';
+        root.querySelector('#slot-selection').textContent = '';
         submit.disabled = true;
         urgentSelection();
     }
@@ -69,13 +71,15 @@ if (deskForm) {
             json.data.patients.forEach(patient => {
                 const label = `${patient.name} — پرونده: ${patient.file_number || 'ندارد'} — تماس: ${patient.contact_mobile || 'ندارد'}`;
                 const button = document.createElement('button');
-                button.type = 'button'; button.className = 'btn btn-outline-primary'; button.textContent = label;
+                const row = document.createElement('div'); row.className = 'patient-option';
+                const text = document.createElement('span'); text.textContent = label;
+                button.type = 'button'; button.className = 'btn btn-outline-primary'; button.textContent = 'انتخاب'; button.setAttribute('aria-label', `انتخاب ${label}`);
                 button.addEventListener('click', () => {
                     let option = Array.from(patientChoice.options).find(item => item.value === String(patient.id));
                     if (!option) { option = new Option(label,String(patient.id)); patientChoice.add(option); }
-                    patientChoice.value = String(patient.id); patientSelection(); status.textContent = `انتخاب شد: ${label}`;
+                    patientChoice.value = String(patient.id); patientChoice.dispatchEvent(new Event('change', {bubbles:true})); status.textContent = `انتخاب شد: ${label}`;
                 });
-                results.append(button);
+                row.append(text, button); results.append(row);
             });
         } catch (error) {
             if (error.name !== 'AbortError') status.textContent = 'جستجو تکمیل نشد؛ دوباره دکمه جستجو را بزنید. با ادامه، بیمار جدید خودکار انتخاب نمی‌شود.';
