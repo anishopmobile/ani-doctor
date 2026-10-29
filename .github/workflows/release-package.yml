@@ -178,6 +178,8 @@ jobs:
           done
           cd tests/Browser
           npm test
+            php ../Support/weekly-announcement-browser-seed.php
+            node weekly-schedule.mjs
 
       - name: Upload browser verification evidence
         if: always() && steps.detect.outputs.app == 'true'
