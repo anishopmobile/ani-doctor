@@ -4,6 +4,9 @@
     <label>عنوان مقاله
         <input class="form-control" name="title" maxlength="180" required value="{{ $uiOld('title', $article?->title) }}">
     </label>
+    <label>نام نویسنده (اختیاری و قابل نمایش عمومی)
+        <input class="form-control" name="author_name" maxlength="120" value="{{ $uiOld('author_name', $article?->author_name) }}">
+    </label>
     <label>شناسه انگلیسی URL (مثال: prenatal-care)
         <input class="form-control" name="slug" maxlength="120" required dir="ltr" value="{{ $uiOld('slug', $article?->slug) }}">
     </label>

@@ -50,6 +50,7 @@ final class WebsiteArticleRequest extends FormRequest
         return [
             'slug' => ['required', 'string', 'regex:/\\A[a-z0-9]+(?:-[a-z0-9]+)*\\z/D', 'max:120', Rule::unique('website_articles', 'slug')->ignore($this->route('article')?->id)],
             'title' => ['required', 'string', 'max:180'],
+            'author_name' => ['nullable', 'string', 'max:120'],
             'summary' => ['nullable', 'string', 'max:350'],
             'body' => ['required', 'string', 'max:50000'],
             'meta_description' => ['nullable', 'string', 'max:160'],

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 final class WebsiteArticle extends Model
 {
-    protected $fillable = ['slug', 'title', 'summary', 'body', 'meta_description', 'is_published', 'published_at'];
+    protected $fillable = ['slug', 'title', 'summary', 'body', 'meta_description', 'author_name', 'is_published', 'published_at'];
 
     public function taxonomies(): BelongsToMany
     {

@@ -187,6 +187,7 @@ final class WebsiteUnifiedSettingsTest extends TestCase
     {
         $service = Service::create(['name' => 'خدمت مهاجرت', 'price_irr' => 100000, 'duration_minutes' => 30, 'buffer_minutes' => 0, 'capacity' => 1, 'is_active' => true, 'is_online' => true]);
         $this->put(route('website.service-content.update', $service), ['summary' => 'متن حفظ‌شونده', 'is_published' => 1, 'sort_order' => 9])->assertSessionHasNoErrors();
+        $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful(); // Optional public article author.
         $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful();
         $this->assertFalse(\Illuminate\Support\Facades\Schema::hasTable('weekly_announcements'));
         $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful();

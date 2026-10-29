@@ -1,0 +1,1 @@
+<img {{ $attributes->except('alt') }} src="{{ $source }}" data-article-image data-fallback-src="{{ $fallback }}" alt="{{ $attributes->get('alt', $alt) }}" width="800" height="450" loading="{{ $eager ? 'eager' : 'lazy' }}" decoding="async">

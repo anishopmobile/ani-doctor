@@ -37,11 +37,11 @@ try {
         return $code;
     };
     $before = $snapshot();
-    if ($kernel->call('migrate:rollback', ['--step' => 10, '--force' => true]) !== 0) {
+    if ($kernel->call('migrate:rollback', ['--step' => 11, '--force' => true]) !== 0) {
         throw new RuntimeException('UPGRADE_LEGACY_SCHEMA_FAILED');
     }
     $legacy = app(App\Modules\Operations\Application\InstallationCheckService::class)->inspect();
-    if ($legacy['ready'] || count($legacy['pending_migrations']) !== 10 || $status('/') !== 500) {
+    if ($legacy['ready'] || count($legacy['pending_migrations']) !== 11 || $status('/') !== 500) {
         throw new RuntimeException('UPGRADE_REPRODUCTION_FAILED');
     }
     if ($kernel->call('migrate', ['--force' => true]) !== 0
