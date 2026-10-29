@@ -88,7 +88,7 @@
 					</div>
 				  </div>
 			</section>
-            </div>            <div class="hero-art">@if($websitePortrait)<img class="doctor-portrait" src="{{ route('website.media.show', $websitePortrait) }}" alt="{{ $websitePortrait->alt_text }}" fetchpriority="high">@else<img class="hero-illustration" src="{{ asset('assets/clinic-art.webp') }}" width="640" height="600" alt="">@endif<div class="hero-art-caption"><x-ui-icon name="shield"/><span><strong>{{ $websiteTheme['hero_art_title'] }}</strong><small>{{ $websiteTheme['hero_art_subtitle'] }}</small></span></div></div>
+            </div>            <div class="hero-art">@if($websitePortrait)<img class="doctor-portrait" src="{{ route('website.media.show', $websitePortrait) }}" alt="{{ $websitePortrait->alt_text }}" fetchpriority="high">@else<img class="hero-illustration" src="{{ asset('assets/clinic-art.webp') }}" width="1254" height="1254" alt="{{ $websiteTheme['brand_name'] }} — {{ $websiteTheme['brand_subtitle'] }}" fetchpriority="high">@endif<div class="hero-art-caption"><x-ui-icon name="shield"/><span><strong>{{ $websiteTheme['hero_art_title'] }}</strong><small>{{ $websiteTheme['hero_art_subtitle'] }}</small></span></div></div>
         </div>
         @if($websiteTheme['highlight_items'])<div class="container hero-highlights">
             @foreach($websiteTheme['highlight_items'] as $highlight)<div><x-ui-icon :name="['calendar','file','shield'][$loop->index % 3]"/><strong>{{ $highlight['title'] }}</strong><span>{{ $highlight['text'] }}</span></div>@endforeach
