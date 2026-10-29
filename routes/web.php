@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [\App\Http\Controllers\Web\WebsiteController::class, 'home'])->name('website.home');
 Route::view('/about', 'website.about')->name('website.about');
 Route::view('/contact', 'website.contact')->name('website.contact');
+Route::get('/privacy', [\App\Http\Controllers\Web\InformationPageController::class, 'privacy'])->name('website.privacy');
+Route::get('/policies', [\App\Http\Controllers\Web\InformationPageController::class, 'policies'])->name('website.policies');
 Route::middleware(['auth', 'can:website.manage'])->prefix('admin/website-theme')->group(function (): void {
     Route::get('/', [\App\Http\Controllers\Admin\WebsiteThemeController::class, 'edit'])->name('website.theme.edit');
     Route::put('/', [\App\Http\Controllers\Admin\WebsiteThemeController::class, 'update'])->name('website.theme.update');

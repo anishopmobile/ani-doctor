@@ -3,6 +3,8 @@
     <url><loc>{{ route('website.home') }}</loc></url>
     <url><loc>{{ route('website.about') }}</loc></url>
     <url><loc>{{ route('website.contact') }}</loc></url>
+    <url><loc>{{ route('website.policies') }}</loc></url>
+    <url><loc>{{ route('website.privacy') }}</loc></url>
     <url><loc>{{ route('website.services.index') }}</loc></url>
     <url><loc>{{ route('website.articles.index') }}</loc></url>
     @foreach($pages as $page)

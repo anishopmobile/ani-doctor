@@ -1,20 +1,18 @@
 @extends('website.layout')
 @section('title', 'خدمات قابل رزرو')
 @section('content')
-<nav aria-label="مسیر صفحه"><a href="{{ route('website.home') }}">خانه</a> / خدمات</nav>
-<h1 class="mt-3">{{ $websiteTheme['services_title'] }}</h1>
-<p class="text-secondary">{{ $websiteTheme['services_intro'] }}</p>
-<div class="service-grid mt-4">
-    @forelse($services as $service)
-        <article class="service-card">
-            @if($service->websiteContent && $service->media)<img class="cms-media" src="{{ route('website.media.show', $service->media) }}" alt="{{ $service->media->alt_text }}" loading="lazy">@else<span class="service-icon"><x-ui-icon name="heart"/></span>@endif
-            <h2 class="h5">{{ $service->name }}</h2>
-            <p>مدت خدمت: {{ $service->duration_minutes }} دقیقه</p>
-            <a href="{{ route('website.services.show', $service->id) }}" aria-label="جزئیات {{ $service->name }}">مشاهده جزئیات ←</a>
-        </article>
-    @empty
-        <p class="empty-services">در حال حاضر خدمتی برای رزرو آنلاین موجود نیست.</p>
-    @endforelse
+<link rel="stylesheet" href="{{ asset('assets/information-pages.css') }}">
+<div class="info-pages">
+<section class="info-hero info-split"><div><p class="info-eyebrow">حوزه‌های تخصصی {{ $websiteTheme['brand_name'] }}</p><h1>{{ $websiteTheme['services_title'] }}</h1><p class="info-copy">{{ $websiteTheme['services_intro'] }}</p><div class="info-actions"><a class="info-button" href="{{ route('calendar') }}">انتخاب خدمت و دریافت نوبت</a></div></div><div class="info-visual"><img src="{{ asset('assets/clinic-art.webp') }}" alt="" width="1254" height="1254"></div></section>
+<section class="info-section"><header class="info-section-heading"><h2>آشنایی با خدمات قابل رزرو</h2></header><div class="info-grid">
+@forelse($services as $service)
+<article class="info-card info-service">
+@if($service->websiteContent && $service->media)<img src="{{ route('website.media.show', $service->media) }}" alt="{{ $service->media->alt_text }}" width="400" height="180" loading="lazy">@else<span class="info-icon"><x-ui-icon name="heart"/></span>@endif
+<h2>{{ $service->name }}</h2>@if($service->websiteContent?->summary)<p class="info-copy">{{ $service->websiteContent->summary }}</p>@endif<p>مدت خدمت: {{ $service->duration_minutes }} دقیقه</p><p>تعرفه ثبت‌شده: {{ number_format($service->price_irr) }} ریال</p><div class="info-actions"><a class="info-button info-button--outline" href="{{ route('website.services.show', $service->id) }}" aria-label="جزئیات {{ $service->name }}">مشاهده جزئیات ←</a><a class="info-button" href="{{ route('calendar', ['service_id' => $service->id]) }}">دریافت نوبت</a></div>
+</article>
+@empty<p class="empty-services info-notice">در حال حاضر خدمتی برای رزرو آنلاین موجود نیست.</p>@endforelse
+</div><div class="info-section">{{ $services->links() }}</div></section>
+@include('website.partials.information-cta')
+@include('website.partials.information-links')
 </div>
-<div class="mt-4">{{ $services->links() }}</div>
 @endsection
