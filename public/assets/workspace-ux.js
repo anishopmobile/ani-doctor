@@ -21,11 +21,13 @@ if (tools) {
     tools.hidden = !list.length; refresh();
 }
 for (const link of document.querySelectorAll('[data-open-record]')) {
-    link.addEventListener('click', () => {
+    link.addEventListener('click', event => {
         const panel = document.getElementById(link.dataset.openRecord);
         if (!panel?.matches('[data-record-panel]')) return;
+        // Own the in-page action so fragment navigation cannot take focus back.
+        event.preventDefault();
         panel.hidden = false; panel.open = true;
-        requestAnimationFrame(() => panel.querySelector('input:not([type=hidden]),textarea,select')?.focus());
+        panel.querySelector('input:not([type=hidden]),textarea,select')?.focus();
     });
 }
 document.addEventListener('invalid', event => {

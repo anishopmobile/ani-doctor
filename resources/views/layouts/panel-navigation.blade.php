@@ -9,6 +9,7 @@
     @can('patients.manage')<x-panel-link route="patients.index" icon="users" active="patients.*">بیماران</x-panel-link>@endcan
     @can('catalog.manage')<x-panel-link route="services.index" icon="heart" active="services.*">مدیریت خدمات</x-panel-link>@endcan
     @can('schedules.manage')<x-panel-link route="schedule.index" icon="calendar" active="schedule.*">برنامه کاری</x-panel-link>@endcan
+    @can('schedules.manage')<x-panel-link route="weekly-announcements.index" icon="calendar" active="weekly-announcements.*">برنامه هفتگی</x-panel-link>@endcan
     @can('reports.appointments')<x-panel-link route="reports.index" icon="chart" active="reports.*">گزارش‌ها و خروجی</x-panel-link>@endcan
     @can('discounts.manage')<x-panel-link route="discounts.index" icon="wallet" active="discounts.*">تخفیف خدمات</x-panel-link>@endcan
     @can('payments.review')<x-panel-link route="finance" icon="wallet" active="finance">مدیریت مالی</x-panel-link>@endcan

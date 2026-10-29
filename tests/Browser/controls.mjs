@@ -100,7 +100,15 @@ try {
         assert.equal(await record.evaluate(el => el.open),true);
         assert.equal(await record.locator('textarea[name=body]').isVisible(),true);
         assert.equal(await record.locator('select[name=is_published]').inputValue(),'1');
+        await page.evaluate(() => {
+            document.addEventListener('click', event => {
+                if (event.target.closest('[data-open-record="article-create"]')) {
+                    window.articleFocusDuringActivation = document.activeElement === document.querySelector('#article-create [name=title]');
+                }
+            }, {once: true});
+        });
         await page.locator('[data-open-record="article-create"]').click();
+        assert.equal(await page.evaluate(() => window.articleFocusDuringActivation), true);
         assert.equal(await page.locator('#article-create').evaluate(el => el.open),true);
         assert.equal(await page.locator('#article-create [name=title]').evaluate(el => el===document.activeElement),true);
         await page.setViewportSize({width:320,height:844}); await page.goto(`${base}/admin/website-articles`);

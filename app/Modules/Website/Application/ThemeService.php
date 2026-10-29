@@ -23,6 +23,8 @@ final class ThemeService
         'logo_is_published' => false,
         'portrait_is_published' => false,
         'favicon_is_published' => false,
+        'show_weekly_schedule' => false,
+        'weekly_schedule_notes' => '',
     ];
 
     public function settings(): array

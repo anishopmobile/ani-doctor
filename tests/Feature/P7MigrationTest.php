@@ -25,6 +25,7 @@ final class P7MigrationTest extends TestCase
         $this->service = $this->bookingServiceFixture($this->admin);
         $this->offer();
         $appointment = $this->collect($this->discounted());
+        $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful(); // Independent weekly announcements.
         $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful(); // Website-only display order.
         $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful(); // Page builder.
         $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful(); // Public brand settings.
