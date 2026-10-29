@@ -236,4 +236,23 @@ final class WeeklyAnnouncementTest extends TestCase
         $this->put('/management/weekly-schedule/settings', ['show_weekly_schedule' => false, 'expected_settings_version' => 0, 'date_jalali' => ['bad']])->assertRedirect()->assertSessionHasNoErrors();
         $this->save(['week' => ['bad']])->assertRedirect()->assertSessionHasNoErrors();
     }
+
+    public function test_public_poster_preserves_multiple_shifts_dates_and_isolates_styles_from_management(): void
+    {
+        $this->save(['shifts' => [['start' => '08:00', 'end' => '10:00', 'label' => 'صبح'], ['start' => '16:00', 'end' => '20:00', 'label' => 'عصر']]])->assertRedirect();
+        $this->enable();
+        $response = $this->get('/weekly-schedule')->assertOk()->assertSee('08:00')->assertSee('10:00')->assertSee('16:00')->assertSee('20:00')->assertSee('صبح')->assertSee('عصر')->assertSee('assets/weekly-poster.css')->assertDontSee('assets/weekly-schedule.css');
+        $document = new \DOMDocument();
+        $document->loadHTML($response->getContent(), LIBXML_NOERROR | LIBXML_NOWARNING);
+        $xpath = new \DOMXPath($document);
+        $headers = $xpath->query('//article[contains(@class,"weekly-poster__row")]/header');
+        $this->assertCount(7, $headers);
+        foreach ($headers as $header) {
+            $this->assertSame('h2', $header->firstElementChild->nodeName);
+            $this->assertSame('time', $header->firstElementChild->nextElementSibling->nodeName);
+            $this->assertMatchesRegularExpression('/^1[34]\d{2}-\d{2}-\d{2}$/', trim($header->firstElementChild->nextElementSibling->textContent));
+        }
+        $this->actingAs($this->admin)->get('/management/weekly-schedule')->assertOk()->assertSee('assets/weekly-schedule.css')->assertDontSee('assets/weekly-poster.css');
+        $this->get('/')->assertOk()->assertDontSee('assets/weekly-poster.css');
+    }
 }

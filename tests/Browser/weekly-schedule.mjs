@@ -4,6 +4,12 @@ const {chromium} = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const base = 'http://127.0.0.1:18558';
 const browser = await chromium.launch({headless: true, ...(process.env.CHROME_EXECUTABLE ? {executablePath: process.env.CHROME_EXECUTABLE} : {})});
 const context = await browser.newContext();
+const externalRequests = [];
+await context.route('**/*', route => {
+    if (new URL(route.request().url()).origin === base) return route.continue();
+    externalRequests.push(route.request().url());
+    return route.abort();
+});
 const page = await context.newPage();
 const errors = [];
 const csp = [];
@@ -16,13 +22,25 @@ context.on('response', response => {
 });
 await mkdir('results', {recursive: true});
 try {
-    for (const width of [1440, 768, 320]) {
+    for (const width of [1440, 1024, 768, 640, 375, 320]) {
         await page.setViewportSize({width, height: 1000});
         for (const path of ['/weekly-schedule', '/management/weekly-schedule']) {
             const response = await page.goto(base + path);
             assert.equal(response.status(), 200);
             await page.evaluate(() => document.fonts.ready);
-            assert.equal(await page.locator('.weekly-day').count(), 7);
+            const publicPage = path === '/weekly-schedule';
+            assert.equal(await page.locator(publicPage ? '.weekly-poster__row' : '.weekly-day').count(), 7);
+            if (publicPage) {
+                const dates = await page.locator('.weekly-poster__day').evaluateAll(days => days.map(day => {
+                    const name = day.querySelector('h2'), date = day.querySelector('time');
+                    return {text: date.textContent, iso: date.dateTime, below: date.getBoundingClientRect().top >= name.getBoundingClientRect().bottom};
+                }));
+                assert.equal(dates.length, 7);
+                for (const date of dates) { assert.match(date.text, /^1[34]\d{2}-\d{2}-\d{2}$/); assert.match(date.iso, /^\d{4}-\d{2}-\d{2}$/); assert.equal(date.below, true); }
+                assert.equal(await page.locator('link[href$="/weekly-schedule.css"]').count(), 0);
+            } else {
+                assert.equal(await page.locator('link[href$="/weekly-poster.css"]').count(), 0);
+            }
             assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `${path} at ${width}px`);
             if (path.includes('/management/')) {
                 await page.locator('.weekly-day details[data-record-panel]').first().locator('summary').first().click();
@@ -36,6 +54,10 @@ try {
             await page.screenshot({path: `results/weekly-${path.includes('/management/') ? 'admin' : 'public'}-${width}.png`, fullPage: true});
         }
     }
+    await page.goto(base + '/weekly-schedule');
+    await page.setViewportSize({width: 640, height: 1000});
+    await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, 'weekly display at 200% text size');
     await page.setViewportSize({width: 1440, height: 1000});
     await page.goto(base + '/management/weekly-schedule');
     await page.locator('.weekly-day details[data-record-panel]').first().locator('summary').first().click();
@@ -68,7 +90,8 @@ try {
     assert.deepEqual(errors, []);
     assert.deepEqual(csp, []);
     assert.deepEqual(failedAssets, []);
-    console.log('PASS: 6 responsive routes, daily editor states, validation and save, public location, today, mobile menu, permissions, JS/assets/CSP');
+    assert.deepEqual(externalRequests, []);
+    console.log('PASS: 12 responsive routes, Jalali dates below weekdays, isolated public CSS, 200% text size, daily editor states, validation and save, public location, today, mobile menu, permissions, JS/assets/CSP');
 } finally {
     await browser.close();
 }
