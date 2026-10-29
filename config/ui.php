@@ -6,6 +6,7 @@ return ['pages' => [
     'website.articles.*' => 'مقالات', 'website.taxonomies.*' => 'دسته‌بندی و برچسب', 'website.service-content.*' => 'محتوای خدمات',
     'panel.admin' => 'میز کار مدیر', 'panel.secretary' => 'میز کار منشی', 'panel.patient' => 'حساب بیمار',
     'desk*' => 'میز کار مطب', 'patients.*' => 'بیماران', 'services.*' => 'مدیریت خدمات', 'schedule.*' => 'برنامه کاری',
+    'weekly-announcements.*' => 'برنامه هفتگی پزشک',
     'reports.*' => 'گزارش‌ها', 'discounts.*' => 'تخفیف‌ها', 'finance*' => 'مدیریت مالی', 'booking.settings*' => 'سیاست رزرو',
     'forms.*' => 'فرم‌های خصوصی', 'private-forms.*' => 'پاسخ فرم خصوصی', 'notifications.*' => 'اعلان‌ها',
     'calendar*' => 'انتخاب زمان مراجعه', 'appointments.*' => 'پیگیری نوبت', 'payments.*' => 'پیگیری پرداخت', 'wallet*' => 'اعتبار و استرداد',

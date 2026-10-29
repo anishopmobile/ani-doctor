@@ -81,6 +81,7 @@ ani-doctor/
 **کلیدها و قیود:** InnoDB، foreign key، unique index روی provider+reference/transaction و idempotency، شاخص روی appointments(patient_id, start_at)، بازه و status، کلید یکتای wallet entry برای یک رویداد برگشت. حذف نرم منطقی برای نوبت‌ها؛ تراکنش مالی و audit حذف فیزیکی ندارند.
 
 ## 5. مدل تقویم و زمان
+- برنامه اطلاع‌رسانی هفتگی با `WeeklyAnnouncementService` و جدول مستقل `weekly_announcements` فقط مصرف‌کننده خواندنی `ScheduleService` است. حضور دستی در JSON override و snapshot منبع نگهداری می‌شود؛ محل/توضیحات مستقل‌اند. Booking/Availability هیچ وابستگی به این read model ندارند. تنظیم نمایش از JSON موجود WebsiteTheme تأمین می‌شود. [قرارداد همگام‌سازی، مجوزها و آزمون‌ها](docs/WEEKLY-ANNOUNCEMENTS.md).
 - تاریخ/ساعت منطقی در DB با UTC ذخیره شوند؛ نمایش در timezone `Asia/Tehran` و تبدیل جلالی فقط در ورودی/خروجی.
 - محاسبه شروع/پایان خدمت با `duration_minutes + buffer_minutes` و محدودیت شیفت. تاریخ شمسی رشته‌ای، منبع حقیقت دیتابیس نیست.
 - گام نمایش زمان از مدت خدمت جداست؛ مثلاً گام ۱۵ دقیقه با خدمت ۴۵ دقیقه.

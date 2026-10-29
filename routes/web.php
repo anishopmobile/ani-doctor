@@ -154,12 +154,16 @@ Route::middleware(['auth', 'can:catalog.manage'])->group(function (): void {
     Route::delete('/admin/services/{service}', [\App\Http\Controllers\Admin\ServiceController::class, 'destroy'])->name('services.destroy');
 });
 Route::middleware(['auth', 'can:schedules.manage'])->group(function (): void {
+    Route::get('/management/weekly-schedule', [\App\Http\Controllers\Admin\WeeklyAnnouncementController::class, 'index'])->name('weekly-announcements.index');
+    Route::put('/management/weekly-schedule/day', [\App\Http\Controllers\Admin\WeeklyAnnouncementController::class, 'save'])->name('weekly-announcements.save');
+    Route::put('/management/weekly-schedule/settings', [\App\Http\Controllers\Admin\WeeklyAnnouncementController::class, 'settings'])->name('weekly-announcements.settings');
     Route::get('/management/schedule', [\App\Http\Controllers\Admin\ScheduleController::class, 'index'])->name('schedule.index');
     Route::post('/management/schedule/weekly', [\App\Http\Controllers\Admin\ScheduleController::class, 'weekly'])->name('schedule.weekly');
     Route::post('/management/schedule/exceptions', [\App\Http\Controllers\Admin\ScheduleController::class, 'exception'])->name('schedule.exception');
     Route::delete('/management/schedule/exceptions/{exception}', [\App\Http\Controllers\Admin\ScheduleController::class, 'destroy'])->name('schedule.destroy');
     Route::put('/management/schedule/horizon', [\App\Http\Controllers\Admin\ScheduleController::class, 'horizon'])->middleware('can:schedules.settings')->name('schedule.horizon');
 });
+Route::get('/weekly-schedule', \App\Http\Controllers\Web\WeeklyAnnouncementController::class)->name('weekly-announcements.public');
 Route::middleware('guest')->group(function (): void {
     Route::get('/login', [OtpController::class, 'show'])->name('login');
     Route::post('/otp/request', [OtpController::class, 'requestCode'])->middleware('throttle:otp-send')->name('otp.request');
