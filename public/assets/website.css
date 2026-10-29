@@ -796,3 +796,93 @@
   .hero .hero-copy .hero-actions { margin-top:24px; }
   .hero .hero-copy .hero-actions a { flex:1 1 180px; padding-inline:16px; font-size:16px; }
 }
+/* add services info style  */
+.services-info {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 16px 10px;
+  box-sizing: border-box;
+
+  background: #ffffff;
+  border: 1px solid #e4edf8;
+  border-radius: 28px;
+
+  box-shadow: 0 4px 18px rgba(40, 80, 130, 0.06);
+}
+
+.services-info .service-item {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 4px 8px;
+  box-sizing: border-box;
+}
+
+.services-info .service-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.services-info .service-content img {
+  width: 46px;
+  height: 46px;
+  object-fit: contain;
+}
+
+.services-info .service-content span {
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #385b96;
+  white-space: nowrap;
+}
+
+.services-info .divider {
+  position: absolute;
+  left: 0;
+  top: 8%;
+  height: 84%;
+  width: 1px;
+  background: #a8c4ec;
+}
+@media (max-width: 600px) {
+  .services-info {
+    padding: 12px 4px;
+    border-radius: 20px;
+  }
+
+  .services-info .service-item {
+    padding: 4px 2px;
+  }
+
+  .services-info .service-content {
+    gap: 6px;
+  }
+
+  .services-info .service-content img {
+    width: 30px;
+    height: 30px;
+  }
+
+  .services-info .service-content span {
+    font-size: 10px;
+    white-space: normal;
+    line-height: 1.7;
+  }
+
+  .services-info .divider {
+    top: 10%;
+    height: 80%;
+  }
+}
