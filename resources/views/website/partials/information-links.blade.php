@@ -1,0 +1,1 @@
+<nav class="info-legal-links" aria-label="صفحات اطلاعات مطب"><a href="{{ route('website.about') }}">درباره ما</a><a href="{{ route('website.contact') }}">تماس با ما</a><a href="{{ route('website.services.index') }}">خدمات</a><a href="{{ route('website.policies') }}">سیاست‌های کاری</a><a href="{{ route('website.privacy') }}">حریم خصوصی</a></nav>

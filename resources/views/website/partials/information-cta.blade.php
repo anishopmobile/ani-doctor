@@ -1,0 +1,1 @@
+<section class="info-section info-cta"><h2>{{ $websiteTheme['appointment_title'] }}</h2><p class="info-copy">{{ $websiteTheme['appointment_text'] }}</p><a class="info-button" href="{{ route('calendar') }}">{{ $websiteTheme['appointment_button_label'] }}</a></section>
