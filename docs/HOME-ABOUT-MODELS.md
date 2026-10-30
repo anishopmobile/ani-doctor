@@ -21,7 +21,7 @@ Rendering selects the published about image first, then the published physician 
 
 ## Implementation and verification
 
-The Website module owns HomeAboutService and the existing ThemeService/MediaService extensions. Scoped Blade/CSS/JS render the section and reuse current local icons. Existing JSON theme settings and polymorphic media rows store the new values; no migration, dependency or production seed is needed.
+The Website module owns HomeSectionMediaService and the existing ThemeService/MediaService extensions. Scoped Blade/CSS/JS render the section and reuse current local icons. Existing JSON theme settings and polymorphic media rows store the new values; no migration, dependency or production seed is needed.
 
 The baseline passed 339 tests / 2,680 assertions. The full PHP suite passed 345 tests / 2,779 assertions; the dedicated suite passed 6 tests / 99 assertions. Coverage includes every layout, validated configuration, private preview, optional/empty fields, escaping, image publication/replacement/deletion/authorization, safe fallback, hero-portrait independence, section visibility and page-builder precedence. Existing full Chromium controls also passed, including private settings workflows, article-create focus, role denials and actual hold creation/cancellation.
 

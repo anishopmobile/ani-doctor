@@ -30,6 +30,11 @@ final class WebsiteTheme extends Model
         return $this->hasOne(WebsiteMedia::class, 'owner_id')->where('owner_type', 'about');
     }
 
+    public function servicesMedia(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(WebsiteMedia::class, 'owner_id')->where('owner_type', 'services');
+    }
+
     protected function casts(): array
     {
         return ['brand_settings' => 'array'];

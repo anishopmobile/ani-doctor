@@ -59,7 +59,14 @@ class AppServiceProvider extends ServiceProvider
             $view->with('footerData', app(\App\Modules\Website\Application\FooterService::class)->data($theme));
         });
         \Illuminate\Support\Facades\View::composer('website.home-sections.about', function ($view): void {
-            $view->with('homeAboutImage', app(\App\Modules\Website\Application\HomeAboutService::class)->image($view->getData()['websiteTheme']));
+            $view->with('homeAboutImage', app(\App\Modules\Website\Application\HomeSectionMediaService::class)->image($view->getData()['websiteTheme'], 'about'));
+        });
+        \Illuminate\Support\Facades\View::composer('website.home-sections.services', function ($view): void {
+            $data = $view->getData();
+            $services = $data['services'] ?? app(\App\Modules\Website\Application\ServiceContentService::class)->catalogQuery()->limit(6)->get(['id', 'name']);
+            $media = app(\App\Modules\Website\Application\HomeSectionMediaService::class);
+            $view->with('services', $services)->with('homeServicesImage', $media->image($data['websiteTheme'], 'services'))
+                ->with('homeServiceImages', $services->mapWithKeys(fn ($service) => [$service->id => $media->cardImage($service)])->all());
         });
         Gate::policy(Patient::class, PatientPolicy::class);
         Gate::policy(\App\Modules\Booking\Infrastructure\Appointment::class, \App\Policies\AppointmentPolicy::class);

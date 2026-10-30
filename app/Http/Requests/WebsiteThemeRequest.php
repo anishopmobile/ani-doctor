@@ -8,7 +8,7 @@ final class WebsiteThemeRequest extends FormRequest
 {
     protected function prepareForValidation(): void
     {
-        foreach (['highlight_items', 'why_items', 'faq_items', 'footer_features', 'home_about_features', 'home_about_stats'] as $key) {
+        foreach (['highlight_items', 'why_items', 'faq_items', 'footer_features', 'home_about_features', 'home_about_stats', 'home_services_highlights'] as $key) {
             if ($this->input($key.'_present') === '1' && !$this->has($key)) {
                 $this->merge([$key => []]);
             }
@@ -32,6 +32,8 @@ final class WebsiteThemeRequest extends FormRequest
             'portrait_is_published' => ['sometimes', 'required', 'boolean'],
             'favicon_is_published' => ['sometimes', 'required', 'boolean'],
             'about_is_published' => ['sometimes', 'required', 'boolean'],
+            'services_is_published' => ['sometimes', 'required', 'boolean'],
+            'home_services_layout' => ['sometimes', 'required', 'in:light,dark,pastel'],
             'home_about_layout' => ['sometimes', 'required', 'in:classic,dark,organic'],
             'expected_settings_version' => ['sometimes', 'integer', 'min:0'],
             'primary_color' => ['required', 'string', 'regex:/\\A#[0-9a-fA-F]{6}\\z/D'],
@@ -58,9 +60,9 @@ final class WebsiteThemeRequest extends FormRequest
         }
         $rules['section_order'] = ['sometimes', 'array', 'size:6'];
         $rules['section_order.*'] = ['required', 'distinct', \Illuminate\Validation\Rule::in(array_keys(\App\Modules\Website\Application\SiteContent::SECTIONS))];
-        foreach (['highlight_items', 'why_items', 'faq_items', 'footer_features', 'home_about_features', 'home_about_stats'] as $key) {
+        foreach (['highlight_items', 'why_items', 'faq_items', 'footer_features', 'home_about_features', 'home_about_stats', 'home_services_highlights'] as $key) {
             $maximum = match ($key) {
-                'footer_features', 'home_about_stats' => 3, 'home_about_features' => 4, default => 8
+                'footer_features', 'home_about_stats' => 3, 'home_about_features', 'home_services_highlights' => 4, default => 8
             };
             $rules[$key] = ['sometimes', 'array', 'max:'.$maximum];
             $rules[$key.'.*'] = ['array:title,text'];

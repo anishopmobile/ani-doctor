@@ -205,3 +205,7 @@ FR-APT و NFR-01: ترتیب زمان ← بیمار ← تخفیف/ثبت، ا�
 
 ## Administration UX acceptance
 NFR-01 and existing Website/FR-SRV/SCH/REP/FRM/DIS flows include compact expandable editors, honest current-page search, explicit draft/publication state, record-scoped validation restoration, secretary schedule guidance and report-kind-specific filters. No business permission or financial rule changes. Scope and evidence: docs/ADMIN-WORKSPACE-UX.md.
+
+## Homepage service models acceptance
+
+FR-WEB: the existing homepage services section supports three administrator-selectable responsive models, real active online catalog cards with published editorial content, independent section media and safe local fallback. Private preview, page-builder precedence and booking behavior remain intact. Scope and verification: docs/HOME-SERVICES-MODELS.md.

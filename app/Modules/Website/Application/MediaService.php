@@ -15,7 +15,7 @@ final class MediaService
 {
     private function owner(string $type, int $id): Model
     {
-        abort_if(in_array($type, ['brand', 'portrait', 'favicon', 'about'], true) && $id !== 1, 404);
+        abort_if(in_array($type, ['brand', 'portrait', 'favicon', 'about', 'services'], true) && $id !== 1, 404);
         if ($type === 'page_asset') {
             $asset = \App\Modules\Website\Infrastructure\WebsitePageAsset::query()->findOrFail($id);
             \App\Modules\Website\Infrastructure\WebsitePage::query()->whereKey($asset->website_page_id)->lockForUpdate()->firstOrFail();
@@ -26,7 +26,7 @@ final class MediaService
             'article' => WebsiteArticle::class,
             'section' => WebsiteSection::class,
             'service' => Service::class,
-            'brand', 'portrait', 'favicon', 'about' => \App\Modules\Website\Infrastructure\WebsiteTheme::class,
+            'brand', 'portrait', 'favicon', 'about', 'services' => \App\Modules\Website\Infrastructure\WebsiteTheme::class,
             default => abort(404),
         };
 
@@ -41,7 +41,7 @@ final class MediaService
             DB::transaction(function () use ($type, $id, $path, $upload, $alt): void {
                 DB::afterRollBack(fn () => Storage::disk('local')->delete($path));
                 $owner = $this->owner($type, $id);
-                if (in_array($type, ['brand', 'portrait', 'favicon', 'about'], true)) {
+                if (in_array($type, ['brand', 'portrait', 'favicon', 'about', 'services'], true)) {
                     $flag = $type === 'brand' ? 'logo_is_published' : $type.'_is_published';
                     $values = $owner->brand_settings ?? [];
                     $values[$flag] = false;
@@ -73,7 +73,7 @@ final class MediaService
     {
         DB::transaction(function () use ($media): void {
             $owner = $this->owner($media->owner_type, $media->owner_id);
-            if (in_array($media->owner_type, ['brand', 'portrait', 'favicon', 'about'], true) && $media->ownerIsPublished()) {
+            if (in_array($media->owner_type, ['brand', 'portrait', 'favicon', 'about', 'services'], true) && $media->ownerIsPublished()) {
                 throw \Illuminate\Validation\ValidationException::withMessages(['image' => 'این تصویر در هویت منتشرشده استفاده می‌شود؛ ابتدا انتشار آن را در تنظیمات غیرفعال و ذخیره کنید.']);
             }
             if ($media->owner_type === 'page_asset' && $owner->page->referencesAsset($owner->id)) {
@@ -82,7 +82,7 @@ final class MediaService
             $current = WebsiteMedia::query()->whereKey($media->id)->lockForUpdate()->firstOrFail();
             $path = $current->path;
             $current->delete();
-            if (in_array($media->owner_type, ['brand', 'portrait', 'favicon', 'about'], true)) {
+            if (in_array($media->owner_type, ['brand', 'portrait', 'favicon', 'about', 'services'], true)) {
                 $settings = $owner->brand_settings ?? [];
                 $settings['_version'] = (int) ($settings['_version'] ?? 0) + 1;
                 $owner->forceFill(['brand_settings' => $settings])->save();
