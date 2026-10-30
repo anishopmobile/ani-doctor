@@ -23,6 +23,9 @@ final class SiteContent
         'home_about_badge_text' => ['درباره ما در صفحه اصلی', 'توضیح کارت روی تصویر (اختیاری)', 180, ''],
         'services_title' => ['خدمات', 'عنوان بخش خدمات', 180, 'خدمات قابل رزرو مطب'],
         'services_intro' => ['خدمات', 'توضیح بخش خدمات', 1200, 'خدمات این صفحه از فهرست فعال نوبت‌دهی دریافت می‌شوند. زمان‌های آزاد در تقویم اصلی قابل مشاهده‌اند.'],
+        'home_services_all_label' => ['خدمات مطب در صفحه اصلی', 'عنوان دکمه همه خدمات', 80, 'مشاهده همه خدمات'],
+        'home_services_booking_label' => ['خدمات مطب در صفحه اصلی', 'عنوان دکمه تقویم', 80, 'دریافت نوبت'],
+        'home_services_badge' => ['خدمات مطب در صفحه اصلی', 'متن نشان روی تصویر مدل تیره (اختیاری)', 180, ''],
         'why_title' => ['همراهی و سؤالات', 'عنوان همراهی مطب', 180, 'همراه شما، در هر قدم'],
         'faq_title' => ['همراهی و سؤالات', 'عنوان سؤالات متداول', 180, 'پاسخ به پرسش‌های شما'],
         'appointment_title' => ['نوبت‌دهی و فوتر', 'عنوان دعوت به رزرو', 180, 'زمان مناسب خود را انتخاب کنید'],
@@ -54,6 +57,8 @@ final class SiteContent
         $values['faq_items'] = [];
         $values['footer_features'] = $values['why_items'];
         $values['home_about_layout'] = 'classic';
+        $values['home_services_layout'] = 'light';
+        $values['home_services_highlights'] = [];
         $values['home_about_stats'] = [];
         $values['home_about_features'] = [
             ['title' => 'نوبت‌دهی آنلاین', 'text' => 'انتخاب زمان از تقویم مطب'],
@@ -86,7 +91,10 @@ final class SiteContent
         if (!in_array($values['home_about_layout'], ['classic', 'dark', 'organic'], true)) {
             $values['home_about_layout'] = 'classic';
         }
-        foreach (['highlight_items', 'why_items', 'faq_items', 'footer_features', 'home_about_features', 'home_about_stats'] as $key) {
+        if (!in_array($values['home_services_layout'], ['light', 'dark', 'pastel'], true)) {
+            $values['home_services_layout'] = 'light';
+        }
+        foreach (['highlight_items', 'why_items', 'faq_items', 'footer_features', 'home_about_features', 'home_about_stats', 'home_services_highlights'] as $key) {
             $values[$key] = array_values(array_filter($values[$key], fn ($item) => is_array($item) && is_string($item['title'] ?? null) && is_string($item['text'] ?? null)));
         }
 
