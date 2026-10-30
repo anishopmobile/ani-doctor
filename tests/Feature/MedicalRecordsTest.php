@@ -168,7 +168,7 @@ final class MedicalRecordsTest extends TestCase
     {
         $data = ['name' => 'بیمار ساختگی جدید', 'contact_mobile' => $this->patient->contact_mobile, 'identity_type' => 'passport', 'identity_number' => 'SYNTHETIC-PASS-1', 'marital_status' => 'unknown', 'status' => 'active', 'expected_version' => 0];
         $this->actingAs($this->secretary)->post('/management/medical-records', $data)->assertSessionHasErrors('duplicate_ack');
-        $this->post('/management/medical-records', [...$data, 'duplicate_ack' => '1'])->assertRedirect();
+        $this->post('/management/medical-records', [...$data, 'duplicate_ack' => '1', 'duplicate_token' => session('emr.duplicate_review.token')])->assertRedirect();
         $profile = MedicalProfile::firstOrFail();
         $patient = Patient::findOrFail($profile->patient_id);
         $this->assertStringStartsWith('EMR-', $patient->file_number);
@@ -369,15 +369,6 @@ final class MedicalRecordsTest extends TestCase
         $this->get($this->url())->assertOk()->assertDontSee('بخش پرونده');
     }
 
-    public function test_profile_review_confirmation_is_required_in_the_browser_and_explained_in_persian(): void
-    {
-        $page = $this->get('/management/medical-records/new')->assertOk();
-        $xpath = $this->pageXpath($page->getContent());
-        $this->assertSame(1, $xpath->query('//input[@name="duplicate_ack"][@required]')->length);
-        $this->post('/management/medical-records', ['name' => 'بیمار ساختگی تأیید', 'identity_type' => 'unknown', 'marital_status' => 'unknown', 'status' => 'active', 'expected_version' => 0])->assertSessionHasErrors(['duplicate_ack' => 'پیش از ذخیره، بررسی پرونده‌های مشابه را تأیید کنید.']);
-        $this->assertDatabaseCount('emr_profiles', 0);
-    }
-
     public function test_document_review_shows_archived_status_and_recorded_metadata_after_reload(): void
     {
         $this->post($this->url('/documents'), ['file' => UploadedFile::fake()->image('synthetic.png'), 'request_key' => (string) Str::uuid(), 'category' => 'ultrasound', 'source' => 'منبع کاملاً ساختگی', 'document_jalali' => '1405-08-08'])->assertRedirect();
@@ -407,6 +398,63 @@ final class MedicalRecordsTest extends TestCase
         $this->assertSame('شرح حفظ‌شده', $xpath->evaluate('string('.$upload.'//textarea[@name="description"])'));
         $this->assertSame('عنوان مدرک قبلی', $xpath->evaluate('string('.$review.'//input[@name="title"]/@value)'));
         $this->assertDatabaseCount('emr_documents', 1);
+    }
+
+    public function test_duplicate_review_is_required_even_with_a_prechecked_box_and_is_bound_to_input(): void
+    {
+        $data = ['name' => $this->patient->name, 'identity_type' => 'unknown', 'marital_status' => 'unknown', 'status' => 'active', 'expected_version' => 0, 'duplicate_ack' => '1'];
+        $this->post('/management/medical-records', $data)->assertSessionHasErrors('duplicate_ack');
+        $token = session('emr.duplicate_review.token');
+        $this->assertNotEmpty($token);
+        $page = $this->get('/management/medical-records/new')->assertOk()->assertSee('احتمال پرونده تکراری')->assertSee($this->patient->name);
+        $this->assertSame(1, $this->pageXpath($page->getContent())->query('//input[@name="duplicate_ack"][@required]')->length);
+        $this->post('/management/medical-records', [...$data, 'duplicate_token' => $token, 'address' => 'تغییر'])->assertSessionHasErrors('duplicate_ack');
+        $this->assertDatabaseCount('emr_profiles', 0);
+        $this->post('/management/medical-records', [...$data, 'duplicate_token' => 'tampered'])->assertSessionHasErrors('duplicate_ack');
+        $this->post('/management/medical-records', [...$data, 'duplicate_token' => $token])->assertRedirect();
+        $this->assertDatabaseCount('emr_profiles', 1);
+    }
+
+    public function test_specialties_are_explicit_and_existing_records_remain_discoverable(): void
+    {
+        $href = 'href="'.route('emr.records.create', [$this->patient, 'pregnancy']).'"';
+        $this->get($this->url())->assertOk()->assertDontSee($href, false);
+        $this->post($this->url('/specialties'), ['sections' => ['pregnancy'], 'expected_version' => 0])->assertRedirect();
+        $this->get($this->url())->assertOk()->assertSee($href, false);
+        $this->post($this->url('/specialties'), ['sections' => ['fertility'], 'expected_version' => 0])->assertConflict();
+        $this->post($this->url('/records/pregnancy'), $this->data(['episode_status' => 'unknown', 'dating_source' => 'unknown']))->assertRedirect();
+        $this->post($this->url('/specialties'), ['expected_version' => 1])->assertRedirect();
+        $this->get($this->url())->assertOk()->assertSee($href, false);
+        $this->actingAs($this->secretary)->post($this->url('/specialties'), ['sections' => ['fertility'], 'expected_version' => 2])->assertForbidden();
+        $this->get($this->url())->assertOk()->assertDontSee('تنظیم بخش‌های تخصصی');
+        $this->put($this->url('/identity'), ['name' => $this->patient->name, 'identity_type' => 'unknown', 'marital_status' => 'unknown', 'status' => 'active', 'expected_version' => 2, 'enabled_sections' => ['fertility']])->assertRedirect();
+        $this->assertSame([], MedicalProfile::where('patient_id', $this->patient->id)->sole()->identity['enabled_sections']);
+        $this->actingAs($this->admin)->post($this->url('/specialties'), ['sections' => ['menstrual'], 'expected_version' => 3])->assertRedirect();
+        $this->actingAs($this->secretary)->put($this->url('/identity'), ['name' => $this->patient->name, 'identity_type' => 'unknown', 'marital_status' => 'unknown', 'status' => 'active', 'expected_version' => 4])->assertRedirect();
+        $this->assertSame(['menstrual'], MedicalProfile::where('patient_id', $this->patient->id)->sole()->identity['enabled_sections']);
+    }
+
+    public function test_start_visit_checks_attendance_and_patient_and_reopens_same_visit(): void
+    {
+        $this->service = $this->bookingServiceFixture($this->secretary);
+        $appointment = $this->clinicAppointment(['start_at' => now('Asia/Tehran')->setTime(9, 0)->utc()->toIso8601String()]);
+        $this->patient = $appointment->patient;
+        $url = $this->url('/appointments/'.$appointment->reference.'/start');
+        $this->get($url)->assertStatus(405);
+        $this->post($url)->assertUnprocessable();
+        $this->actingAs($this->secretary)->postJson('/management/appointments/'.$appointment->reference.'/attendance', $this->attendanceData($appointment, 'arrived'))->assertSuccessful();
+        $this->post($url)->assertForbidden();
+        $this->actingAs($this->admin)->get(route('patients.show', $this->patient))->assertOk()->assertSee('شروع / ادامه ویزیت');
+        $this->post($url)->assertRedirect();
+        $first = ClinicalRecord::where('appointment_id', $appointment->id)->sole();
+        $this->travel(2)->minutes();
+        $this->post($url)->assertRedirect(route('emr.records.edit', [$this->patient, $first]));
+        $this->assertSame(1, ClinicalRecord::where('appointment_id', $appointment->id)->count());
+        $other = Patient::create(['name' => 'بیمار ساختگی دیگر']);
+        $this->post('/management/medical-records/'.$other->id.'/appointments/'.$appointment->reference.'/start')->assertNotFound();
+        $this->app->instance('env', 'local');
+        $this->post($url)->assertStatus(419);
+        $this->post($this->url('/specialties'), [])->assertStatus(419);
     }
 
     private function pageXpath(string $content): \DOMXPath

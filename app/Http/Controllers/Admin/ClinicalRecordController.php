@@ -16,6 +16,28 @@ use Illuminate\Support\Facades\DB;
 
 final class ClinicalRecordController extends Controller
 {
+    public function specialties(Request $request, Patient $patient)
+    {
+        $data = $request->validate(['sections' => 'sometimes|array', 'sections.*' => 'required|string|in:menstrual,pregnancy,followup,fertility', 'expected_version' => 'required|integer|min:0']);
+        DB::transaction(function () use ($request, $patient, $data): void {
+            Patient::whereKey($patient->id)->lockForUpdate()->firstOrFail();
+            $profile = \App\Modules\MedicalRecords\Infrastructure\MedicalProfile::where('patient_id', $patient->id)->lockForUpdate()->first();
+            abort_unless(($profile?->version ?? 0) === (int) $data['expected_version'], 409, 'اطلاعات تغییر کرده؛ صفحه را تازه کنید.');
+            app(\App\Modules\MedicalRecords\Application\ProfileService::class)->ensureFileNumber($patient);
+            $profile ??= new \App\Modules\MedicalRecords\Infrastructure\MedicalProfile(['patient_id' => $patient->id, 'created_by' => $request->user()->id, 'version' => 0]);
+            $profile->forceFill(['identity' => [...($profile->identity ?? []), 'enabled_sections' => array_values(array_unique($data['sections'] ?? []))], 'status' => $profile->status ?? 'active', 'updated_by' => $request->user()->id, 'version' => $profile->version + 1])->save();
+            app(MedicalAudit::class)->record($request->user()->id, 'sections.updated', $patient->id);
+        }, 3);
+        return redirect()->route('emr.show', $patient);
+    }
+
+    public function start(Request $request, Patient $patient, \App\Modules\Booking\Infrastructure\Appointment $appointment, ClinicalService $service)
+    {
+        abort_unless($appointment->patient_id === $patient->id, 404);
+        $record = $service->save($request->user(), $patient, 'visit', ['request_key' => (string) \Illuminate\Support\Str::uuid(), 'appointment_id' => $appointment->id, 'occurred_jalali' => app(\App\Modules\Scheduling\Application\JalaliDate::class)->format(now()), 'occurred_time' => now('Asia/Tehran')->format('H:i'), 'payload' => []]);
+        return redirect()->route('emr.records.edit', [$patient, $record])->with('status', 'پیش‌نویس ویزیت نوبت باز شد؛ شرح ویزیت را تکمیل کنید.');
+    }
+
     public function section(Request $request, Patient $patient)
     {
         $data = $request->validate(['section' => ['nullable', \Illuminate\Validation\Rule::in(array_keys(ClinicalSchema::labels()))]]);

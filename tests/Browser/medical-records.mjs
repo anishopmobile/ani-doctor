@@ -14,6 +14,11 @@ try {
     await page.goto(base + '/management/medical-records');
     await page.getByRole('link', {name: 'بیمار کاملاً ساختگی EMR مرورگر', exact: true}).click();
     const profileUrl = page.url();
+    assert.equal(await page.locator(`a[href="${profileUrl}/new/pregnancy"]`).count(), 0);
+    await page.locator('summary').filter({hasText: 'تنظیم بخش‌های تخصصی'}).click();
+    await page.locator('[name="sections[]"][value="pregnancy"]').check();
+    await Promise.all([page.waitForNavigation(), page.getByRole('button', {name: 'ذخیره بخش‌های موردنیاز', exact: true}).click()]);
+    assert.equal(await page.locator(`a[href="${profileUrl}/new/pregnancy"]`).count(), 1);
     for (const width of [1440, 768, 320]) {
         await page.setViewportSize({width, height: 1000});
         for (const path of [profileUrl, profileUrl + '/identity', profileUrl + '/new/visit', profileUrl + '/new/pregnancy', profileUrl + '/new/fertility']) {
@@ -54,8 +59,15 @@ try {
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, '200% text size');
     await page.keyboard.press('Tab');
     assert.equal(await page.locator(':focus').count(), 1);
-    await page.goto(profileUrl + '/identity');
+    await page.goto(base + '/management/medical-records/new');
+    assert.equal(await page.locator('[name="duplicate_ack"]').count(), 0);
+    await page.locator('[name="name"]').fill('بیمار کاملاً ساختگی EMR مرورگر');
+    await Promise.all([page.waitForNavigation(), page.getByRole('button', {name: 'ذخیره مشخصات اداری', exact: true}).click()]);
+    assert.equal(await page.getByRole('heading', {name: 'احتمال پرونده تکراری؛ پیش از ادامه بررسی کنید'}).count(), 1);
     assert.equal(await page.locator('[name="duplicate_ack"]').getAttribute('required') !== null, true);
+    await page.locator('[name="duplicate_ack"]').check();
+    await Promise.all([page.waitForNavigation(), page.getByRole('button', {name: 'ذخیره مشخصات اداری', exact: true}).click()]);
+    assert.match(page.url(), /\/medical-records\/\d+$/);
     await page.goto(profileUrl);
     const upload = page.locator('form[enctype="multipart/form-data"]');
     await upload.locator('[name="title"]').fill('PRIVATE-DOCUMENT-BROWSER-SYNTHETIC');

@@ -68,13 +68,23 @@ final class ProfileService
                 if ($hash) {
                     $query->orWhereIn('id', MedicalProfile::where('identity_hash', $hash)->select('patient_id'));
                 }
-            })->exists();
-            if ($similar && empty($data['duplicate_ack'])) {
+            })->orderBy('id')->limit(11)->get(['id', 'name', 'contact_mobile', 'file_number', 'updated_at']);
+            $reviewData = array_diff_key($data, array_flip(['duplicate_ack', 'duplicate_token']));
+            $fingerprint = hash_hmac('sha256', json_encode([$actor->id, $patient->id, $reviewData, $similar->toArray()], JSON_THROW_ON_ERROR), config('app.key'));
+            $reviewed = false;
+            try {
+                [$issued, $confirmed] = explode(':', \Illuminate\Support\Facades\Crypt::decryptString($data['duplicate_token'] ?? ''), 2);
+                $reviewed = ctype_digit($issued) && (int) $issued <= time() && time() - (int) $issued <= 1800 && hash_equals($fingerprint, $confirmed);
+            } catch (\Throwable) {
+                // Missing, expired or modified tokens never authorize a duplicate.
+            }
+            if ($similar->isNotEmpty() && (empty($data['duplicate_ack']) || !$reviewed)) {
+                session()->flash('emr.duplicate_review', ['patient_id' => $patient->id, 'patients' => $similar->take(10)->toArray(), 'more' => $similar->count() > 10, 'token' => \Illuminate\Support\Facades\Crypt::encryptString(time().':'.$fingerprint)]);
                 throw ValidationException::withMessages(['duplicate_ack' => 'پرونده‌ای با نام، تماس یا شناسه مشابه وجود دارد. جستجو کنید و فقط پس از بررسی انسانی ادامه دهید.']);
             }
             $patient->fill(['name' => $data['name'], 'contact_mobile' => $data['contact_mobile'] ?? null])->save();
             $this->ensureFileNumber($patient);
-            $identity = array_intersect_key($data, array_flip(['identity_type', 'identity_number', 'marital_status', 'address', 'administrative_note']));
+            $identity = [...array_intersect_key($profile?->identity ?? [], ['enabled_sections' => true]), ...array_intersect_key($data, array_flip(['identity_type', 'identity_number', 'marital_status', 'address', 'administrative_note']))];
             $identity['birth_date'] = !empty($data['birth_jalali']) ? app(JalaliDate::class)->parse(\App\Modules\Identity\Domain\MobileNumber::normalize($data['birth_jalali']))->format('Y-m-d') : null;
             $profile ??= new MedicalProfile(['patient_id' => $patient->id, 'created_by' => $actor->id, 'version' => 0]);
             $profile->forceFill(['identity' => $identity, 'identity_hash' => $hash, 'status' => $data['status'], 'updated_by' => $actor->id, 'version' => $profile->version + 1])->save();

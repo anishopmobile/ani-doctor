@@ -33,7 +33,7 @@ final class MedicalProfileRequest extends FormRequest
         if ($this->routeIs('emr.search')) {
             return ['query' => 'nullable|string|max:100', 'status' => 'nullable|in:active,archived', 'from' => 'nullable|string|max:10', 'to' => 'nullable|string|max:10', 'sort' => 'nullable|in:newest,oldest,name,file'];
         }
-        return ['name' => 'required|string|max:150', 'contact_mobile' => 'nullable|regex:/\A09[0-9]{9}\z/', 'identity_type' => 'required|in:unknown,national,passport,other', 'identity_number' => 'nullable|string|max:64', 'birth_jalali' => 'nullable|string|max:10', 'marital_status' => 'required|in:unknown,single,married,other', 'address' => 'nullable|string|max:2000', 'administrative_note' => 'nullable|string|max:2000', 'status' => 'required|in:active,archived', 'expected_version' => 'required|integer|min:0', 'duplicate_ack' => 'nullable|accepted'];
+        return ['name' => 'required|string|max:150', 'contact_mobile' => 'nullable|regex:/\A09[0-9]{9}\z/', 'identity_type' => 'required|in:unknown,national,passport,other', 'identity_number' => 'nullable|string|max:64', 'birth_jalali' => 'nullable|string|max:10', 'marital_status' => 'required|in:unknown,single,married,other', 'address' => 'nullable|string|max:2000', 'administrative_note' => 'nullable|string|max:2000', 'status' => 'required|in:active,archived', 'expected_version' => 'required|integer|min:0', 'duplicate_ack' => 'sometimes|accepted', 'duplicate_token' => 'nullable|string|max:4096'];
     }
 
     public function after(): array
