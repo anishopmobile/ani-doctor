@@ -190,6 +190,8 @@ jobs:
             node home-about.mjs
             php ../Support/home-services-browser-seed.php
             node home-services.mjs
+            php ../Support/home-contact-browser-seed.php
+            node home-contact.mjs
 
       - name: Upload browser verification evidence
         if: always() && steps.detect.outputs.app == 'true'

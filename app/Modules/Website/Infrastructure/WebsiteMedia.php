@@ -18,7 +18,7 @@ final class WebsiteMedia extends Model
 
             return $asset?->page?->referencesAsset($asset->id, true) ?? false;
         }
-        if (in_array($this->owner_type, ['brand', 'portrait', 'favicon', 'about', 'services'], true)) {
+        if (in_array($this->owner_type, ['brand', 'portrait', 'favicon', 'about', 'services', 'contact'], true)) {
             $theme = WebsiteTheme::query()->find($this->owner_id);
 
             $flag = $this->owner_type === 'brand' ? 'logo_is_published' : $this->owner_type.'_is_published';

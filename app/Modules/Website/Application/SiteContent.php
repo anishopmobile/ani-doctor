@@ -32,6 +32,8 @@ final class SiteContent
         'appointment_text' => ['نوبت‌دهی و فوتر', 'توضیح رزرو', 1200, 'نوبت فقط پس از طی مراحل تأیید و پرداخت مربوطه قطعی است.'],
         'appointment_button_label' => ['نوبت‌دهی و فوتر', 'عنوان دکمه تقویم', 80, 'ورود به تقویم نوبت‌دهی'],
         'contact_title' => ['اطلاعات مطب', 'عنوان بخش تماس', 180, 'اطلاعات تماس و موقعیت مطب'],
+        'home_contact_intro' => ['تماس در صفحه اصلی', 'توضیح بخش تماس', 1200, 'برای هماهنگی مراجعه و پرسش‌های عمومی، از راه‌های ارتباطی ثبت‌شده مطب استفاده کنید.'],
+        'home_contact_badge' => ['تماس در صفحه اصلی', 'متن روی تصویر (اختیاری)', 180, ''],
         'contact_hours' => ['اطلاعات مطب', 'ساعات پاسخ‌گویی (متن اطلاع‌رسانی)', 500, ''],
         'contact_email' => ['اطلاعات مطب', 'ایمیل عمومی', 180, ''],
         'contact_website' => ['اطلاعات مطب', 'وب‌سایت رسمی HTTPS', 255, 'https://drzahrabagheri.ir'],
@@ -58,6 +60,8 @@ final class SiteContent
         $values['footer_features'] = $values['why_items'];
         $values['home_about_layout'] = 'classic';
         $values['home_services_layout'] = 'light';
+        $values['home_contact_layout'] = 'clinic';
+        $values['home_contact_form_enabled'] = true;
         $values['home_services_highlights'] = [];
         $values['home_about_stats'] = [];
         $values['home_about_features'] = [
@@ -93,6 +97,9 @@ final class SiteContent
         }
         if (!in_array($values['home_services_layout'], ['light', 'dark', 'pastel'], true)) {
             $values['home_services_layout'] = 'light';
+        }
+        if (!in_array($values['home_contact_layout'], ['clinic', 'dark', 'pastel'], true)) {
+            $values['home_contact_layout'] = 'clinic';
         }
         foreach (['highlight_items', 'why_items', 'faq_items', 'footer_features', 'home_about_features', 'home_about_stats', 'home_services_highlights'] as $key) {
             $values[$key] = array_values(array_filter($values[$key], fn ($item) => is_array($item) && is_string($item['title'] ?? null) && is_string($item['text'] ?? null)));

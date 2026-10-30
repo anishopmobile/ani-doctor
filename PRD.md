@@ -209,3 +209,7 @@ NFR-01 and existing Website/FR-SRV/SCH/REP/FRM/DIS flows include compact expanda
 ## Homepage service models acceptance
 
 FR-WEB: the existing homepage services section supports three administrator-selectable responsive models, real active online catalog cards with published editorial content, independent section media and safe local fallback. Private preview, page-builder precedence and booking behavior remain intact. Scope and verification: docs/HOME-SERVICES-MODELS.md.
+
+## Homepage contact models acceptance
+
+FR-WEB: the homepage contact/location section supports three administrator-selected responsive models, real saved contact details/map/social links, independently published image and an optional real guest message form. Messages use private encrypted storage and an authorized admin read/delete inbox, with validation, CSRF and abuse limits. No booking behavior changes. Scope, deployment migration and verification: docs/HOME-CONTACT-MODELS.md.

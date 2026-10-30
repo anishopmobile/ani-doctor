@@ -33,6 +33,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        RateLimiter::for('website-contact', fn (Request $request) => [Limit::perMinute(3)->by('contact-minute:'.$request->ip()), Limit::perDay(20)->by('contact-day:'.$request->ip())]);
+        \Illuminate\Support\Facades\View::composer('website.home-sections.contact', function ($view): void {
+            $theme = $view->getData()['websiteTheme'];
+            $view->with('homeContactImage', app(\App\Modules\Website\Application\HomeSectionMediaService::class)->image($theme, 'contact'))
+                ->with('homeContactData', app(\App\Modules\Website\Application\HomeContactService::class)->data($theme));
+        });
         foreach (['forms.manage', 'forms.answers.view', 'forms.answers.write', 'notifications.manage', 'discounts.manage', 'reports.appointments', 'reports.finance', 'website.manage'] as $permission) {
             Gate::define($permission, fn (User $user) => $user->hasPermission($permission));
         }
