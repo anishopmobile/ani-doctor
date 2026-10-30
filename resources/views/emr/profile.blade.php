@@ -15,7 +15,7 @@
 <label>وضعیت پرونده<select class="form-select" name="status"><option value="active" @selected(old('status', $profile?->status) !== 'archived')>فعال</option><option value="archived" @selected(old('status', $profile?->status) === 'archived')>بایگانی (بدون حذف سوابق)</option></select></label>
 </div>
 @foreach(['address'=>'آدرس', 'administrative_note'=>'توضیح اداری بدون اطلاعات بالینی'] as $key=>$label)<label class="d-block mt-3">{{ $label }}<textarea class="form-control" name="{{ $key }}" maxlength="2000">{{ old($key, $identity[$key] ?? '') }}</textarea></label>@endforeach
-<label class="d-block mt-3"><input type="checkbox" name="duplicate_ack" value="1" @checked(old('duplicate_ack'))> پرونده‌های مشابه را بررسی کردم؛ ثبت یا تغییر برای همین شخص صحیح است.</label>
+<label class="d-block mt-3"><input type="checkbox" name="duplicate_ack" value="1" required @checked(old('duplicate_ack'))> پرونده‌های مشابه را بررسی کردم؛ ثبت یا تغییر برای همین شخص صحیح است. (الزامی)</label>
 @error('duplicate_ack')<p class="alert alert-warning">{{ $message }}</p>@enderror
 <button class="btn btn-primary mt-3">ذخیره مشخصات اداری</button> <a href="{{ route('emr.index') }}">بازگشت به جستجو</a>
 </form>

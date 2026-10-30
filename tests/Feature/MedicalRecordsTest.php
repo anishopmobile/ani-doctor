@@ -368,4 +368,64 @@ final class MedicalRecordsTest extends TestCase
         $this->actingAs($this->secretary)->post($this->url('/section'), ['section' => 'visit'])->assertForbidden();
         $this->get($this->url())->assertOk()->assertDontSee('بخش پرونده');
     }
+
+    public function test_profile_review_confirmation_is_required_in_the_browser_and_explained_in_persian(): void
+    {
+        $page = $this->get('/management/medical-records/new')->assertOk();
+        $xpath = $this->pageXpath($page->getContent());
+        $this->assertSame(1, $xpath->query('//input[@name="duplicate_ack"][@required]')->length);
+        $this->post('/management/medical-records', ['name' => 'بیمار ساختگی تأیید', 'identity_type' => 'unknown', 'marital_status' => 'unknown', 'status' => 'active', 'expected_version' => 0])->assertSessionHasErrors(['duplicate_ack' => 'پیش از ذخیره، بررسی پرونده‌های مشابه را تأیید کنید.']);
+        $this->assertDatabaseCount('emr_profiles', 0);
+    }
+
+    public function test_document_review_shows_archived_status_and_recorded_metadata_after_reload(): void
+    {
+        $this->post($this->url('/documents'), ['file' => UploadedFile::fake()->image('synthetic.png'), 'request_key' => (string) Str::uuid(), 'category' => 'ultrasound', 'source' => 'منبع کاملاً ساختگی', 'document_jalali' => '1405-08-08'])->assertRedirect();
+        $document = MedicalDocument::firstOrFail();
+        $this->post($this->url('/documents/'.$document->id.'/review'), ['status' => 'archived'])->assertRedirect();
+        $page = $this->get($this->url())->assertOk();
+        $xpath = $this->pageXpath($page->getContent());
+        $form = '//form[@action="'.route('emr.documents.review', [$this->patient, $document]).'"]';
+        $this->assertSame('archived', $xpath->evaluate('string('.$form.'//select[@name="status"]/option[@selected]/@value)'));
+        $page->assertSee('منبع کاملاً ساختگی')->assertSee('تاریخ سند: <bdi>1405-08-08</bdi>', false)->assertSee('دسته: سونوگرافی');
+    }
+
+    public function test_invalid_document_upload_restores_metadata_without_contaminating_review_forms(): void
+    {
+        $this->post($this->url('/documents'), ['file' => UploadedFile::fake()->image('synthetic.png'), 'request_key' => (string) Str::uuid(), 'title' => 'عنوان مدرک قبلی'])->assertRedirect();
+        $document = MedicalDocument::firstOrFail();
+        $key = (string) Str::uuid();
+        $this->from($this->url())->post($this->url('/documents'), ['_ux_context' => 'emr-upload', 'file' => UploadedFile::fake()->createWithContent('invalid.pdf', 'not a PDF'), 'request_key' => $key, 'title' => 'عنوان حفظ‌شده ساختگی', 'category' => 'pathology', 'source' => 'منبع حفظ‌شده', 'description' => 'شرح حفظ‌شده', 'document_jalali' => '1405-08-08'])->assertSessionHasErrors('file');
+        $page = $this->get($this->url())->assertOk();
+        $xpath = $this->pageXpath($page->getContent());
+        $upload = '//form[@action="'.route('emr.documents.store', $this->patient).'"]';
+        $review = '//form[@action="'.route('emr.documents.review', [$this->patient, $document]).'"]';
+        foreach (['title' => 'عنوان حفظ‌شده ساختگی', 'source' => 'منبع حفظ‌شده', 'document_jalali' => '1405-08-08', 'request_key' => $key] as $field => $expected) {
+            $this->assertSame($expected, $xpath->evaluate('string('.$upload.'//input[@name="'.$field.'"]/@value)'));
+        }
+        $this->assertSame('pathology', $xpath->evaluate('string('.$upload.'//select[@name="category"]/option[@selected]/@value)'));
+        $this->assertSame('شرح حفظ‌شده', $xpath->evaluate('string('.$upload.'//textarea[@name="description"])'));
+        $this->assertSame('عنوان مدرک قبلی', $xpath->evaluate('string('.$review.'//input[@name="title"]/@value)'));
+        $this->assertDatabaseCount('emr_documents', 1);
+    }
+
+    private function pageXpath(string $content): \DOMXPath
+    {
+        $previous = libxml_use_internal_errors(true);
+        $document = new \DOMDocument();
+        $document->loadHTML($content);
+        libxml_clear_errors();
+        libxml_use_internal_errors($previous);
+        return new \DOMXPath($document);
+    }
+
+    public function test_document_download_does_not_replace_the_previous_form_page(): void
+    {
+        $this->post($this->url('/documents'), ['file' => UploadedFile::fake()->image('synthetic.png'), 'request_key' => (string) Str::uuid()])->assertRedirect();
+        $document = MedicalDocument::firstOrFail();
+        $this->get($this->url())->assertOk();
+        $this->get($this->url('/documents/'.$document->id))->assertDownload();
+        $this->assertSame(route('emr.show', $this->patient), session()->previousUrl());
+        $this->post($this->url('/documents'), ['request_key' => (string) Str::uuid(), 'file' => UploadedFile::fake()->createWithContent('invalid.pdf', 'not PDF')])->assertRedirect(route('emr.show', $this->patient))->assertSessionHasErrors('file');
+    }
 }

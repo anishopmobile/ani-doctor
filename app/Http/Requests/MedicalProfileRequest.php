@@ -71,6 +71,6 @@ final class MedicalProfileRequest extends FormRequest
 
     public function messages(): array
     {
-        return ['required' => 'این فیلد لازم است.', 'regex' => 'شماره تماس معتبر نیست.', 'in' => 'گزینه معتبر انتخاب کنید.', 'max' => 'مقدار از حد مجاز بیشتر است.'];
+        return ['required' => 'این فیلد لازم است.', 'regex' => 'شماره تماس معتبر نیست.', 'in' => 'گزینه معتبر انتخاب کنید.', 'max' => 'مقدار از حد مجاز بیشتر است.', 'duplicate_ack.accepted' => 'پیش از ذخیره، بررسی پرونده‌های مشابه را تأیید کنید.'];
     }
 }
