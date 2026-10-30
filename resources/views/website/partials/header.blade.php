@@ -1,4 +1,4 @@
-<header class="website-header" data-public-header>
+<header class="website-header" id="public-site-top" tabindex="-1" data-public-header>
     <div class="container header-inner">
         <a class="brand" href="{{ route('website.home') }}" aria-label="صفحه اصلی {{ $websiteTheme['brand_name'] }}">@include('website.partials.brand-logo')<span>{{ $websiteTheme['brand_name'] }}<small>{{ $websiteTheme['brand_subtitle'] }}</small></span></a>
         <nav class="main-nav" id="public-navigation" aria-label="ناوبری اصلی">

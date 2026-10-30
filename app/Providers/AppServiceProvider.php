@@ -54,6 +54,10 @@ class AppServiceProvider extends ServiceProvider
             $links = app(\App\Modules\Website\Application\LinkService::class);
             $view->with('headerLinks', $links->published('header'))->with('footerLinks', $links->published('footer'));
         });
+        \Illuminate\Support\Facades\View::composer('website.partials.footer', function ($view): void {
+            $theme = $view->getData()['websiteTheme'] ?? app(\App\Modules\Website\Application\ThemeService::class)->settings();
+            $view->with('footerData', app(\App\Modules\Website\Application\FooterService::class)->data($theme));
+        });
         Gate::policy(Patient::class, PatientPolicy::class);
         Gate::policy(\App\Modules\Booking\Infrastructure\Appointment::class, \App\Policies\AppointmentPolicy::class);
         foreach (['patient', 'secretary', 'admin'] as $panel) {

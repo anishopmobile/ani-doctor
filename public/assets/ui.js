@@ -56,11 +56,11 @@ document.querySelectorAll('[data-settings-repeater]').forEach(container => {
     const list = container.querySelector('[data-settings-rows]'), template = container.querySelector('template'), add = container.querySelector('[data-settings-add]');
     const reindex = () => {
         [...list.children].forEach((row, index) => row.querySelectorAll('[data-setting-key]').forEach(input => { input.name = `${container.dataset.settingsRepeater}[${index}][${input.dataset.settingKey}]`; }));
-        add.disabled = list.children.length >= 8;
+        add.disabled = list.children.length >= Number(container.dataset.settingsMax || 8);
     };
     add.hidden = false;
     add.addEventListener('click', () => {
-        if (list.children.length >= 8) return;
+        if (list.children.length >= Number(container.dataset.settingsMax || 8)) return;
         list.append(template.content.cloneNode(true)); reindex(); list.lastElementChild.querySelector('[data-settings-remove]').hidden = false;
         list.lastElementChild.querySelector('input').focus(); container.dispatchEvent(new Event('input', {bubbles: true}));
     });

@@ -5,6 +5,8 @@
         <select class="form-select" name="placement" required>
             <option value="header" @selected($uiOld('placement', $link?->placement) === 'header')>هدر</option>
             <option value="footer" @selected($uiOld('placement', $link?->placement) === 'footer')>فوتر</option>
+            <option value="social" @selected($uiOld('placement', $link?->placement) === 'social')>شبکه‌های اجتماعی فوتر (فقط HTTPS)</option>
+            <option value="footer_legal" @selected($uiOld('placement', $link?->placement) === 'footer_legal')>نوار پایینی فوتر</option>
         </select>
     </label>
     <label>عنوان لینک
