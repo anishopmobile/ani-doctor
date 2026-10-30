@@ -23,6 +23,7 @@ final class ThemeService
         'logo_is_published' => false,
         'portrait_is_published' => false,
         'favicon_is_published' => false,
+        'about_is_published' => false,
         'show_weekly_schedule' => false,
         'weekly_schedule_notes' => '',
     ];
@@ -77,7 +78,7 @@ final class ThemeService
     public function publishedMedia(string $type): ?\App\Modules\Website\Infrastructure\WebsiteMedia
     {
         $flag = match ($type) {
-            'brand' => 'logo_is_published', 'portrait' => 'portrait_is_published', 'favicon' => 'favicon_is_published', default => null
+            'brand' => 'logo_is_published', 'portrait' => 'portrait_is_published', 'favicon' => 'favicon_is_published', 'about' => 'about_is_published', default => null
         };
         if (!$flag || ($this->settings()[$flag] ?? false) !== true) {
             return null;

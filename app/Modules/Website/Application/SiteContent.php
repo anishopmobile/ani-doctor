@@ -17,6 +17,10 @@ final class SiteContent
         'hero_art_subtitle' => ['معرفی نخست', 'توضیح زیر تصویر معرفی', 300, 'مراقبتی همراه با آرامش و احترام'],
         'about_title' => ['معرفی پزشک', 'عنوان معرفی پزشک', 180, 'مراقبتی همراه با آرامش و احترام'],
         'about_text' => ['معرفی پزشک', 'معرفی تأییدشده پزشک', 4000, 'برای آشنایی با خدمات قابل رزرو از فهرست خدمات و تقویم آنلاین مطب استفاده کنید.'],
+        'home_about_button_label' => ['درباره ما در صفحه اصلی', 'عنوان دکمه', 80, 'بیشتر درباره ما'],
+        'home_about_button_url' => ['درباره ما در صفحه اصلی', 'لینک داخلی دکمه', 255, '/about'],
+        'home_about_badge_title' => ['درباره ما در صفحه اصلی', 'عنوان کارت روی تصویر (اختیاری)', 100, ''],
+        'home_about_badge_text' => ['درباره ما در صفحه اصلی', 'توضیح کارت روی تصویر (اختیاری)', 180, ''],
         'services_title' => ['خدمات', 'عنوان بخش خدمات', 180, 'خدمات قابل رزرو مطب'],
         'services_intro' => ['خدمات', 'توضیح بخش خدمات', 1200, 'خدمات این صفحه از فهرست فعال نوبت‌دهی دریافت می‌شوند. زمان‌های آزاد در تقویم اصلی قابل مشاهده‌اند.'],
         'why_title' => ['همراهی و سؤالات', 'عنوان همراهی مطب', 180, 'همراه شما، در هر قدم'],
@@ -49,6 +53,14 @@ final class SiteContent
         ];
         $values['faq_items'] = [];
         $values['footer_features'] = $values['why_items'];
+        $values['home_about_layout'] = 'classic';
+        $values['home_about_stats'] = [];
+        $values['home_about_features'] = [
+            ['title' => 'نوبت‌دهی آنلاین', 'text' => 'انتخاب زمان از تقویم مطب'],
+            ['title' => 'حریم خصوصی', 'text' => 'احترام به محرمانگی اطلاعات مراجعان'],
+            ['title' => 'پیگیری نوبت', 'text' => 'دسترسی به وضعیت نوبت در سامانه'],
+            ['title' => 'ارتباط با مطب', 'text' => 'راه‌های ارتباطی رسمی و اطلاعات مراجعه'],
+        ];
         $values['highlight_items'] = [
             ['title' => 'نوبت‌دهی آنلاین', 'text' => 'با مشاهده تقویم و ساعات آزاد'],
             ['title' => 'پیگیری نوبت', 'text' => 'از طریق سامانه فعلی مطب'],
@@ -71,7 +83,10 @@ final class SiteContent
         }
         $order = array_values(array_unique(array_filter($values['section_order'], fn ($key) => is_string($key) && isset(self::SECTIONS[$key]))));
         $values['section_order'] = array_values(array_unique([...$order, ...array_keys(self::SECTIONS)]));
-        foreach (['highlight_items', 'why_items', 'faq_items', 'footer_features'] as $key) {
+        if (!in_array($values['home_about_layout'], ['classic', 'dark', 'organic'], true)) {
+            $values['home_about_layout'] = 'classic';
+        }
+        foreach (['highlight_items', 'why_items', 'faq_items', 'footer_features', 'home_about_features', 'home_about_stats'] as $key) {
             $values[$key] = array_values(array_filter($values[$key], fn ($item) => is_array($item) && is_string($item['title'] ?? null) && is_string($item['text'] ?? null)));
         }
 
