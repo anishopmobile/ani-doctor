@@ -54,6 +54,7 @@ final class MedicalRecordController extends Controller
         app(MedicalAudit::class)->record($request->user()->id, $clinical ? 'clinical.read' : 'profile.read', $patient->id);
         $data = ['patient' => $patient, 'profile' => MedicalProfile::where('patient_id', $patient->id)->first(), 'clinical' => $clinical];
         if ($clinical) {
+            $data['visibleLabels'] = app(\App\Modules\MedicalRecords\Application\SpecialtySections::class)->visible($patient, $data['profile']);
             $data['section'] = $request->session()->get('emr.section.'.$patient->id, '');
             $data['records'] = ClinicalRecord::where('patient_id', $patient->id)->when($data['section'] !== '', fn ($query) => $query->where('kind', $data['section']))->orderByDesc('occurred_at')->orderByDesc('id')->paginate(20, ['*'], 'records_page');
             $data['documents'] = MedicalDocument::where('patient_id', $patient->id)->orderByDesc('id')->paginate(10, ['*'], 'documents_page');

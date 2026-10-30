@@ -7,7 +7,10 @@
 @include('desk.patient-fields')<button class="btn btn-primary mt-2">ذخیره مشخصات پایه</button></form></section>
 <a class="btn btn-outline-primary mt-3" href="{{ route('desk.create', ['patient_id'=>$patient->id]) }}">نوبت تلفنی / فوری برای همین بیمار</a>
 <h2 class="h4 mt-4">سابقه نوبت‌ها</h2>
-@forelse($appointments as $appointment)<p><bdi>{{ $jalali->format($appointment->start_at) }} {{ $appointment->start_at->setTimezone('Asia/Tehran')->format('H:i') }}</bdi> — {{ $appointment->service_title }} — {{ ['pending_payment'=>'رزرو موقت','confirmed'=>'قطعی','expired'=>'منقضی','cancelled'=>'لغوشده','completed'=>'انجام‌شده','no_show'=>'عدم مراجعه'][$appointment->effectiveStatus()] }} — <a href="{{ route('appointments.show', $appointment->reference) }}">جزئیات مجاز نوبت</a></p>@empty<p>نوبتی ثبت نشده است.</p>@endforelse
+@forelse($appointments as $appointment)<p><bdi>{{ $jalali->format($appointment->start_at) }} {{ $appointment->start_at->setTimezone('Asia/Tehran')->format('H:i') }}</bdi> — {{ $appointment->service_title }} — {{ ['pending_payment'=>'رزرو موقت','confirmed'=>'قطعی','expired'=>'منقضی','cancelled'=>'لغوشده','completed'=>'انجام‌شده','no_show'=>'عدم مراجعه'][$appointment->effectiveStatus()] }} — <a href="{{ route('appointments.show', $appointment->reference) }}">جزئیات مجاز نوبت</a></p>@if(app(\App\Policies\MedicalRecordPolicy::class)->clinical(auth()->user()) && in_array($appointment->status, ['confirmed', 'completed'], true) && $appointment->arrived_at && !$appointment->no_show_at)
+<form method="post" action="{{ route('emr.visit.start', [$patient, $appointment]) }}" class="mb-3">@csrf<button class="btn btn-outline-primary">شروع / ادامه ویزیت نوبت #{{ $appointment->id }}</button></form>
+@endif
+@empty<p>نوبتی ثبت نشده است.</p>@endforelse
 {{ $appointments->links() }}
 <a href="{{ route('patients.index') }}">فهرست بیماران</a>
 @endsection

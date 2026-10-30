@@ -15,6 +15,8 @@ Route::middleware(['auth', MedicalRecordAccess::class.':administrative', 'thrott
     Route::put('/{patient}/identity', [Administrative::class, 'save'])->whereNumber('patient')->name('emr.profile.update');
     Route::post('/{patient}/documents', [Administrative::class, 'upload'])->whereNumber('patient')->name('emr.documents.store');
     Route::middleware(MedicalRecordAccess::class.':clinical')->group(function (): void {
+        Route::post('/{patient}/specialties', [Clinical::class, 'specialties'])->name('emr.specialties');
+        Route::post('/{patient}/appointments/{appointment}/start', [Clinical::class, 'start'])->name('emr.visit.start');
         Route::post('/{patient}/section', [Clinical::class, 'section'])->name('emr.section');
         Route::get('/{patient}/new/{kind}', [Clinical::class, 'create'])->name('emr.records.create');
         Route::post('/{patient}/records/{kind}', [Clinical::class, 'store'])->name('emr.records.store');
