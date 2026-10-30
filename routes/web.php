@@ -4,6 +4,8 @@ use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\OtpController;
 use Illuminate\Support\Facades\Route;
 
+require __DIR__.'/medical-records.php';
+
 Route::get('/', [\App\Http\Controllers\Web\WebsiteController::class, 'home'])->name('website.home');
 Route::view('/about', 'website.about')->name('website.about');
 Route::view('/contact', 'website.contact')->name('website.contact');

@@ -1,5 +1,9 @@
 # SECURITY — سیاست امنیت و حفاظت داده‌های آنی دکتر
 
+EMR داخلی طبق دستور مالک به دامنه اضافه شده است. MedicalRecordAccess پیش از route binding نقش موجود و مجوز واقعی را کنترل می‌کند؛ clinical فقط admin تأییدشده فعال با panel.admin است. متن بالینی، هویت تکمیلی و فایل‌ها با APP_KEY رمزگذاری، شناسه تکمیلی با HMAC دقیق جستجو می‌شود؛ نام/تماس پایه طبق معماری قبلی plaintext است. APP_KEY و کلید بکاپ باید escrow شوند؛ چرخش APP_KEY به بازرمزگذاری و بازسازی blind index نیاز دارد. سیاست نگهداری قانونی هنوز نامشخص است.
+
+ارسال منشی بدون نام اصلی/عنوان/شرح/پیوند بالینی ذخیره می‌شود؛ منشی فقط وضعیت ارسال خودش را می‌بیند. دانلود فقط پزشک به صورت attachment است. MIME، پسوند، signature، اندازه، سقف پیکسل و قابلیت رمزگشایی تصویر کنترل می‌شوند؛ اصل سند بدون بازفشرده‌سازی و تغییر محتوای بالینی حفظ می‌شود. فایل‌ها زیر storage/app/private/emr رمزگذاری و در بکاپ هماهنگ فعلی هستند. اسکن بدافزار نصب نشده؛ pending/بازبینی پزشک گواهی پاک‌بودن فایل نیست. PDF باید در محیط امن باز شود. سقف ورودی ۱۰MB است؛ رمزگذاری blob در حافظه و ارسال خروجی chunk است. هدرها و CSRF موجود برقرارند. [جزئیات و محدودیت‌ها](docs/patient-medical-records.md).
+
 Homepage contact inbox: public submissions are rate-limited, CSRF-protected and validated; name, phone and body are encrypted at rest and excluded from validation input flash/automatic model serialization. Only `website.manage` can read/delete messages, with private no-store responses. Public copy requests general coordination messages and no medical documents; no patient/appointment linkage or automatic outgoing notification is created. Delete unneeded messages after handling; backing up/rotating APP_KEY must preserve decryption as with other encrypted records. See docs/HOME-CONTACT-MODELS.md.
 **نسخه:** 1.0.0 · **سطح:** الزامی برای همه فازها
 

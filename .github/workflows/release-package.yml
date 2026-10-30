@@ -192,6 +192,8 @@ jobs:
             node home-services.mjs
             php ../Support/home-contact-browser-seed.php
             node home-contact.mjs
+            php ../Support/emr-browser-seed.php
+            node medical-records.mjs
 
       - name: Upload browser verification evidence
         if: always() && steps.detect.outputs.app == 'true'

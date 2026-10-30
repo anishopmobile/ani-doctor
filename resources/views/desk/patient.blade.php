@@ -1,6 +1,7 @@
 @extends('layouts.app')
 @section('content')
 <h1 class="h3">مشخصات پایه بیمار</h1>
+@if(auth()->user() && app(\App\Policies\MedicalRecordPolicy::class)->administrative(auth()->user()))<a class="btn btn-outline-primary mb-3" href="{{ route('emr.show', $patient) }}">پرونده بیمار</a>@endif
 <p>شناسه بیمار: {{ $patient->id }}. ویرایش تماس، مالکیت نوبت‌ها یا پیوند بیماران دیگر را تغییر نمی‌دهد.</p>
 <section class="ux-card"><form method="post" action="{{ route('patients.update', $patient) }}">@csrf @method('PUT')
 @include('desk.patient-fields')<button class="btn btn-primary mt-2">ذخیره مشخصات پایه</button></form></section>
