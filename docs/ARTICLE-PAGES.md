@@ -1,6 +1,6 @@
 # Public article listing and detail
 
-Branch: `feature/article-pages`. These changes are for review; merging into main requires the user's later approval.
+Source branch: `feature/article-pages`. Changes follow the repository's PR and CI merge workflow.
 
 ## Existing architecture and scope
 
@@ -17,6 +17,10 @@ The supplied SVG is copied unchanged to `public/assets/images/article-default.sv
 
 The existing body field remains escaped plain text with line breaks. Raw HTML, embedded scripts and arbitrary HTML editors are not enabled. Existing images are served by the controlled media route, rather than exposing storage paths or accepting arbitrary image URLs.
 
+## AJAX listing
+
+The same validated GET route returns `{html}` containing the shared Blade results fragment when JSON is requested. Search debounces 300ms, selects update immediately, and submit/reset/category/pagination actions update results without reloading the document. Pending requests are aborted and revision checks reject stale responses, including while typing or composing IME text. Input spaces and keyboard focus are preserved. Busy/inert results, a live status, retained previous results on failure and a retry action provide feedback. Successful changes update browser history; Back/Forward restore filters and results. Native forms and links remain usable without JavaScript. No new library or change to publication/booking rules is involved.
+
 ## Management and migration
 
 The existing `/admin/website-articles` editor gains an optional public `author_name` field (maximum 120 characters). It is distinct from staff account names and does not expose private user information. All previous permissions, CSRF protection, publication dates and image upload limits remain in effect. The create form still focuses the title first.
@@ -30,8 +34,8 @@ ArticleImage uses only supported local media paths under `website-media/` and th
 ## Verification
 
 - Existing suite before the new schema: 325 tests, 2,488 assertions passed.
-- New feature suite: 8 tests, 89 assertions passed.
-- Full suite with the new schema and legacy rollback boundaries: 333 tests, 2,584 assertions passed.
+- Feature suite including JSON fragment behavior: 9 tests, 100 assertions passed.
+- Full suite with the new schema and AJAX fragment: 334 tests, 2,595 assertions passed.
 - Dedicated Chromium verification: both pages at 1440, 1200, 1024, 768, 375 and 320px; actual 4/2/1 card counts, sidebar order, live search/category/sort and page-two results, empty state, Jalali dates, author, real share URLs, clipboard success/denial, 200% text, corrupt-byte/HTTP-404 fallback and native no-JavaScript pagination. No unexpected asset, JavaScript, external request or CSP errors.
 - Pint on added/modified article PHP code and `git diff --check` passed.
 - Existing full Chromium controls passed, including title focus during article creation, unauthorized patient denials and actual booking/cancellation. Existing weekly-schedule and five information-page browser suites also passed. Desktop and mobile screenshots were visually inspected with synthetic fixture data.

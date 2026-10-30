@@ -37,18 +37,78 @@ try {
         }
     }
     await page.goto(base + '/articles');
-    await page.locator('[name=category]').selectOption('ui-care');
-    await page.locator('[name=sort]').selectOption('oldest');
-    await page.locator('[name=q]').fill('مقاله ساختگی');
-    await Promise.all([page.waitForNavigation(), page.locator('.articles-filters button').click()]);
+    await page.evaluate(() => { window.articleDocumentToken = 'same-document'; });
+    const documentRequests = [];
+    const recordDocument = request => { if (request.isNavigationRequest() && request.frame() === page.mainFrame()) documentRequests.push(request.url()); };
+    page.on('request', recordDocument);
+    const ready = () => page.waitForFunction(() => document.querySelector('[data-article-results]').getAttribute('aria-busy') === 'false' && document.querySelector('[data-article-status]').textContent.includes('مقاله منتشرشده'));
+    const ajax = async action => {
+        await Promise.all([page.waitForResponse(response => response.request().resourceType() === 'fetch' && new URL(response.url()).pathname === '/articles'), action()]);
+        await ready();
+    };
+    await ajax(() => page.locator('[name=category]').selectOption('ui-care'));
+    await ajax(() => page.locator('[name=sort]').selectOption('oldest'));
+    await ajax(() => page.locator('[name=q]').fill('مقاله ساختگی'));
     assert.equal(await page.locator('.article-card').count(), 12);
-    await Promise.all([page.waitForNavigation(), page.locator('.articles-pagination [rel=next]').click()]);
+    await ajax(() => page.locator('.articles-pagination [rel=next]').click());
     assert.equal(await page.locator('.article-card').count(), 3);
     assert.equal(new URL(page.url()).searchParams.get('category'), 'ui-care');
     assert.equal(new URL(page.url()).searchParams.get('sort'), 'oldest');
-    await page.locator('[name=q]').fill('نتیجه ناموجود آزمون');
-    await Promise.all([page.waitForNavigation(), page.locator('.articles-filters button').click()]);
+    await ajax(() => page.goBack());
+    assert.equal(await page.locator('.article-card').count(), 12);
+    assert.equal(new URL(page.url()).searchParams.has('page'), false);
+    await ajax(() => page.goForward());
+    assert.equal(await page.locator('.article-card').count(), 3);
+    await ajax(() => page.locator('[name=q]').fill('نتیجه ناموجود آزمون'));
     assert.equal(await page.locator('.article-empty').count(), 1);
+    await ajax(() => page.locator('.articles-results a').click());
+    assert.equal(await page.locator('[name=q]').inputValue(), '');
+    assert.equal(await page.locator('[name=category]').inputValue(), '');
+    const previousTitles = await page.locator('.article-card h2').allTextContents();
+    await context.route('**/articles?**', route => route.request().resourceType() === 'fetch' ? route.fulfill({status:503,body:'unavailable'}) : route.continue());
+    await page.locator('[name=q]').fill('مقاله ساختگی 17');
+    await page.locator('[data-article-error]').waitFor({state:'visible'});
+    assert.deepEqual(await page.locator('.article-card h2').allTextContents(), previousTitles);
+    assert.equal(await page.locator('[data-article-results]').getAttribute('aria-busy'), 'false');
+    await context.unroute('**/articles?**');
+    await ajax(() => page.locator('[data-article-retry]').click());
+    assert.equal(await page.locator('.article-card').count(), 1);
+    // A superseded request must never replace the newest results.
+    let releaseOld;
+    const oldGate = new Promise(resolve => { releaseOld = resolve; });
+    let finishOld;
+    const oldDone = new Promise(resolve => { finishOld = resolve; });
+    await context.route('**/articles?**', async route => {
+        if (new URL(route.request().url()).searchParams.get('q') !== 'stale') return route.continue();
+        await oldGate;
+        try { await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({html:'<div class="articles-results"><p>stale</p></div><section class="articles-grid">STALE RESPONSE</section>'})}); } catch { /* The browser may already have cancelled the old request. */ }
+        finally { finishOld(); }
+    });
+    await Promise.all([page.waitForRequest(request => new URL(request.url()).searchParams.get('q') === 'stale'), page.locator('[name=q]').fill('stale')]);
+    await ajax(() => page.locator('[name=q]').fill('مقاله ساختگی 16'));
+    releaseOld(); await oldDone;
+    assert.equal(await page.locator('.article-card').count(), 1);
+    assert.match(await page.locator('.article-card h2').innerText(), /16/);
+    await context.unroute('**/articles?**');
+    const compositionRequests = [];
+    const duringComposition = request => { if (request.resourceType() === 'fetch') compositionRequests.push(request.url()); };
+    page.on('request', duringComposition);
+    await page.locator('[name=q]').evaluate(input => {
+        input.dispatchEvent(new CompositionEvent('compositionstart', {bubbles:true}));
+        input.value = 'مقاله ساختگی 17';
+        input.dispatchEvent(new InputEvent('input', {bubbles:true,isComposing:true}));
+    });
+    await page.waitForTimeout(400); // Longer than debounce: composing input must not issue a request.
+    assert.deepEqual(compositionRequests, []);
+    assert.match(await page.locator('.article-card h2').innerText(), /16/);
+    page.off('request', duringComposition);
+    await ajax(() => page.locator('[name=q]').dispatchEvent('compositionend'));
+    assert.match(await page.locator('.article-card h2').innerText(), /17/);
+    await ajax(() => page.locator('[name=q]').fill('مقاله '));
+    assert.equal(await page.locator('[name=q]').inputValue(), 'مقاله '); // Preserve the space while the user continues typing.
+    assert.equal(await page.evaluate(() => window.articleDocumentToken), 'same-document');
+    assert.deepEqual(documentRequests, []);
+    page.off('request', recordDocument);
     await page.goto(base + '/articles/ui-article-1');
     const shareUrl = await page.locator('[data-copy-article]').getAttribute('data-copy-article');
     assert.equal(shareUrl, base + '/articles/ui-article-1');
@@ -86,5 +146,5 @@ try {
     await Promise.all([nativePage.waitForNavigation(), nativePage.locator('.articles-pagination [rel=next]').click()]); assert.equal(await nativePage.locator('.article-card').count(), 3);
     await native.close();
     assert.deepEqual(external, []); assert.deepEqual(errors, []); assert.deepEqual(violations, []); assert.deepEqual(failed, []);
-    console.log('PASS: 12 responsive page/viewport combinations; 4/2/1 cards; RTL sidebar order; live filters, pagination, empty state, share URLs, copy feedback, 200% text, corrupt/404 image fallback, native forms and isolated styles/CSP');
+    console.log('PASS: responsive 4/2/1 cards; AJAX search/selects/pagination/reset/history without document navigation; retry and stale response protection; IME; 200% text; image fallback; native forms; sharing and isolated CSS/CSP');
 } finally { await browser.close(); }

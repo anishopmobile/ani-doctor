@@ -1,4 +1,5 @@
 .articles-page{--article-primary:var(--brand-primary,#176f78);--article-soft:#edf7f8;color:var(--text-primary,#173346);line-height:1.9;overflow-wrap:anywhere}
+.articles-page [hidden]{display:none!important}.articles-page .article-async-status{min-height:1.9em;margin:12px 0 0}.articles-page [data-article-results][aria-busy="true"]{opacity:.55}.articles-page [data-article-results]:focus-visible{outline:3px solid var(--focus,#184dad);outline-offset:4px}
 .articles-page img[src$="/article-default.svg"]{object-fit:contain;background:#eaf5f5}
 .articles-page .articles-hero{display:flex;align-items:center;gap:36px;background:linear-gradient(100deg,#e7f4f5,#f8fbfc);border-radius:18px;margin-bottom:28px;padding:28px 36px}.articles-page .articles-hero>div{flex:1 1 60%;min-width:0}.articles-page .articles-hero-art{flex:0 1 32%;width:32%;height:210px;object-fit:contain;border-radius:12px}
 .articles-page h1{font-size:clamp(1.6rem,3vw,2.5rem);line-height:1.6;font-weight:800;margin:14px 0}.articles-page .articles-hero h2{font-size:1.2rem;color:var(--article-primary);line-height:1.8}.articles-page p{color:var(--text-secondary,#536879)}

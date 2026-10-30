@@ -22,6 +22,21 @@ final class PublicArticlePagesTest extends TestCase
         return WebsiteArticle::create(array_replace(['slug' => $slug, 'title' => 'عنوان '.$slug, 'summary' => 'خلاصه مطلب', 'body' => 'متن آموزشی', 'is_published' => true, 'published_at' => now()->subDay()], $data));
     }
 
+    public function test_ajax_returns_the_same_filtered_public_cards_without_the_full_layout(): void
+    {
+        $this->article('ajax-live', ['title' => 'مقاله جستجوی زنده']);
+        $this->article('ajax-draft', ['title' => 'مقاله جستجوی خصوصی', 'is_published' => false]);
+        $this->article('ajax-future', ['title' => 'مقاله جستجوی آینده', 'published_at' => now()->addDay()]);
+        $response = $this->getJson('/articles?q='.urlencode('جستجو'))->assertOk()->assertJsonStructure(['html'])->assertHeader('Cache-Control', 'no-store, private');
+        $html = $response->json('html');
+        $this->assertStringContainsString('مقاله جستجوی زنده', $html);
+        $this->assertStringNotContainsString('مقاله جستجوی خصوصی', $html);
+        $this->assertStringNotContainsString('مقاله جستجوی آینده', $html);
+        $this->assertStringNotContainsString('<script', $html);
+        $this->assertStringNotContainsString('<html', $html);
+        $this->assertStringContainsString('article-empty', $this->getJson('/articles?q=missing')->assertOk()->json('html'));
+    }
+
     public function test_search_category_tag_period_and_sort_work_on_published_data(): void
     {
         $this->travelTo(now()->startOfDay());

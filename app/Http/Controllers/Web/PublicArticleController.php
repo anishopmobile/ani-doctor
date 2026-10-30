@@ -6,16 +6,20 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\PublicArticleRequest;
 use App\Modules\Website\Application\ArticleService;
 use Illuminate\View\View;
+use Illuminate\Http\JsonResponse;
 
 final class PublicArticleController extends Controller
 {
-    public function index(PublicArticleRequest $request, ArticleService $articles): View
+    public function index(PublicArticleRequest $request, ArticleService $articles): View|JsonResponse
     {
-        return view('website.articles.index', [
+        $data = [
             'articles' => $articles->listing($request->validated()),
             'filters' => $request->validated(),
-            'categories' => $articles->categories(),
-        ]);
+        ];
+        if ($request->expectsJson()) {
+            return response()->json(['html' => view('website.articles.results', $data)->render()], 200, ['Cache-Control' => 'no-store', 'Vary' => 'Accept']);
+        }
+        return view('website.articles.index', [...$data, 'categories' => $articles->categories()]);
     }
 
     public function show(string $slug, ArticleService $articles): View

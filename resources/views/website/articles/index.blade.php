@@ -13,8 +13,8 @@
 <label class="articles-search">جستجو<input type="search" name="q" maxlength="100" value="{{ $filters['q'] ?? '' }}" placeholder="عنوان، موضوع یا کلمه کلیدی…"></label>
 @if(isset($filters['tag']))<input type="hidden" name="tag" value="{{ $filters['tag'] }}">@endif
 <button class="article-button" type="submit">جستجو</button></form>
-<div class="articles-results"><p role="status">{{ $articles->total() }} مقاله منتشرشده</p>@if(array_filter($filters))<a class="article-text-link" href="{{ route('website.articles.index') }}">پاک‌کردن فیلترها</a>@endif</div>
-<section class="articles-grid" aria-label="فهرست مقالات">@forelse($articles as $article)@include('website.articles.card')@empty<div class="article-empty"><h2>مقاله‌ای پیدا نشد</h2><p>مقاله منتشرشده‌ای مطابق این جستجو وجود ندارد. می‌توانید فیلترها را تغییر دهید یا همه مقالات را ببینید.</p><a class="article-button" href="{{ route('website.articles.index') }}">همه مقالات</a></div>@endforelse</section>
-@include('website.articles.pagination')
+<p class="article-async-status" role="status" aria-live="polite" data-article-status></p>
+<div class="article-validation" role="alert" data-article-error hidden><p data-article-error-text></p><button type="button" class="article-button" data-article-retry>تلاش دوباره</button></div>
+<div data-article-results aria-busy="false" tabindex="-1">@include('website.articles.results')</div>
 </div>
 @endsection
