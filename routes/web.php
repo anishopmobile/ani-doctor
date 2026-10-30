@@ -7,6 +7,12 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [\App\Http\Controllers\Web\WebsiteController::class, 'home'])->name('website.home');
 Route::view('/about', 'website.about')->name('website.about');
 Route::view('/contact', 'website.contact')->name('website.contact');
+Route::post('/contact/messages', \App\Http\Controllers\Web\WebsiteContactMessageController::class)->middleware('throttle:website-contact')->name('website.contact-messages.store');
+Route::middleware(['auth', 'can:website.manage'])->prefix('admin/website-contact-messages')->group(function (): void {
+    Route::get('/', [\App\Http\Controllers\Admin\WebsiteContactMessageController::class, 'index'])->name('website.contact-messages.index');
+    Route::put('/{message}', [\App\Http\Controllers\Admin\WebsiteContactMessageController::class, 'update'])->whereNumber('message')->name('website.contact-messages.update');
+    Route::delete('/{message}', [\App\Http\Controllers\Admin\WebsiteContactMessageController::class, 'destroy'])->whereNumber('message')->name('website.contact-messages.destroy');
+});
 Route::get('/privacy', [\App\Http\Controllers\Web\InformationPageController::class, 'privacy'])->name('website.privacy');
 Route::get('/policies', [\App\Http\Controllers\Web\InformationPageController::class, 'policies'])->name('website.policies');
 Route::middleware(['auth', 'can:website.manage'])->prefix('admin/website-theme')->group(function (): void {
@@ -35,7 +41,7 @@ Route::middleware(['auth', 'can:website.manage', 'throttle:website-editor'])->pr
 Route::get('/sitemap.xml', \App\Http\Controllers\Web\SitemapController::class)->name('website.sitemap');
 Route::get('/website-media/{media}', \App\Http\Controllers\Web\WebsiteMediaController::class)->whereNumber('media')->name('website.media.show');
 Route::middleware(['auth', 'can:website.manage'])->group(function (): void {
-    Route::post('/admin/website-media/{type}/{id}', [\App\Http\Controllers\Admin\WebsiteMediaController::class, 'store'])->whereIn('type', ['article', 'section', 'service', 'brand', 'portrait', 'favicon', 'about', 'services'])->whereNumber('id')->name('website.media.store');
+    Route::post('/admin/website-media/{type}/{id}', [\App\Http\Controllers\Admin\WebsiteMediaController::class, 'store'])->whereIn('type', ['article', 'section', 'service', 'brand', 'portrait', 'favicon', 'about', 'services', 'contact'])->whereNumber('id')->name('website.media.store');
     Route::delete('/admin/website-media/{media}', [\App\Http\Controllers\Admin\WebsiteMediaController::class, 'destroy'])->whereNumber('media')->name('website.media.destroy');
 });
 Route::get('/articles', [\App\Http\Controllers\Web\PublicArticleController::class, 'index'])->name('website.articles.index');

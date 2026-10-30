@@ -16,7 +16,7 @@ final class HomeSectionMediaService
 
     public function image(array $theme, string $slot): array
     {
-        if (!in_array($slot, ['about', 'services'], true)) {
+        if (!in_array($slot, ['about', 'services', 'contact'], true)) {
             throw new \InvalidArgumentException('Unsupported home media slot');
         }
         $types = array_values(array_filter([$slot, 'portrait'], fn ($type) => !empty($theme[$type.'_is_published'])));

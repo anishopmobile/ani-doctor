@@ -39,4 +39,9 @@ final class WebsiteTheme extends Model
     {
         return ['brand_settings' => 'array'];
     }
+
+    public function contactMedia(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(WebsiteMedia::class, 'owner_id')->where('owner_type', 'contact');
+    }
 }

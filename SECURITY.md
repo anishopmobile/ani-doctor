@@ -1,4 +1,6 @@
 # SECURITY — سیاست امنیت و حفاظت داده‌های آنی دکتر
+
+Homepage contact inbox: public submissions are rate-limited, CSRF-protected and validated; name, phone and body are encrypted at rest and excluded from validation input flash/automatic model serialization. Only `website.manage` can read/delete messages, with private no-store responses. Public copy requests general coordination messages and no medical documents; no patient/appointment linkage or automatic outgoing notification is created. Delete unneeded messages after handling; backing up/rotating APP_KEY must preserve decryption as with other encrypted records. See docs/HOME-CONTACT-MODELS.md.
 **نسخه:** 1.0.0 · **سطح:** الزامی برای همه فازها
 
 > این سند راهنمای پیاده‌سازی امنیت است، نه گواهی امنیت سامانه. تا پایان تست نفوذ، ارزیابی حریم خصوصی و بررسی قوانین حوزه فعالیت، نباید ادعای انطباق رسمی یا امنیت کامل شود.

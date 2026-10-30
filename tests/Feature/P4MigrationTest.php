@@ -14,6 +14,8 @@ final class P4MigrationTest extends TestCase
     public function test_p4_rollback_reapply_preserves_p3_appointments_and_backfills_unpaid_debt(): void
     {
         $this->artisan('migrate:fresh', ['--force' => true])->assertSuccessful();
+        $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful(); // Homepage contact inbox.
+        $this->assertFalse(\Illuminate\Support\Facades\Schema::hasTable('website_contact_messages'));
         $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful(); // Optional public article author.
         $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful(); // Independent weekly announcements.
         $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful(); // Website-only display order.

@@ -97,7 +97,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 return response()->json(['success' => false, 'data' => null, 'error' => ['code' => 'NOT_FOUND', 'message' => 'خدمت در دسترس نیست.'], 'meta' => (object) []], 404);
             }
         });
-        $exceptions->dontFlash(['code', 'mobile', 'Authority', 'Status', 'query', 'answers', 'schema']);
+        $exceptions->dontFlash(['code', 'mobile', 'Authority', 'Status', 'query', 'answers', 'schema', 'contact_sender', 'contact_mobile', 'contact_message']);
         $exceptions->dontReport([OtpFailure::class]);
         $exceptions->render(function (OtpFailure $error, Request $request) {
             $message = match ($error->errorCode) {

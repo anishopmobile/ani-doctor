@@ -23,6 +23,6 @@
         <x-panel-link route="website.links.index" icon="settings" active="website.links.*">منو و فوتر سایت</x-panel-link>
         <x-panel-link route="website.articles.manage" icon="file" active="website.articles.*">مدیریت مقالات</x-panel-link>
         <x-panel-link route="website.taxonomies.index" icon="file" active="website.taxonomies.*">دسته‌بندی و برچسب</x-panel-link>
-        <x-panel-link route="website.theme.edit" icon="settings" active="website.theme.*">برند و محتوای سایت</x-panel-link></details>
+        <x-panel-link route="website.theme.edit" icon="settings" active="website.theme.*">برند و محتوای سایت</x-panel-link><x-panel-link route="website.contact-messages.index" icon="mail" active="website.contact-messages.*">پیام‌های تماس سایت</x-panel-link></details>
     @endcan
 </nav>
