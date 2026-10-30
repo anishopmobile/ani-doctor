@@ -58,6 +58,9 @@ class AppServiceProvider extends ServiceProvider
             $theme = $view->getData()['websiteTheme'] ?? app(\App\Modules\Website\Application\ThemeService::class)->settings();
             $view->with('footerData', app(\App\Modules\Website\Application\FooterService::class)->data($theme));
         });
+        \Illuminate\Support\Facades\View::composer('website.home-sections.about', function ($view): void {
+            $view->with('homeAboutImage', app(\App\Modules\Website\Application\HomeAboutService::class)->image($view->getData()['websiteTheme']));
+        });
         Gate::policy(Patient::class, PatientPolicy::class);
         Gate::policy(\App\Modules\Booking\Infrastructure\Appointment::class, \App\Policies\AppointmentPolicy::class);
         foreach (['patient', 'secretary', 'admin'] as $panel) {

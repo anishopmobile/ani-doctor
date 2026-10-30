@@ -12,7 +12,7 @@ final class WebsiteThemeController extends Controller
 {
     public function edit(ThemeService $themes): View
     {
-        return view('admin.website-theme', ['theme' => $themes->settings(), 'themeRecord' => \App\Modules\Website\Infrastructure\WebsiteTheme::query()->with(['media', 'portraitMedia', 'faviconMedia'])->find(1), 'homePage' => \App\Modules\Website\Infrastructure\WebsitePage::query()->where('slug', 'home')->whereNotNull('published_snapshot')->first(), 'hasPublishedSlides' => \App\Modules\Website\Infrastructure\WebsiteSection::query()->where('type', 'slide')->where('is_published', true)->exists()]);
+        return view('admin.website-theme', ['theme' => $themes->settings(), 'themeRecord' => \App\Modules\Website\Infrastructure\WebsiteTheme::query()->with(['media', 'portraitMedia', 'faviconMedia', 'aboutMedia'])->find(1), 'homePage' => \App\Modules\Website\Infrastructure\WebsitePage::query()->where('slug', 'home')->whereNotNull('published_snapshot')->first(), 'hasPublishedSlides' => \App\Modules\Website\Infrastructure\WebsiteSection::query()->where('type', 'slide')->where('is_published', true)->exists()]);
     }
 
     public function update(WebsiteThemeRequest $request, ThemeService $themes): RedirectResponse
