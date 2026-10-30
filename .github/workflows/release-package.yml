@@ -184,6 +184,8 @@ jobs:
             node information-pages.mjs
             php ../Support/article-browser-seed.php
             node articles.mjs
+            php ../Support/footer-browser-seed.php
+            node footer.mjs
 
       - name: Upload browser verification evidence
         if: always() && steps.detect.outputs.app == 'true'

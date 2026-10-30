@@ -1,6 +1,15 @@
 @props(['name' => 'grid'])
 <svg {{ $attributes->class(['ui-icon']) }} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
 @switch($name)
+@case('phone')<path d="m7 3 3 5-2 2a15 15 0 0 0 6 6l2-2 5 3v3c-10 3-22-9-19-19h5Z"/>@break
+@case('mail')<rect x="3" y="5" width="18" height="14" rx="3"/><path d="m3 7 9 6 9-6"/>@break
+@case('chevron-left')<path d="m15 5-7 7 7 7"/>@break
+@case('chevron-up')<path d="m5 15 7-7 7 7"/>@break
+@case('link')<path d="m10 13 4-4m-6 7-1 1a4 4 0 0 1-6-6l5-5a4 4 0 0 1 6 0m0 2 1-1a4 4 0 0 1 6 6l-5 5a4 4 0 0 1-6 0"/>@break
+@case('play')<circle cx="12" cy="12" r="9"/><path d="m10 8 6 4-6 4V8Z"/>@break
+@case('instagram')<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17 7h.01"/>@break
+@case('telegram')<path d="m3 11 18-7-4 17-6-5-4 3 1-6 9-6-7 8"/>@break
+@case('linkedin')<path d="M5 10v10m0-15h.01M10 20V10h4v2c3-4 7-2 7 2v6m-7-6v6"/>@break
 @case('search')<circle cx="10.5" cy="10.5" r="7.5"/><path d="m16 16 5 5"/>@break
 @case('clock')<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>@break
 @case('pin')<path d="M19 10c0 5-7 11-7 11S5 15 5 10a7 7 0 1 1 14 0Z"/><circle cx="12" cy="10" r="2"/>@break

@@ -30,6 +30,9 @@ final class SiteContent
         'contact_website' => ['اطلاعات مطب', 'وب‌سایت رسمی HTTPS', 255, 'https://drzahrabagheri.ir'],
         'contact_map_url' => ['اطلاعات مطب', 'لینک HTTPS نقشه', 500, ''],
         'footer_text' => ['نوبت‌دهی و فوتر', 'توضیح فوتر', 500, ''],
+        'footer_booking_text' => ['نوبت‌دهی و فوتر', 'توضیح زیر دکمه رزرو فوتر (اختیاری)', 300, ''],
+        'footer_slogan' => ['نوبت‌دهی و فوتر', 'شعار پایانی فوتر (اختیاری)', 180, ''],
+        'contact_secondary_phone' => ['اطلاعات مطب', 'شماره تماس دوم عمومی (اختیاری، لاتین)', 16, ''],
     ];
 
     public static function defaults(): array
@@ -45,6 +48,7 @@ final class SiteContent
             ['title' => 'پیگیری آسان', 'text' => 'دسترسی به وضعیت نوبت در سامانه'],
         ];
         $values['faq_items'] = [];
+        $values['footer_features'] = $values['why_items'];
         $values['highlight_items'] = [
             ['title' => 'نوبت‌دهی آنلاین', 'text' => 'با مشاهده تقویم و ساعات آزاد'],
             ['title' => 'پیگیری نوبت', 'text' => 'از طریق سامانه فعلی مطب'],
@@ -67,7 +71,7 @@ final class SiteContent
         }
         $order = array_values(array_unique(array_filter($values['section_order'], fn ($key) => is_string($key) && isset(self::SECTIONS[$key]))));
         $values['section_order'] = array_values(array_unique([...$order, ...array_keys(self::SECTIONS)]));
-        foreach (['highlight_items', 'why_items', 'faq_items'] as $key) {
+        foreach (['highlight_items', 'why_items', 'faq_items', 'footer_features'] as $key) {
             $values[$key] = array_values(array_filter($values[$key], fn ($item) => is_array($item) && is_string($item['title'] ?? null) && is_string($item['text'] ?? null)));
         }
 

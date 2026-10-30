@@ -8,7 +8,7 @@ final class WebsiteThemeRequest extends FormRequest
 {
     protected function prepareForValidation(): void
     {
-        foreach (['highlight_items', 'why_items', 'faq_items'] as $key) {
+        foreach (['highlight_items', 'why_items', 'faq_items', 'footer_features'] as $key) {
             if ($this->input($key.'_present') === '1' && !$this->has($key)) {
                 $this->merge([$key => []]);
             }
@@ -47,6 +47,7 @@ final class WebsiteThemeRequest extends FormRequest
             $rules[$key][] = 'regex:~\Ahttps://[a-zA-Z0-9.-]+(?::[0-9]{1,5})?(?:[/?#][^\s<>"\\\\]*)?\z~D';
         }
         $rules['contact_email'][] = 'email';
+        $rules['contact_secondary_phone'][] = 'regex:/\A\+?[0-9]{7,15}\z/D';
         foreach (\App\Modules\Website\Application\ThemeService::EXTRA_COLORS as $key => $value) {
             $rules[$key] = ['sometimes', 'required', 'string', 'regex:/\A#[0-9a-fA-F]{6}\z/D'];
         }
@@ -55,8 +56,8 @@ final class WebsiteThemeRequest extends FormRequest
         }
         $rules['section_order'] = ['sometimes', 'array', 'size:6'];
         $rules['section_order.*'] = ['required', 'distinct', \Illuminate\Validation\Rule::in(array_keys(\App\Modules\Website\Application\SiteContent::SECTIONS))];
-        foreach (['highlight_items', 'why_items', 'faq_items'] as $key) {
-            $rules[$key] = ['sometimes', 'array', 'max:8'];
+        foreach (['highlight_items', 'why_items', 'faq_items', 'footer_features'] as $key) {
+            $rules[$key] = ['sometimes', 'array', $key === 'footer_features' ? 'max:3' : 'max:8'];
             $rules[$key.'.*'] = ['array:title,text'];
             $rules[$key.'.*.title'] = ['required', 'string', 'max:180'];
             $rules[$key.'.*.text'] = ['required', 'string', 'max:1000'];
