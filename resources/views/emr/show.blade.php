@@ -13,6 +13,8 @@
 </section>
 <section class="ux-card mb-3"><h2 class="h4">ثبت بالینی</h2><div class="d-flex flex-wrap gap-2">@foreach(App\Modules\MedicalRecords\Application\ClinicalSchema::labels() as $kind=>$label)<a class="btn btn-outline-primary" href="{{ route('emr.records.create', [$patient, $kind]) }}">{{ $label }}</a>@endforeach</div></section>
 <h2 class="h4">تاریخچه بالینی</h2>
+<p>خلاصه بالا حداکثر ۲۰ ثبت اخیر هر بخش را نشان می‌دهد؛ برای مرور کامل، بخش مربوط را انتخاب و صفحه‌ها را بررسی کنید.</p>
+<form method="post" action="{{ route('emr.section', $patient) }}" class="ux-card mb-3">@csrf<label>بخش پرونده<select class="form-select" name="section"><option value="">همه سوابق به ترتیب زمان</option>@foreach(App\Modules\MedicalRecords\Application\ClinicalSchema::labels() as $key=>$label)<option value="{{ $key }}" @selected($section === $key)>{{ $label }}</option>@endforeach</select></label><button class="btn btn-outline-primary mt-2">نمایش سوابق این بخش</button></form>
 @forelse($records as $record)<article class="ux-card mb-2"><h3 class="h5">{{ App\Modules\MedicalRecords\Application\ClinicalSchema::labels()[$record->kind] }} #{{ $record->id }}</h3><p>{{ $jalali->format($record->occurred_at) }} — {{ $record->status === 'final' ? 'نهایی' : 'پیش‌نویس' }} @if($record->parent_id) — الحاقیه نسخه #{{ $record->parent_id }} @endif</p><a href="{{ route('emr.records.edit', [$patient, $record]) }}">مشاهده / تکمیل / الحاقیه</a></article>@empty<p>داده بالینی ثبت نشده است.</p>@endforelse
 {{ $records->links() }}
 <p><a href="{{ route('emr.audit', $patient) }}">تاریخچه فعالیت‌ها</a> — <a href="{{ route('emr.print', $patient) }}">خروجی بالینی نهایی (بدون یادداشت خصوصی)</a></p>

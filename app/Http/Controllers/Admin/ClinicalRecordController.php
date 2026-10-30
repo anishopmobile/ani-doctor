@@ -16,6 +16,13 @@ use Illuminate\Support\Facades\DB;
 
 final class ClinicalRecordController extends Controller
 {
+    public function section(Request $request, Patient $patient)
+    {
+        $data = $request->validate(['section' => ['nullable', \Illuminate\Validation\Rule::in(array_keys(ClinicalSchema::labels()))]]);
+        $request->session()->put('emr.section.'.$patient->id, $data['section'] ?? '');
+        return redirect()->route('emr.show', $patient);
+    }
+
     public function create(Request $request, Patient $patient, string $kind)
     {
         abort_unless(array_key_exists($kind, ClinicalSchema::labels()), 404);

@@ -106,11 +106,11 @@ PHP محلی مستقل 8.4.27، Laravel قفل‌شده 13.38.0، PHPUnit 12.5.
 
 | بررسی اجراشده | نتیجه |
 |---|---|
-| مجموعه کامل Unit/Feature روی SQLite | موفق: ۳۷۹ تست، ۳۲۵۳ assertion؛ سپس تست هدفمند هدر نهایی نیز اجرا شد |
-| EMR اختصاصی روی MySQL | موفق: ۲۲ تست، ۲۱۷ assertion؛ پوشش تکمیلی هدر نهایی در مجموعه امنیت پایین |
+| مجموعه کامل Unit/Feature روی SQLite | موفق روی کد نهایی: ۳۸۰ تست، ۳۲۶۸ assertion |
+| EMR + WebSecurity + P8Hardening روی MySQL | موفق روی کد نهایی: ۳۳ تست، ۳۰۱ assertion؛ شامل هدر دانلود، مرور بخش‌ها و رد دسترسی بیمار/منشی |
 | کل Integration روی MySQL | موفق: ۵۳ تست، ۳۹۱ assertion، شامل رزرو/مالی/حضور و رقابت EMR |
 | رقابت EMR + بکاپ/بازیابی هدفمند | موفق: ۸ تست، ۵۸ assertion؛ بازیابی واقعی payload رمزگذاری‌شده، مدرک اصلی و ارتباط ویزیت در مقصد جدا |
-| امنیت نهایی EMR + WebSecurity + P8Hardening | موفق: ۳۲ تست، ۲۸۸ assertion؛ CSRF، role/permission، IDOR، cache، XSS و CSP دانلود |
+| امنیت نهایی EMR + WebSecurity + P8Hardening | موفق: ۳۳ تست، ۲۹۹ assertion، سپس دو assertion تکمیلی CSRF/بیمار در مجموعه کامل و MySQL بالا تأیید شد؛ CSRF، role/permission، IDOR، cache، XSS و CSP دانلود |
 | Chromium واقعی | موفق: عرض‌های ۳۲۰/۷۶۸/۱۴۴۰، draft واقعی، sign، amendment و حفظ اصل، منشی ممنوع، XSS escape، متن ۲۰۰٪ و focus کیبورد |
 | Pint و syntax | موفق؛ نحو تمام ۳۴ فایل PHP تغییرکرده بررسی شد |
 | Composer audit --locked --no-dev | موفق؛ advisory شناخته‌شده‌ای گزارش نشد؛ گواهی امنیت کامل نیست |
@@ -127,3 +127,5 @@ PHP محلی مستقل 8.4.27، Laravel قفل‌شده 13.38.0، PHPUnit 12.5.
 بازبینی دستی مسیرها و سرویس‌ها: کنترل نقش پیش از binding، کنترل patient_id/kind تمام پیوندها، فیلدهای مجاز و protected serialization، FK/unique/locking، خروجی escaped، عدم ذخیره filename و محتوای پزشکی در audit، ذخیره خصوصی رمزگذاری‌شده، attachment + nosniff + CSP، rollback محافظه‌کار و عدم تغییر booking/payment بررسی شدند. تست‌های منفی شواهد اجرایی‌اند؛ ZAP/تست نفوذ مستقل، دستگاه‌های واقعی، Safari/Firefox، صفحه‌خوان، بانک/SMS واقعی و استقرار production در این کار اجرا نشده‌اند. CI بسته نصب، staging HTTPS و بررسی‌های موجود خود را جدا اجرا می‌کند؛ وضعیت آن باید از PR خوانده شود.
 
 برای بازتولید: `php -d zend.exception_ignore_args=On vendor/bin/phpunit`؛ برای MySQL، متغیرهای DB را فقط به دیتابیس مصنوعی خالی با prefix `ani_doctor_test` متصل و `vendor/bin/phpunit -c phpunit.mysql.xml` اجرا کنید. مرورگر از fixture guard فعلی با `emr-browser-seed.php` و `tests/Browser/medical-records.mjs` استفاده می‌کند؛ router آزمایشی هرگز در استقرار نباشد. Screenshotها فقط داده مصنوعی دارند و زیر مسیر ignored `tests/Browser/results` هستند.
+
+بازیابی روی آخرین کد حفظ اصل مدرک نیز جدا تکرار شد: یک تست واقعی MySQL / ۱۷ assertion موفق؛ checksum مدرک بازیابی‌شده و ارتباط ویزیت حفظ شد. فیلتر بخش‌های بالینی فقط با POST خصوصی پزشک و صفحه‌بندی سرور کار می‌کند؛ منشی و بیمار اجازه استفاده ندارند. خلاصه حداکثر ۲۰ ثبت اخیر هر بخش است و در UI به صراحت کامل‌نبودن آن و مسیر مرور کامل اعلام می‌شود.

@@ -280,6 +280,7 @@ final class MedicalRecordsTest extends TestCase
         $this->app->instance('env', 'local');
         $this->post('/management/medical-records', [])->assertStatus(419);
         $this->post('/management/medical-records/search', [])->assertStatus(419);
+        $this->post($this->url('/section'), [])->assertStatus(419);
         $this->put($this->url('/identity'), [])->assertStatus(419);
         $this->post($this->url('/records/visit'), $this->data())->assertStatus(419);
         $this->put($this->url('/records/'.$record->id), [])->assertStatus(419);
@@ -297,7 +298,7 @@ final class MedicalRecordsTest extends TestCase
         foreach (['', '/identity', '/new/note', '/records/999', '/documents/999', '/audit', '/print'] as $suffix) {
             $this->get($this->url($suffix))->assertForbidden();
         }
-        foreach (['/search', '', '/'.$this->patient->id.'/documents', '/'.$this->patient->id.'/records/visit', '/'.$this->patient->id.'/records/999/sign', '/'.$this->patient->id.'/documents/999/review'] as $suffix) {
+        foreach (['/search', '', '/'.$this->patient->id.'/section', '/'.$this->patient->id.'/documents', '/'.$this->patient->id.'/records/visit', '/'.$this->patient->id.'/records/999/sign', '/'.$this->patient->id.'/documents/999/review'] as $suffix) {
             $this->post('/management/medical-records'.$suffix, [])->assertForbidden();
         }
         $this->put($this->url('/identity'), [])->assertForbidden();
@@ -354,5 +355,17 @@ final class MedicalRecordsTest extends TestCase
         $this->get($this->url('/new/menstrual'))->assertOk()->assertSee('value="1405-08-08"', false);
         $this->post($this->url('/records/menstrual'), $this->data([...$payload, 'regularity' => 'unknown']))->assertRedirect();
         $this->assertSame('2026-10-30', ClinicalRecord::latest('id')->first()->payload['lmp']);
+    }
+
+    public function test_clinical_section_filter_is_private_paginated_and_denied_for_reception(): void
+    {
+        $visit = $this->visit();
+        $this->post($this->url('/records/note'), $this->data(['body' => 'یادداشت ساختگی فیلتر']))->assertRedirect();
+        $note = ClinicalRecord::latest('id')->first();
+        $this->post($this->url('/section'), ['section' => 'note'])->assertRedirect($this->url());
+        $this->get($this->url())->assertOk()->assertViewHas('records', fn ($records) => $records->count() === 1 && $records->first()->id === $note->id);
+        $this->post($this->url('/section'), ['section' => 'not-a-kind'])->assertSessionHasErrors('section');
+        $this->actingAs($this->secretary)->post($this->url('/section'), ['section' => 'visit'])->assertForbidden();
+        $this->get($this->url())->assertOk()->assertDontSee('بخش پرونده');
     }
 }
