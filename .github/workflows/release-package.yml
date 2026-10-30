@@ -182,6 +182,8 @@ jobs:
             node weekly-schedule.mjs
             php ../Support/information-browser-seed.php
             node information-pages.mjs
+            php ../Support/article-browser-seed.php
+            node articles.mjs
 
       - name: Upload browser verification evidence
         if: always() && steps.detect.outputs.app == 'true'

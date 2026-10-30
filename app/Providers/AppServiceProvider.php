@@ -40,7 +40,7 @@ class AppServiceProvider extends ServiceProvider
             $until = \Illuminate\Support\Facades\DB::table('payment_settings')->where('id', 1)->value('emergency_until');
             $view->with('clinicEmergencyActive', $until && now()->lessThan($until));
         });
-        \Illuminate\Support\Facades\View::composer(['website.home', 'website.about', 'website.contact', 'website.privacy', 'website.policies', 'website.weekly-schedule', 'website.layout', 'website.pages.show', 'website.services.index', 'website.services.show', 'admin.website-theme-preview', 'layouts.app'], function ($view): void {
+        \Illuminate\Support\Facades\View::composer(['website.home', 'website.about', 'website.contact', 'website.privacy', 'website.policies', 'website.weekly-schedule', 'website.layout', 'website.pages.show', 'website.articles.index', 'website.articles.show', 'website.services.index', 'website.services.show', 'admin.website-theme-preview', 'layouts.app'], function ($view): void {
             $themes = app(\App\Modules\Website\Application\ThemeService::class);
             $view->with('websiteTheme', $themes->settings())->with('websiteLogo', $themes->publishedLogo());
             $view->with('websitePortrait', $themes->publishedMedia('portrait'))->with('websiteFavicon', $themes->publishedMedia('favicon'));

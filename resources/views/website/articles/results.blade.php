@@ -1,0 +1,3 @@
+<div class="articles-results"><p role="status">{{ $articles->total() }} مقاله منتشرشده</p>@if(array_filter($filters))<a class="article-text-link" href="{{ route('website.articles.index') }}">پاک‌کردن فیلترها</a>@endif</div>
+<section class="articles-grid" aria-label="فهرست مقالات">@forelse($articles as $article)@include('website.articles.card')@empty<div class="article-empty"><h2>مقاله‌ای پیدا نشد</h2><p>مقاله منتشرشده‌ای مطابق این جستجو وجود ندارد. می‌توانید فیلترها را تغییر دهید یا همه مقالات را ببینید.</p><a class="article-button" href="{{ route('website.articles.index') }}">همه مقالات</a></div>@endforelse</section>
+@include('website.articles.pagination')

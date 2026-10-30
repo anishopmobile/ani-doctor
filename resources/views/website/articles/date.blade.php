@@ -1,0 +1,1 @@
+<time datetime="{{ $article->published_at->toIso8601String() }}">{{ strtr(str_replace('-', '/', app(App\Modules\Scheduling\Application\JalaliDate::class)->format($article->published_at)), ['0'=>'۰','1'=>'۱','2'=>'۲','3'=>'۳','4'=>'۴','5'=>'۵','6'=>'۶','7'=>'۷','8'=>'۸','9'=>'۹']) }}</time>
