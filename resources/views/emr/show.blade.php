@@ -1,0 +1,59 @@
+@extends('layouts.app')
+@section('content')
+@php($jalali = app(App\Modules\Scheduling\Application\JalaliDate::class))
+@php($uploadOld = fn ($field, $fallback = null) => App\Support\UiInput::scalar($field, $fallback, 'emr-upload'))
+@php($documentCategories = ['laboratory'=>'آزمایش','ultrasound'=>'سونوگرافی','pathology'=>'پاتولوژی','admission'=>'بستری','prescription'=>'نسخه','fertility'=>'ناباروری','other'=>'سایر'])
+<h1 class="h3">پرونده بیمار</h1>
+<section class="ux-card mb-3"><h2 class="h4">{{ $patient->name }}</h2><p>شماره پرونده: <bdi>{{ $patient->file_number ?: 'برای تخصیص شماره، اطلاعات اداری را ذخیره کنید' }}</bdi> — تماس: <bdi>{{ $patient->contact_mobile ?: 'نامشخص' }}</bdi> — {{ $profile?->status === 'archived' ? 'بایگانی' : 'فعال' }}</p>
+@if(!empty($profile?->identity['birth_date']))<p>سن محاسبه‌شده: {{ \Carbon\CarbonImmutable::parse($profile->identity['birth_date'], 'Asia/Tehran')->age }} سال</p>@else<p>تاریخ تولد / سن: نامشخص</p>@endif
+<a class="btn btn-outline-primary" href="{{ route('emr.profile.edit', $patient) }}">اطلاعات اداری / تشکیل پرونده</a> <a class="btn btn-outline-primary" href="{{ route('patients.show', $patient) }}">نوبت و پذیرش همین بیمار</a></section>
+@if($clinical)
+<section class="ux-card mb-3"><h2 class="h4">خلاصه ثبت‌شده پزشک</h2><p>آخرین ویزیت نهایی: {{ $lastVisit ? $jalali->format($lastVisit->occurred_at) : 'ثبت نشده' }}</p>
+@forelse($alerts as $alert)<p class="alert {{ ($alert->payload['observation'] ?? '') === 'positive' ? 'alert-danger' : 'alert-info' }}">حساسیت: {{ ['positive'=>'مثبت', 'negative'=>'منفی تأییدشده', 'unknown'=>'نامشخص'][$alert->payload['observation'] ?? 'unknown'] }} — {{ $alert->payload['substance'] ?? '' }} — {{ $alert->payload['reaction'] ?? '' }} (منبع: {{ ['patient'=>'بیمار','physician'=>'پزشک','document'=>'سند'][$alert->payload['source'] ?? 'physician'] }}؛ بازبینی {{ $jalali->format($alert->updated_at) }})</p>@empty<p>وضعیت حساسیت ثبت نشده؛ به معنی نداشتن حساسیت نیست.</p>@endforelse
+@foreach($episodes as $episode)@if(($episode->payload['episode_status'] ?? '') === 'active')@php($estimate = app(App\Modules\MedicalRecords\Application\ClinicalService::class)->gestation($episode, now()))<p>دوره بارداری #{{ $episode->id }}؛ {{ $estimate ? 'برآورد محاسباتی: '.$estimate['weeks'].' هفته و '.$estimate['days'].' روز در '.$estimate['reference'] : 'داده کافی برای برآورد سن وجود ندارد' }} — <a href="{{ route('emr.records.edit', [$patient, $episode]) }}">منبع و تصمیم پزشک</a></p>@endif
+@endforeach
+</section>
+<section class="ux-card mb-3"><h2 class="h4">ثبت بالینی</h2><div class="d-flex flex-wrap gap-2">@foreach(App\Modules\MedicalRecords\Application\ClinicalSchema::labels() as $kind=>$label)<a class="btn btn-outline-primary" href="{{ route('emr.records.create', [$patient, $kind]) }}">{{ $label }}</a>@endforeach</div></section>
+<h2 class="h4">تاریخچه بالینی</h2>
+<p>خلاصه بالا حداکثر ۲۰ ثبت اخیر هر بخش را نشان می‌دهد؛ برای مرور کامل، بخش مربوط را انتخاب و صفحه‌ها را بررسی کنید.</p>
+<form method="post" action="{{ route('emr.section', $patient) }}" class="ux-card mb-3">@csrf<label>بخش پرونده<select class="form-select" name="section"><option value="">همه سوابق به ترتیب زمان</option>@foreach(App\Modules\MedicalRecords\Application\ClinicalSchema::labels() as $key=>$label)<option value="{{ $key }}" @selected($section === $key)>{{ $label }}</option>@endforeach</select></label><button class="btn btn-outline-primary mt-2">نمایش سوابق این بخش</button></form>
+@forelse($records as $record)<article class="ux-card mb-2"><h3 class="h5">{{ App\Modules\MedicalRecords\Application\ClinicalSchema::labels()[$record->kind] }} #{{ $record->id }}</h3><p>{{ $jalali->format($record->occurred_at) }} — {{ $record->status === 'final' ? 'نهایی' : 'پیش‌نویس' }} @if($record->parent_id) — الحاقیه نسخه #{{ $record->parent_id }} @endif</p><a href="{{ route('emr.records.edit', [$patient, $record]) }}">مشاهده / تکمیل / الحاقیه</a></article>@empty<p>داده بالینی ثبت نشده است.</p>@endforelse
+{{ $records->links() }}
+<p><a href="{{ route('emr.audit', $patient) }}">تاریخچه فعالیت‌ها</a> — <a href="{{ route('emr.print', $patient) }}">خروجی بالینی نهایی (بدون یادداشت خصوصی)</a></p>
+@endif
+<section class="ux-card mt-3"><h2 class="h4">ارسال مدرک برای بررسی پزشک</h2><p>فقط PDF، JPG، PNG تا {{ config('medical-records.max_file_kb') / 1024 }} مگابایت. فایل قبل از بررسی پزشک تأیید نشده است؛ از ارسال فایل ناشناس خودداری کنید.</p>
+<form method="post" enctype="multipart/form-data" action="{{ route('emr.documents.store', $patient) }}" autocomplete="off">@csrf
+<input type="hidden" name="_ux_context" value="emr-upload">
+<input type="hidden" name="request_key" value="{{ $uploadOld('request_key', (string) Illuminate\Support\Str::uuid()) }}">
+<label class="d-block">فایل<input class="form-control" type="file" name="file" accept=".pdf,.jpg,.jpeg,.png" required></label>
+@if($clinical)
+<div class="field-grid mt-3">
+<label>عنوان مدرک<input class="form-control" name="title" maxlength="150" value="{{ $uploadOld('title') }}"></label>
+<label>دسته<select class="form-select" name="category">@foreach($documentCategories as $key=>$label)<option value="{{ $key }}" @selected($uploadOld('category', 'laboratory') === $key)>{{ $label }}</option>@endforeach</select></label>
+<label>تاریخ سند شمسی<input class="form-control" name="document_jalali" data-persian-date value="{{ $uploadOld('document_jalali') }}"></label>
+<label>منبع<input class="form-control" name="source" maxlength="250" value="{{ $uploadOld('source') }}"></label>
+<label>شناسه ویزیت مرتبط (اختیاری)<input class="form-control" type="number" name="visit_id" min="1" value="{{ $uploadOld('visit_id') }}"></label>
+<label>شناسه دوره بارداری (اختیاری)<input class="form-control" type="number" name="episode_id" min="1" value="{{ $uploadOld('episode_id') }}"></label>
+</div><label class="d-block mt-3">توضیح<textarea class="form-control" name="description" maxlength="2000">{{ $uploadOld('description') }}</textarea></label>
+@endif
+<button class="btn btn-primary mt-3">ارسال خصوصی</button></form></section>
+<h2 class="h4 mt-3">{{ $clinical ? 'مدارک خصوصی' : 'وضعیت ارسال‌های خودتان' }}</h2>
+@foreach(($clinical ? $documents : $uploads) as $document)<article class="ux-card mb-2"><p>مدرک #{{ $document->id }} — {{ ['pending'=>'در انتظار بررسی پزشک','reviewed'=>'بازبینی‌شده','archived'=>'بایگانی'][$document->status] }} — {{ $jalali->format($document->created_at) }}</p>
+@if($clinical)
+@php($reviewContext = 'emr-review-'.$document->id)
+@php($reviewOld = fn ($field, $fallback = null) => App\Support\UiInput::scalar($field, $fallback, $reviewContext))
+<p>{{ $document->metadata['title'] ?? 'عنوان ثبت نشده' }} — {{ $document->metadata['description'] ?? '' }}</p>
+<p>دسته: {{ $documentCategories[$document->metadata['category'] ?? ''] ?? 'نامشخص' }} — منبع: {{ $document->metadata['source'] ?? 'نامشخص' }}</p>
+<p>تاریخ سند: <bdi>{{ !empty($document->metadata['document_date']) ? $jalali->format(\Carbon\CarbonImmutable::parse($document->metadata['document_date'], 'Asia/Tehran')) : 'نامشخص' }}</bdi> — بارگذار #{{ $document->created_by }}</p>
+<p>ویزیت: {{ $document->visit_id ?: 'ندارد' }}؛ بارداری: {{ $document->episode_id ?: 'ندارد' }}</p>
+<a href="{{ route('emr.documents.download', [$patient, $document]) }}">دانلود خصوصی (فایل غیرقابل اعتماد؛ در محیط امن باز کنید)</a>
+<form method="post" action="{{ route('emr.documents.review', [$patient, $document]) }}" class="mt-2">@csrf
+<input type="hidden" name="_ux_context" value="{{ $reviewContext }}">
+<label>عنوان امن برای پزشک<input class="form-control" name="title" maxlength="150" value="{{ $reviewOld('title', $document->metadata['title'] ?? '') }}"></label>
+<label>وضعیت بررسی<select class="form-select" name="status"><option value="reviewed" @selected($reviewOld('status', $document->status) === 'reviewed')>بازبینی‌شده</option><option value="archived" @selected($reviewOld('status', $document->status) === 'archived')>بایگانی بدون حذف</option></select></label>
+<button class="btn btn-outline-primary mt-2">ثبت بررسی</button></form>
+@endif
+</article>
+@endforeach
+{{ ($clinical ? $documents : $uploads)->links() }}
+@endsection

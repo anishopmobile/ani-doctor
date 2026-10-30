@@ -1,5 +1,7 @@
 # COMPONENTS — کاتالوگ ماژول‌ها، سرویس‌ها و کامپوننت‌ها
 
+EMR: ClinicalSchema فیلد/اعتبارسنجی مشترک و بخش‌بندی فرم‌های واقعی، ProfileService هویت و جستجوی POST، ClinicalService پیش‌نویس/امضا/الحاقیه، DocumentService فایل خصوصی و MedicalAudit رویداد شناسه‌ای را فراهم می‌کنند. Bladeهای emr از layouts.app، ux-card، field-grid، data-persian-date، dialog و unsaved guard فعلی استفاده می‌کنند؛ [قرارداد](docs/patient-medical-records.md).
+
 افزوده بازطراحی یکپارچه: SiteContent مالک schema محدود متن و ترتیب صفحه پیش‌فرض؛ ThemeService مالک برند، رنگ‌ها، نسخه تنظیمات و CSS امن؛ MediaService مالک فایل و انتشار اسلات‌های هویتی؛ ServiceContentService مالک ترتیب عمومی خدمات است. Bladeهای panel-link، route-context، appointment-status و partialهای header/footer/contact ساختار مشترک را می‌سازند. design-system.css منبع توکن‌ها و ui.js فقط مسئول تعامل‌های نمایشی است. قرارداد و نقشه مصرف‌کننده‌ها: docs/UI-CMS-REDESIGN-AUDIT.md.
 **نسخه:** 1.0.0 · **مطابقت با:** [ARCHITECTURE.md](ARCHITECTURE.md)، [PRD.md](PRD.md)
 
