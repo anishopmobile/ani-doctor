@@ -7,6 +7,12 @@ env:
         - 'https://localhost:18443/(?:|services(?:/.*)?|articles(?:/.*)?|pages/security-audit|website-media/.*|website-theme\.css|assets/.*|sitemap\.xml|robots\.txt)(?:\?.*)?'
       excludePaths:
         - 'https://localhost:18443/(?:otp|payments|api|admin|management|private-forms|logout)(?:[/?].*)?'
+    # Export-only context: no crawler/scanner job selects this context.
+    - name: synthetic-evidence
+      urls:
+        - https://localhost:18443
+      includePaths:
+        - 'https://localhost:18443/.*'
   parameters:
     failOnError: true
     failOnWarning: false
@@ -64,6 +70,20 @@ jobs:
       template: traditional-html
       reportDir: /zap/wrk/results
       reportFile: zap-report.html
+  - type: report
+    alwaysRun: true
+    parameters:
+      template: traditional-json-plus
+      reportDir: /zap/wrk/results
+      reportFile: zap-raw-report.json
+      reportTitle: Synthetic diagnostic requests and responses
+  - type: export
+    alwaysRun: true
+    parameters:
+      context: synthetic-evidence
+      type: har
+      source: all
+      fileName: /zap/wrk/results/zap-messages.har
   - type: exitStatus
     parameters:
       errorLevel: Medium

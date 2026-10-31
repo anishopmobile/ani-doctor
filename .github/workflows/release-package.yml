@@ -101,6 +101,9 @@ jobs:
           vendor/bin/pint --test
           find app bootstrap config database routes tests lang scripts -name '*.php' -print0 | xargs -0 -n1 php -l
 
+      - name: Test security evidence sanitization
+        run: python3 -m unittest discover -s tests/Security -p 'test_*.py' -v
+
       - name: Run automated PHP tests
         if: steps.detect.outputs.app == 'true'
         shell: bash
@@ -338,14 +341,19 @@ jobs:
           test "$scan_status" -eq 0
           test "$http_status" -eq 0
 
-      - name: Upload isolated security scan evidence
+      - name: Sanitize isolated security scan evidence
+        id: security_evidence
         if: always() && steps.detect.outputs.app == 'true'
+        run: python3 tests/Security/sanitize-evidence.py "$RUNNER_TEMP/security-results" "$RUNNER_TEMP/security-evidence"
+
+      - name: Upload isolated security scan evidence
+        if: always() && steps.security_evidence.outcome == 'success'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: ani-doctor-security-${{ github.run_number }}
-          path: ${{ runner.temp }}/security-results/
-          if-no-files-found: warn
-          retention-days: 30
+          path: ${{ runner.temp }}/security-evidence/security-evidence.json
+          if-no-files-found: error
+          retention-days: 7
 
       - name: Upload host-ready artifact
         if: steps.detect.outputs.app == 'true'
