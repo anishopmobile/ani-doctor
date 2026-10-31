@@ -334,7 +334,8 @@ jobs:
           timeout 900 docker run --rm --network host \
             -v "$GITHUB_WORKSPACE/tests/Security/zap-plan.yaml:/zap/wrk/plan.yaml:ro" \
             -v "$RUNNER_TEMP/security-results:/zap/wrk/results:rw" \
-            ghcr.io/zaproxy/zaproxy:stable zap.sh -cmd -autorun /zap/wrk/plan.yaml
+            ghcr.io/zaproxy/zaproxy:stable zap.sh -cmd \
+              -config scanner.persistTemporaryMessages=true -autorun /zap/wrk/plan.yaml
           scan_status=$?
           set -e
           python3 tests/Security/summarize-zap.py "$RUNNER_TEMP/security-results/zap-report.json"

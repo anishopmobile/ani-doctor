@@ -1,9 +1,16 @@
 # Raw ZAP evidence
 
-`zap-plan.yaml` keeps the original synthetic-website crawl and scan configuration,
-policy thresholds and exit status. Additional reports record alert HTTP messages
+`zap-plan.yaml` keeps the scan policy thresholds and exit status. Its public CMS
+allowlist is enforced by an inverse exclusion: ZAP adds each seed URL + `.*` to
+the context, so `includePaths` alone does not restrict a root seed. A regression
+test models this additive behavior and checks public and private routes.
+Additional reports record alert HTTP messages
 (`traditional-json-plus`) and a HAR of all synthetic localhost traffic. The second
 context is selected only by the export job; it does not broaden the active scan.
+The command-line setting `scanner.persistTemporaryMessages=true` retains active
+scan comparison messages in the disposable runner database for the HAR export;
+without it, command-line ZAP discards temporary messages and an alert instance
+alone does not preserve the boolean comparison. Upload sanitization is unchanged.
 
 The temporary branch-only workflow has been removed. The full release workflow
 collects evidence only against its disposable synthetic Apache HTTPS fixture.
@@ -31,3 +38,8 @@ responses. Kernel/MySQL reproduction found unchanged SQL/data, but that alone
 does not establish the reason for the scanner's repeated differential result.
 The diagnostic run records the missing evidence; it must still fail on medium
 or high alerts. No alert is filtered, reclassified or ignored.
+
+See [the follow-up investigation](SQLI-FOLLOWUP.md) for the repeated main failure,
+the confirmed scope defect and the limits of the retained evidence. This public
+CMS scan is not an authenticated DAST assessment of wallet or clinical endpoints;
+their authorization, query isolation and throttling have separate PHP tests.
