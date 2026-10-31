@@ -6,6 +6,9 @@ env:
       includePaths:
         - 'https://localhost:18443/(?:|services(?:/.*)?|articles(?:/.*)?|pages/security-audit|website-media/.*|website-theme\.css|assets/.*|sitemap\.xml|robots\.txt)(?:\?.*)?'
       excludePaths:
+        # ZAP adds urls + '.*' to includePaths. Enforce the public CMS allowlist
+        # with an exclusion too, otherwise the root seed includes private routes.
+        - 'https://localhost:18443/(?!(?:|services(?:/.*)?|articles(?:/.*)?|pages/security-audit|website-media/.*|website-theme\.css|assets/.*|sitemap\.xml|robots\.txt)(?:\?.*)?$).*'
         - 'https://localhost:18443/(?:otp|payments|api|admin|management|private-forms|logout)(?:[/?].*)?'
     # Export-only context: no crawler/scanner job selects this context.
     - name: synthetic-evidence
