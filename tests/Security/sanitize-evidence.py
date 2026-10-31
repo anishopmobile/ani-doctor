@@ -27,6 +27,15 @@ def safe_name(value):
     return value if value in {"query", "page", "id", "slug", "format", "_token", "code", "Cookie", "Authorization", "User-Agent", "Referer", "X-CSRF-TOKEN"} else "[name-" + digest(value)["sha256"][:12] + "]"
 
 
+def safe_location(value):
+    # Response headers are untrusted scan output, not evidence request targets.
+    # Keep unsupported redirects comparable without retaining their contents.
+    try:
+        return safe_url(value)
+    except ValueError:
+        return {"redacted": True, "value": digest(value)}
+
+
 def headers(items):
     # Deny by default: cookies, credentials, CSRF tokens and unknown headers vanish.
     allowed = {"content-length", "x-ratelimit-limit", "x-ratelimit-remaining", "retry-after"}
@@ -37,7 +46,7 @@ def headers(items):
         if name in allowed and value.isdigit():
             result[name] = int(value)
         elif name == "location":
-            result[name] = safe_url(value)
+            result[name] = safe_location(value)
     return result
 
 

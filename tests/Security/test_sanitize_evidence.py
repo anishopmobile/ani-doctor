@@ -50,6 +50,35 @@ class EvidenceSanitizerTest(unittest.TestCase):
         url = f"https://user:{secret}@localhost:18443/{secret}?{secret}={secret}#{secret}"
         self.assertNotIn(secret, json.dumps(sanitizer.safe_url(url)))
 
+    def test_untrusted_redirects_are_hashed_without_failing_evidence_sanitization(self):
+        secret = "SYNTHETIC_REDIRECT_SECRET"
+        for location in ["/login?token=" + secret, "https://outside.invalid/" + secret,
+                         "https://localhost:bad/" + secret, "https://[invalid/" + secret,
+                         "//outside.invalid/" + secret, "javascript:" + secret]:
+            with self.subTest(location=location), tempfile.TemporaryDirectory() as folder:
+                root = pathlib.Path(folder)
+                _, _, entry = self.fixture(root)
+                entry["response"]["headers"] = [{"name": "Location", "value": location}]
+                (root / "zap-messages.har").write_text(json.dumps({"log": {"entries": [entry]}}))
+                result = sanitizer.sanitize(root)
+                self.assertNotIn(secret, json.dumps(result))
+                self.assertEqual(result["messages"][0]["response_headers"]["location"],
+                                 {"redacted": True, "value": sanitizer.digest(location)})
+                self.assertEqual(result["high"], 1)
+
+    def test_local_absolute_redirect_keeps_only_minimized_url(self):
+        location = "https://localhost:18443/login?query=SYNTHETIC_SECRET"
+        self.assertEqual(sanitizer.safe_location(location), sanitizer.safe_url(location))
+
+    def test_external_request_target_still_fails_closed(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = pathlib.Path(folder)
+            _, _, entry = self.fixture(root)
+            entry["request"]["url"] = "https://outside.invalid/login"
+            (root / "zap-messages.har").write_text(json.dumps({"log": {"entries": [entry]}}))
+            with self.assertRaisesRegex(ValueError, "Unexpected evidence target"):
+                sanitizer.sanitize(root)
+
     def test_unexpected_target_and_malformed_data_fail_without_upload_output(self):
         with tempfile.TemporaryDirectory() as folder:
             root = pathlib.Path(folder)
