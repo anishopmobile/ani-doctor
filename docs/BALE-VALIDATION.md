@@ -8,7 +8,7 @@
 |---|---|
 | PHP 8.4.27، مجموعه کامل Unit/Feature با SQLite | ۴۰۳ آزمون، ۳۵۸۷ assertion؛ موفق |
 | بررسی نهایی پرداخت/بله/گزارش‌ها پس از افزودن کانال بله | ۲۹ آزمون، ۱۸۱ assertion؛ موفق |
-| آزمون‌های جدید کارت/بله با MySQL 8.4.3 جدا و ساختگی | ۱۴ آزمون، ۹۶ assertion؛ موفق؛ آزمون اضافی hold بلندتر در SQLite پوشش داده شده است |
+| آزمون‌های جدید کارت/بله با MySQL 8.4.3 جدا و ساختگی | ۱۵ آزمون، ۹۹ assertion؛ موفق، شامل hold سایت بلندتر از ۱۵ دقیقه |
 | FinancialConcurrencyTest روی MySQL جدا | ۱۳ آزمون، ۱۰۱ assertion؛ موفق |
 | Pint | موفق |
 | بررسی نحوی تمام PHPهای app/bootstrap/config/database/routes/tests/lang/scripts | موفق |
