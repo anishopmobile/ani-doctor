@@ -122,7 +122,7 @@ Artisan::command('ops:restore {archive} {target} {private-target} {--isolated-ta
 })->purpose('Authenticate an entire backup before restoring to an empty isolated database; never promotes it');
 
 Artisan::command('bale:poll', function (): int {
-    $lock = \Illuminate\Support\Facades\Cache::lock('bale-poll', 180);
+    $lock = \Illuminate\Support\Facades\Cache::lock('bale-poll', 1800);
     if (!$lock->get()) {
         return 0;
     }

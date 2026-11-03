@@ -195,3 +195,5 @@ Website PageSchema/PageService, WebsitePage/Revision/Asset, admin WebsitePageCon
 
 ## Record editors
 Expandable record lists share work-record and record-tools; workspace-ux.js adds current-page filtering and the non-authoritative _ux_context hidden field. ui.js attaches validation errors to the corresponding record, opens enclosing details and guards unsaved edits. UiInput restores only the matching editor without trusting arbitrary array shapes. docs/ADMIN-WORKSPACE-UX.md.
+
+کارت‌به‌کارت: تنظیم کارت مدیر، فرم رسید خصوصی در جزئیات نوبت، بررسی منشی/مدیر. بله: صفحه مستقل /bale با SDK رسمی و JS محلی، انتخاب خانواده/روز/ساعت و مدارک خصوصی؛ صندوق پنل /management/medical-inbox. docs/BALE-INTEGRATION.md.

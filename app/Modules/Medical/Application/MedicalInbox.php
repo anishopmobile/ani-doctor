@@ -54,6 +54,25 @@ final class MedicalInbox
             if (!$doc || $doc->state !== 'pending') {
                 throw new BookingFailure('INVALID_STATE');
             }
+            if ($decision === 'accepted') {
+                $temp = tempnam(sys_get_temp_dir(), 'emr-inbox-');
+                try {
+                    file_put_contents($temp, base64_decode(Crypt::decryptString(Storage::disk('local')->get($doc->path)), true));
+                    $extension = ['image/png' => 'png', 'image/jpeg' => 'jpg', 'application/pdf' => 'pdf'][$doc->mime];
+                    $file = new UploadedFile($temp, 'document.'.$extension, $doc->mime, UPLOAD_ERR_OK, true);
+                    $document = app(\App\Modules\MedicalRecords\Application\DocumentService::class)->upload(
+                        \App\Modules\Identity\Infrastructure\User::findOrFail($actor->userId),
+                        \App\Modules\Patients\Infrastructure\Patient::findOrFail($doc->patient_id),
+                        $file,
+                        ['request_key' => $reference],
+                        true
+                    );
+                    $document->forceFill(['status' => 'reviewed', 'reviewed_by' => $actor->userId, 'reviewed_at' => now()])->save();
+                    app(\App\Modules\MedicalRecords\Application\MedicalAudit::class)->record($actor->userId, 'document.reviewed', $doc->patient_id, $document->id);
+                } finally {
+                    @unlink($temp);
+                }
+            }
             DB::table('medical_documents')->where('id', $doc->id)->update(['state' => $decision, 'reviewed_by' => $actor->userId, 'reviewed_at' => now(), 'response' => Crypt::encryptString($response), 'updated_at' => now()]);
             app(FinancialAudit::class)->record('medical.reviewed', $actor->userId, 'medical_document', $reference, ['state' => 'pending'], ['state' => $decision], 'بررسی مدرک خصوصی');
             $link = DB::table('bale_links')->where('user_id', $doc->submitted_by)->where('active', true)->first();

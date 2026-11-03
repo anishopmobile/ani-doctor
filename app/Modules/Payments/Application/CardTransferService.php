@@ -60,7 +60,10 @@ final class CardTransferService
             }
             app(BookingFinance::class)->assertEditable($appointment);
             // Never restart or extend a hold. This channel always caps it at creation + 900 seconds.
-            $deadline = $appointment->created_at->toImmutable()->addSeconds(900)->min($appointment->hold_expires_at);
+            $deadline = $appointment->created_at->toImmutable()->addSeconds(900);
+            if (!$deadline->isFuture()) {
+                throw new BookingFailure('HOLD_EXPIRED');
+            }
             $appointment->forceFill(['hold_expires_at' => $deadline, 'version' => $appointment->version + 1])->save();
             return CardTransfer::create(['reference' => (string) Str::uuid(), 'appointment_id' => $appointment->id,
                 'state' => 'awaiting_receipt', 'card_number' => $settings->card_number, 'holder' => $settings->holder,

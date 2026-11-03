@@ -20,6 +20,7 @@ final class P5MigrationTest extends TestCase
         $this->secretary = $this->booker('09123456787', 'secretary');
         $this->service = $this->bookingServiceFixture($this->secretary);
         $appointment = $this->clinicAppointment();
+        $this->artisan('migrate:rollback', ['--step' => 2, '--force' => true])->assertSuccessful(); // Empty Bale inbox and card transfers.
         $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful(); // Empty EMR schema.
         $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful(); // Homepage contact inbox.
         $this->assertFalse(\Illuminate\Support\Facades\Schema::hasTable('website_contact_messages'));

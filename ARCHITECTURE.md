@@ -190,3 +190,5 @@ PageService owns page mutation/publication/history and file lifecycle. PageSchem
 Guided-booking UX adds only display columns to the existing scoped patient choices query; staff without patients.manage retain id/name only. No new endpoint, schema or business transition; private POST search, backend ownership and financial concurrency contracts remain authoritative. See docs/GUIDED-BOOKING-UX.md.
 
 Administration uses native details components work-record / record-tools / website-workflow and local workspace-ux.js. UiInput is a presentation-only scalar/list old-input helper scoped by a display context; validated services and policies remain authoritative. No schema/API changes. docs/ADMIN-WORKSPACE-UX.md.
+
+Bale adapter از Booking/Availability/Patients/Payments موجود استفاده می‌کند؛ CardTransferService مرز پرداخت دستی، MedicalInbox صندوق staging رمزگذاری‌شده قبل از DocumentService/EMR موجود و BaleOutbox صف اعلان عمومی است. قرارداد و ترتیب قفل‌ها: docs/BALE-INTEGRATION.md.

@@ -58,6 +58,7 @@ final class CardTransferTest extends TestCase
         app(BookingService::class)->expire($appointment->id);
         $this->assertSame('confirmed', $appointment->fresh()->status);
         $this->actingAs($this->secretary);
+        $this->get('/management/card-transfers')->assertOk()->assertSee('در انتظار بررسی رسید');
         foreach (range(1, 2) as $n) {
             $this->postJson('/payments/'.$appointment->reference.'/card/review', ['decision' => 'approve', 'reason' => 'تطبیق شد'])->assertOk();
         }
@@ -120,5 +121,41 @@ final class CardTransferTest extends TestCase
         $appointment = $this->hold();
         $this->postJson('/api/v1/payments/'.$appointment->reference.'/initiate', ['idempotency_key' => (string) \Illuminate\Support\Str::uuid(), 'expected_version' => $appointment->version, 'credit_irr' => 0])->assertConflict()->assertJsonPath('error.code', 'PAYMENT_IN_PROGRESS');
         $this->actingAs($this->secretary)->putJson('/admin/card-settings', ['enabled' => true, 'card_number' => '0000000000000000', 'holder' => 'آزمایشی', 'expected_version' => 1])->assertForbidden();
+    }
+
+    public function test_reject_after_start_without_attendance_also_preserves_history(): void
+    {
+        $appointment = $this->hold();
+        $this->submit($appointment)->assertOk();
+        $this->travelTo($appointment->start_at->addSecond());
+        $this->actingAs($this->secretary);
+        $this->postJson('/payments/'.$appointment->reference.'/card/review', ['decision' => 'reject', 'reason' => 'مغایرت پس از موعد'])->assertOk()->assertJsonPath('data.state', 'manager_review');
+        $this->assertSame('confirmed', $appointment->fresh()->status);
+        $this->assertSame('scheduled', $appointment->fresh()->attendance_status);
+        $this->assertDatabaseCount('wallet_entries', 0);
+    }
+
+    public function test_replayed_begin_and_receipt_do_not_extend_deadline_or_replace_evidence(): void
+    {
+        $appointment = $this->hold();
+        $deadline = CardTransfer::sole()->deadline;
+        $this->travel(3)->minutes();
+        $this->postJson('/payments/'.$appointment->reference.'/card/begin', ['expected_version' => $appointment->version])->assertOk();
+        $this->assertTrue($deadline->equalTo(CardTransfer::sole()->deadline));
+        $file = UploadedFile::fake()->image('receipt.png');
+        $this->postJson('/payments/'.$appointment->reference.'/card/submit', ['receipt' => $file])->assertOk();
+        $this->postJson('/payments/'.$appointment->reference.'/card/submit', ['receipt' => $file])->assertOk();
+        $this->assertDatabaseCount('card_transfers', 1);
+        $this->assertSame(1, DB::table('appointment_events')->where('action', 'confirmed')->count());
+        $this->assertCount(1, Storage::disk('local')->allFiles());
+    }
+
+    public function test_card_cannot_start_after_fifteen_minutes_even_if_site_hold_is_longer(): void
+    {
+        DB::table('booking_settings')->where('id', 1)->update(['hold_minutes' => 30]);
+        $appointment = app(BookingService::class)->create($this->bookingActor($this->owner), $this->bookingData($this->service));
+        $this->travel(16)->minutes();
+        $this->postJson('/payments/'.$appointment->reference.'/card/begin', ['expected_version' => $appointment->version])->assertConflict()->assertJsonPath('error.code', 'HOLD_EXPIRED');
+        $this->assertDatabaseCount('card_transfers', 0);
     }
 }

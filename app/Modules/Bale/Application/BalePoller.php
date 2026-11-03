@@ -14,6 +14,9 @@ final class BalePoller
 {
     public function once(): void
     {
+        if (!config('bale.enabled')) {
+            return;
+        }
         $offset = (int) DB::table('bale_poll_state')->where('id', 1)->value('offset');
         $updates = app(BaleClient::class)->call('getUpdates', ['offset' => $offset, 'limit' => 20, 'timeout' => 0]);
         foreach ($updates as $update) {

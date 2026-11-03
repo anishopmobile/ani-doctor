@@ -33,7 +33,7 @@ final class SecurityHeaders
             $response->headers->remove('X-Frame-Options');
             $response->headers->set('Content-Security-Policy', "default-src 'self'; object-src 'none'; frame-src 'none'; connect-src 'self'; style-src 'self'; font-src 'self'; script-src 'self' https://tapi.bale.ai; img-src 'self' data:; frame-ancestors https://web.bale.ai https://*.bale.ai; base-uri 'self'; form-action 'self'");
         }
-        if ($request->routeIs('emr.documents.download')) {
+        if ($request->routeIs('emr.documents.download', 'medical.download', 'card.receipt')) {
             $response->headers->set('Content-Security-Policy', "sandbox; default-src 'none'; frame-ancestors 'none'");
         }
         return $response;

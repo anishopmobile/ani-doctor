@@ -62,6 +62,7 @@ final class BaleController extends Controller
             $data = $request->validate(['idempotency_key' => 'required|uuid', 'service_id' => 'required|integer|min:1', 'expected_price_irr' => 'required|integer|min:0',
                 'start_at' => ['required', 'date', 'regex:/\A[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(Z|[+-][0-9]{2}:[0-9]{2})\z/'],
                 'patient_id' => 'nullable|integer|min:1', 'patient_name' => 'required_without:patient_id|nullable|string|max:150']);
+            $data['origin_channel'] = 'bale';
             $appointment = DB::transaction(function () use ($actor, $data) {
                 // Match web card begin lock order, including configuration read.
                 DB::table('card_transfer_settings')->where('id', 1)->sharedLock()->first();

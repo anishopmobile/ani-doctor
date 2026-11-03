@@ -1,0 +1,56 @@
+const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
+import { createHmac } from 'node:crypto';
+import fs from 'node:fs/promises';
+import assert from 'node:assert/strict';
+const base = process.env.PANEL_BASE_URL || 'http://127.0.0.1:18558';
+assert.equal(base, 'http://127.0.0.1:18558');
+const out = process.env.PANEL_OUTPUT || '../../deliverables/bale-browser';
+await fs.mkdir(out, {recursive:true});
+const data = {auth_date:String(Math.floor(Date.now()/1000)), query_id:'synthetic-browser', user:JSON.stringify({id:123})};
+const secret = createHmac('sha256', 'WebAppData').update('synthetic-browser-token').digest();
+data.hash = createHmac('sha256', secret).update(Object.entries(data).map(([k,v]) => `${k}=${v}`).join('\n')).digest('hex');
+const init = new URLSearchParams(data).toString();
+const browser = await chromium.launch({headless:true, ...(process.env.CHROMIUM_EXECUTABLE ? {executablePath:process.env.CHROMIUM_EXECUTABLE} : {})});
+const errors=[];
+try {
+    const context = await browser.newContext({viewport:{width:375,height:950}});
+    await context.route('https://tapi.bale.ai/miniapp.js', route => route.fulfill({contentType:'application/javascript',body:`window.Bale={WebApp:{initData:${JSON.stringify(init)}}};`}));
+    const page = await context.newPage();
+    page.on('pageerror', e => errors.push(e.message));
+    await page.goto(base+'/bale');
+    await page.locator('#bale-booking').waitFor({state:'visible'});
+    await page.locator('#bale-patient').selectOption({label:'بیمار ساختگی بله'});
+    const date=new Date(Date.now()+3*86400000).toISOString().slice(0,10);
+    await page.locator('#bale-date').evaluate((el,value) => {el.value=value;},date);
+    await page.locator('#bale-days button[type="submit"], #bale-days button:not([type])').click();
+    await page.waitForFunction(() => document.querySelector('#bale-slot').options.length>0);
+    await page.locator('#bale-book button').click();
+    await page.locator('#bale-payment').waitFor({state:'visible'});
+    assert.match(await page.locator('#bale-card').innerText(), /0000000000000000/);
+    await page.screenshot({path:out+'/bale-card-mobile.png',fullPage:true});
+    const image=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=','base64');
+    await page.locator('#bale-receipt input').setInputFiles({name:'receipt.png',mimeType:'image/png',buffer:image});
+    await page.locator('#bale-receipt button').click();
+    await page.waitForFunction(() => document.querySelector('#bale-status').textContent.includes('نوبت قطعی شد'));
+    await page.locator('#bale-document-patient').selectOption({label:'بیمار ساختگی بله'});
+    await page.locator('#bale-document input[type=file]').setInputFiles({name:'document.png',mimeType:'image/png',buffer:image});
+    await page.locator('#bale-document input[type=checkbox]').check();
+    await page.locator('#bale-document button').click();
+    await page.waitForFunction(() => document.querySelector('#bale-status').textContent.includes('مدرک خصوصی'));
+    await page.locator('#bale-responses').click();
+    await page.waitForFunction(() => document.querySelector('#bale-response-list').textContent.includes('در انتظار بررسی'));
+    for (const width of [320,768,1440]) {
+        await page.setViewportSize({width,height:950});
+        assert.equal(await page.evaluate(() => document.documentElement.scrollWidth>innerWidth+1),false);
+    }
+    const forged=await context.request.post(base+'/bale/me',{headers:{Accept:'application/json','X-Bale-Init-Data':init.replace('synthetic-browser','forged')},data:{}});
+    assert.equal(forged.status(),401);
+    const staff=await context.newPage();
+    await staff.setExtraHTTPHeaders({'X-UI-Actor':'secretary'});
+    await staff.goto(base+'/management/medical-inbox');
+    await staff.getByRole('heading',{name:'صندوق امن مدارک'}).waitFor();
+    await staff.screenshot({path:out+'/medical-inbox.png',fullPage:true});
+    assert.deepEqual(errors,[]);
+    await fs.writeFile(out+'/summary.json',JSON.stringify({passed:true,checks:['signed identity without cookies','family booking','private receipt confirms hold','private document upload','owned responses','forged signature denied','secretary inbox','320/768/1440 no overflow'],errors},null,2));
+    console.log('PASS Bale real-backend browser flow');
+} finally {await browser.close();}

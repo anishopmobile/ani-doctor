@@ -182,6 +182,46 @@ final class FinancialConcurrencyTest extends TestCase
         $this->assertSame(1, DB::table('wallet_entries')->where('kind', 'cancellation')->count());
         $this->assertDatabaseHas('wallet_accounts', ['balance_irr' => 1000000, 'reserved_irr' => 0]);
     }
+    public function test_card_choice_racing_gateway_serializes_to_one_payment_method(): void
+    {
+        $admin = $this->booker('09120000901', 'admin');
+        app(\App\Modules\Payments\Application\CardTransferService::class)->configure($this->bookingActor($admin), ['enabled' => true, 'card_number' => '0000000000000000', 'holder' => 'تست رقابت', 'expected_version' => 0]);
+        $appointment = $this->hold();
+        $output = $this->race([
+            $this->job('card_begin', $appointment, ['expected_version' => 1]),
+            $this->job('initiate', $appointment, ['idempotency_key' => (string) Str::uuid(), 'credit_irr' => 0, 'expected_version' => 1]),
+        ], $appointment->local_date);
+        $this->assertSame(1, substr_count($output, 'SUCCESS'));
+        $this->assertSame(1, DB::table('card_transfers')->count() + DB::table('payment_attempts')->count());
+        // Tear down only synthetic rows in this test's isolated MySQL database.
+        DB::table('card_transfers')->delete();
+    }
+
+    public function test_parallel_card_receipts_and_review_confirm_and_allocate_only_once(): void
+    {
+        $admin = $this->booker('09120000902', 'admin');
+        $cards = app(\App\Modules\Payments\Application\CardTransferService::class);
+        $cards->configure($this->bookingActor($admin), ['enabled' => true, 'card_number' => '0000000000000000', 'holder' => 'تست رقابت', 'expected_version' => 0]);
+        $appointment = $this->hold();
+        $cards->begin($this->actor, $appointment, 1);
+        $file = \Illuminate\Http\UploadedFile::fake()->image('receipt.png');
+        try {
+            $job = $this->job('card_submit', $appointment->fresh(), [], ['file' => $file->getRealPath()]);
+            $this->assertSame(2, substr_count($this->race([$job, $job], $appointment->local_date), 'SUCCESS'));
+            $job = [...$this->job('card_review', $appointment->fresh(), ['decision' => 'approve']), 'user' => $admin->id];
+            $this->assertSame(2, substr_count($this->race([$job, $job], $appointment->local_date), 'SUCCESS'));
+            $this->assertDatabaseCount('payments', 1);
+            $this->assertSame(1, DB::table('appointment_events')->where('action', 'confirmed')->count());
+            $this->assertSame('paid', $appointment->fresh()->payment_status);
+        } finally {
+            $transfer = \App\Modules\Payments\Infrastructure\CardTransfer::first();
+            if ($transfer?->receipt_path) {
+                \Illuminate\Support\Facades\Storage::disk('local')->delete($transfer->receipt_path);
+            }
+            DB::table('card_transfers')->delete();
+        }
+    }
+
     private function race(array $jobs, ?string $blockedDate = null): string
     {
         $barrier = storage_path('framework/finance-race-'.bin2hex(random_bytes(8)));

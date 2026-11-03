@@ -43,6 +43,9 @@ return new class () extends Migration {
     }
     public function down(): void
     {
+        if (\Illuminate\Support\Facades\DB::table('medical_documents')->exists() || \Illuminate\Support\Facades\DB::table('bale_links')->exists()) {
+            throw new RuntimeException('BALE_DATA_PRESENT_USE_CODE_ROLLBACK');
+        }
         foreach (['bale_poll_state', 'medical_documents', 'bale_outbox', 'bale_links'] as $table) {
             Schema::dropIfExists($table);
         }

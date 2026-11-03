@@ -3,11 +3,19 @@
     const byId = id => document.getElementById(id);
     const status = text => { byId('bale-status').textContent = text; };
     let services = [], reference = null, bookingKey = null;
+    const today = new Intl.DateTimeFormat('en-CA', {timeZone:'Asia/Tehran', year:'numeric', month:'2-digit', day:'2-digit'}).format(new Date());
+    byId('bale-date').value = today;
+    for (const [id, days] of [['bale-previous', -7], ['bale-next', 7]]) byId(id).addEventListener('click', () => {
+        const date = new Date(byId('bale-date').value + 'T12:00:00Z'); date.setUTCDate(date.getUTCDate() + days);
+        const next = date.toISOString().slice(0,10);
+        byId('bale-date').value = next < today ? today : next;
+        byId('bale-days').requestSubmit();
+    });
     async function api(action, data = {}) {
         const form = data instanceof FormData;
-        const headers = {Accept: 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'X-Bale-Init-Data': window.Bale?.WebApp?.initData || ''};
+        const headers = {Accept: 'application/json', 'X-Bale-Init-Data': window.Bale?.WebApp?.initData || ''};
         if (!form) headers['Content-Type'] = 'application/json';
-        const response = await fetch('/bale/' + action, {method: 'POST', headers, body: form ? data : JSON.stringify(data), credentials: 'same-origin'});
+        const response = await fetch('/bale/' + action, {method: 'POST', headers, body: form ? data : JSON.stringify(data), credentials: 'omit'});
         const result = await response.json();
         if (!response.ok || !result.success) throw new Error(result.error?.message || 'درخواست انجام نشد. ورودی‌ها را بررسی و دوباره تلاش کنید.');
         return result.data;

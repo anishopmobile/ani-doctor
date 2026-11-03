@@ -25,6 +25,9 @@ final class BaleOutbox
 
     public function dispatch(): void
     {
+        if (!config('bale.enabled')) {
+            return;
+        }
         foreach (DB::table('bale_outbox')->where('state', 'queued')->orderBy('id')->limit(50)->get() as $row) {
             // Claim before network: unknown outcomes need operator reconciliation, never blind resend.
             if (!DB::table('bale_outbox')->where('id', $row->id)->where('state', 'queued')->update(['state' => 'sending', 'updated_at' => now()])) {

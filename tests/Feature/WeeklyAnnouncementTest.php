@@ -222,6 +222,7 @@ final class WeeklyAnnouncementTest extends TestCase
         $this->source();
         $this->save()->assertRedirect();
         $before = DB::table('weekly_schedules')->get()->toJson().DB::table('work_shifts')->get()->toJson();
+        $this->artisan('migrate:rollback', ['--step' => 2, '--force' => true])->assertSuccessful(); // Empty Bale inbox and card transfers.
         $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful(); // Empty EMR schema.
         $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful(); // Homepage contact inbox.
         $this->assertFalse(\Illuminate\Support\Facades\Schema::hasTable('website_contact_messages'));

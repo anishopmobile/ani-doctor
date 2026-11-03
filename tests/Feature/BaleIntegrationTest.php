@@ -75,6 +75,8 @@ final class BaleIntegrationTest extends TestCase
         $this->assertStringNotContainsString('پاسخ خصوصی', DB::table('medical_documents')->value('response'));
         $this->assertSame('پاسخ خصوصی آزمایشی', app(MedicalInbox::class)->responses($actor, $appointment->patient_id)[0]['response']);
         $this->assertDatabaseHas('medical_documents', ['reviewed_by' => $secretary->id, 'state' => 'accepted']);
+        $this->assertDatabaseHas('emr_documents', ['patient_id' => $appointment->patient_id, 'status' => 'reviewed', 'reviewed_by' => $secretary->id]);
+        @unlink(storage_path('app/private/emr/'.DB::table('emr_documents')->value('path')));
         $this->assertDatabaseHas('financial_events', ['action' => 'medical.viewed']);
     }
 
@@ -92,5 +94,35 @@ final class BaleIntegrationTest extends TestCase
         $this->postJson('/bale/document', ['patient_id' => $appointment->patient_id, 'consent' => 1, 'document' => UploadedFile::fake()->image('x.png')])->assertNotFound();
         $this->get('/bale')->assertOk()->assertDontSee('زرین');
         $this->assertDatabaseCount('medical_documents', 0);
+    }
+
+    public function test_polling_ignores_groups_and_file_download_rejects_untrusted_paths(): void
+    {
+        Http::fake(['tapi.bale.ai/*' => Http::response(['ok' => true, 'result' => [
+            ['update_id' => 1, 'message' => ['chat' => ['id' => -123, 'type' => 'group'], 'from' => ['id' => 123], 'text' => '/start']],
+        ]])]);
+        app(\App\Modules\Bale\Application\BalePoller::class)->once();
+        Http::assertSentCount(1);
+        $this->assertSame(2, (int) DB::table('bale_poll_state')->value('offset'));
+        Http::fake(['tapi.bale.ai/*' => Http::response(['ok' => true, 'result' => ['file_path' => '../private/file.png', 'file_size' => 100]])]);
+        try {
+            app(\App\Modules\Bale\Infrastructure\BaleClient::class)->download('synthetic-file');
+            $this->fail('Untrusted file path accepted');
+        } catch (\App\Modules\Booking\Domain\BookingFailure $error) {
+            $this->assertSame('INVALID_FILE', $error->errorCode);
+        }
+    }
+
+    public function test_outbox_unknown_delivery_is_not_automatically_resent(): void
+    {
+        $owner = $this->booker();
+        DB::table('bale_links')->insert(['bale_id' => '123', 'user_id' => $owner->id, 'active' => true]);
+        app(\App\Modules\Bale\Application\BaleOutbox::class)->enqueue('synthetic-event', '123', 'اعلان عمومی ساختگی');
+        Http::fake(['tapi.bale.ai/*' => Http::response(['ok' => false], 503)]);
+        app(\App\Modules\Bale\Application\BaleOutbox::class)->dispatch();
+        app(\App\Modules\Bale\Application\BaleOutbox::class)->dispatch();
+        Http::assertSentCount(1);
+        $this->assertSame('uncertain', DB::table('bale_outbox')->value('state'));
+        $this->assertStringNotContainsString('اعلان عمومی', DB::table('bale_outbox')->value('message'));
     }
 }

@@ -14,7 +14,7 @@
 @endif
 @if($transfer->receipt_path && (!$actor->staff() || $actor->can('payments.card_review')))<a href="{{ route('card.receipt',$appointment->reference) }}">دریافت خصوصی رسید</a>@endif
 @can('payments.card_review')
-@if($transfer->duplicate_receipt)<p class="alert alert-warning">این فایل قبلاً برای رزرو دیگری دریافت شده است؛ تطبیق بانکی لازم است.</p>@endif
+@if($transfer->duplicate_receipt || ($transfer->receipt_hash && \App\Modules\Payments\Infrastructure\CardTransfer::where('receipt_hash',$transfer->receipt_hash)->count()>1))<p class="alert alert-warning">این فایل قبلاً برای رزرو دیگری دریافت شده است؛ تطبیق بانکی لازم است.</p>@endif
 @if($transfer->state==='pending_review')<form method="post" action="{{ route('card.review',$appointment->reference) }}">@csrf<label>دلیل بررسی<input class="form-control" name="reason" maxlength="500" required></label><button class="btn btn-primary" name="decision" value="approve">تأیید دریافت وجه</button> <button class="btn btn-outline-danger" name="decision" value="reject">رد رسید</button></form>@endif
 @if($transfer->state==='manager_review')<p class="alert alert-warning">به دلیل زمان مراجعه یا سابقه حضور، نوبت خودکار لغو نشده است. مدیر باید مغایرت مالی و سابقه مراجعه را بررسی کند.</p>@endif
 @endcan

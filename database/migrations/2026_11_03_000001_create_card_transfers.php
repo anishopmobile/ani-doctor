@@ -35,9 +35,19 @@ return new class () extends Migration {
             $table->text('reason')->nullable();
             $table->timestamps();
         });
+        foreach (['payments.card_review', 'medical.review'] as $name) {
+            \Illuminate\Support\Facades\DB::table('permissions')->insertOrIgnore(['name' => $name]);
+            $permission = \Illuminate\Support\Facades\DB::table('permissions')->where('name', $name)->value('id');
+            foreach (\Illuminate\Support\Facades\DB::table('roles')->whereIn('name', ['admin', 'secretary'])->pluck('id') as $role) {
+                \Illuminate\Support\Facades\DB::table('permission_role')->insertOrIgnore(['permission_id' => $permission, 'role_id' => $role]);
+            }
+        }
     }
     public function down(): void
     {
+        if (\Illuminate\Support\Facades\DB::table('card_transfers')->exists()) {
+            throw new RuntimeException('CARD_DATA_PRESENT_USE_CODE_ROLLBACK');
+        }
         Schema::dropIfExists('card_transfers');
         Schema::dropIfExists('card_transfer_settings');
     }

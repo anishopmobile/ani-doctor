@@ -14,6 +14,13 @@ use Illuminate\Support\Facades\Storage;
 
 final class CardTransferController extends Controller
 {
+    public function inbox()
+    {
+        return view('payments.card-inbox', ['transfers' => DB::table('card_transfers')->join('appointments', 'appointments.id', '=', 'card_transfers.appointment_id')
+            ->whereIn('card_transfers.state', ['pending_review', 'manager_review'])->orderBy('card_transfers.id')
+            ->select('appointments.reference as appointment_reference', 'appointments.service_title', 'appointments.start_at', 'card_transfers.state', 'card_transfers.amount_irr')->paginate(25)]);
+    }
+
     public function settings(Request $request)
     {
         return view('payments.card-settings', ['settings' => DB::table('card_transfer_settings')->where('id', 1)->first()]);

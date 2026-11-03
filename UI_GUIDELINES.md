@@ -164,3 +164,5 @@ Persian RTL labels, status announcements, explicit save/publish, stale-write mes
 
 ## Remaining staff and CMS workflows
 Prefer compact record summaries with explicit status, separate create/edit actions and native keyboard-operable details. Current-page filters must state their scope and preserve server pagination. Rejected edits reopen and restore only the corresponding form; focus/error links must not point at another record with the same field name. Separate weekly schedule from date exceptions and keep hidden schedule payloads intact. Report-kind filters may hide and disable only irrelevant report fields. docs/ADMIN-WORKSPACE-UX.md.
+
+بله: رابط مستقل فارسی RTL و بدون خروج اجباری از پیام‌رسان؛ حالت ورود، خدمت/زمان خالی، ارسال رسید، مهلت سرور، خطا و تلاش دوباره. وضعیت قطعی نوبت از تأیید وجه جدا نمایش داده می‌شود. پاسخ پزشکی در محیط امن و اعلان فقط عمومی است. docs/BALE-INTEGRATION.md.
