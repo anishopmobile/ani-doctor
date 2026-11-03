@@ -9,9 +9,9 @@
 <p class="h5">{{ $appointment->patient->name }} — {{ $appointment->service_title }}</p>
 <p>تاریخ: <bdi dir="ltr">{{ $jalali->format($appointment->start_at) }}</bdi>، ساعت {{ $appointment->start_at->setTimezone('Asia/Tehran')->format('H:i') }} به وقت تهران</p>
 <p>وضعیت: {{ ['pending_payment'=>'رزرو موقت، در انتظار پرداخت','confirmed'=>'قطعی','expired'=>'منقضی','cancelled'=>'لغوشده','completed'=>'انجام‌شده','no_show'=>'عدم مراجعه'][$appointment->effectiveStatus()] ?? 'نیازمند بررسی' }}</p>
-<p>مبلغ کامل: {{ number_format($appointment->price_irr) }} ریال. وضعیت مالی: {{ ['unpaid'=>'پرداخت‌نشده','paid'=>'تسویه‌شده','credited'=>'برگشته به اعتبار'][$appointment->payment_status] ?? 'نیازمند بررسی' }}</p>
+<p>مبلغ کامل: {{ number_format($appointment->price_irr) }} ریال. وضعیت مالی: {{ ['unpaid'=>'پرداخت‌نشده','paid'=>'تسویه‌شده','credited'=>'برگشته به اعتبار','card_pending'=>'کارت‌به‌کارت — در انتظار تأیید منشی','card_rejected'=>'کارت‌به‌کارت — پرداخت ردشده','reconciliation_required'=>'مغایرت مالی — در انتظار بررسی مدیر'][$appointment->payment_status] ?? 'نیازمند بررسی' }}</p>
 @if($appointment->discount_irr > 0)<p>تعرفه پایه {{ number_format($appointment->base_price_irr) }} ریال؛ تخفیف {{ number_format($appointment->discount_irr) }} ریال. مبلغ کامل قابل تسویه، مبلغ نهایی نمایش‌داده‌شده است.</p>@endif
-<p>حضور: {{ ['scheduled'=>'در انتظار مراجعه','arrived'=>'مراجعه کرده','completed'=>'انجام‌شده','no_show'=>'عدم مراجعه'][$appointment->attendance_status] }}؛ روش ثبت: {{ ['phone'=>'تلفنی','urgent'=>'فوری','secretary'=>'منشی','user'=>'حساب کاربر','guest'=>'مهمان'][$appointment->channel] ?? 'ثبت قبلی' }}</p>
+<p>حضور: {{ ['scheduled'=>'در انتظار مراجعه','arrived'=>'مراجعه کرده','completed'=>'انجام‌شده','no_show'=>'عدم مراجعه'][$appointment->attendance_status] }}؛ روش ثبت: {{ ['phone'=>'تلفنی','urgent'=>'فوری','secretary'=>'منشی','user'=>'حساب کاربر','guest'=>'مهمان','bale'=>'بله'][$appointment->channel] ?? 'ثبت قبلی' }}</p>
 @if($actor->staff())<p>شناسه ثبت‌کننده: {{ $appointment->created_by ?? 'مهمان' }} @if($appointment->override_reason)؛ توضیح ثبت/استثنا: {{ $appointment->override_reason }}@endif</p>@endif
 @if($appointment->is_override)<p class="alert alert-warning">این نوبت خارج از ظرفیت عادی ثبت شده است.</p>@endif
 @if($appointment->effectiveStatus()==='pending_payment')
@@ -19,6 +19,7 @@
 @endif
 </section>
 @include('payments.appointment')
+@include('payments.card')
 <section class="ux-card"><h2 class="h4">برگه نوبت و فرم‌ها</h2><div class="ux-quick-links"><p><a href="{{ route('tickets.print', $appointment->reference) }}">برگه چاپ نوبت</a> · <a href="{{ route('tickets.pdf', $appointment->reference) }}">PDF نوبت</a></p>
 
 @if(!$actor->staff() || $actor->can('forms.answers.view'))<p><a href="{{ route('private-forms.index', $appointment->reference) }}">فرم‌های خصوصی این نوبت</a></p>@endif

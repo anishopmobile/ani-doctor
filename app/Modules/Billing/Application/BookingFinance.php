@@ -17,12 +17,16 @@ final class BookingFinance implements BookingFinanceInterface
     }
     public function assertEditable(Appointment $appointment): void
     {
+        if (\App\Modules\Payments\Infrastructure\CardTransfer::where('appointment_id', $appointment->id)->whereIn('state', ['awaiting_receipt', 'pending_review', 'manager_review'])->exists()) {
+            throw new BookingFailure('PAYMENT_IN_PROGRESS');
+        }
         if (PaymentAttempt::where('appointment_id', $appointment->id)->whereIn('state', ['requesting', 'redirected', 'uncertain'])->lockForUpdate()->exists()) {
             throw new BookingFailure('PAYMENT_IN_PROGRESS');
         }
     }
     public function expire(Appointment $appointment): void
     {
+        \App\Modules\Payments\Infrastructure\CardTransfer::where('appointment_id', $appointment->id)->where('state', 'awaiting_receipt')->update(['state' => 'cancelled']);
         app(DiscountService::class)->transition($appointment, 'released');
         $attempts = PaymentAttempt::where('appointment_id', $appointment->id)->where('credit_reserved', true)->orderBy('id')->lockForUpdate()->get();
         foreach ($attempts as $attempt) {

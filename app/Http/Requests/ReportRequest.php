@@ -20,7 +20,7 @@ final class ReportRequest extends FormRequest
     }
     public function rules(): array
     {
-        return ['kind' => 'required|in:appointments,finance', 'from' => 'required|string|max:10', 'to' => 'required|string|max:10', 'sort' => 'required|in:date,amount', 'direction' => 'required|in:asc,desc', 'service_id' => 'nullable|integer|exists:services,id', 'operator_id' => 'nullable|integer|exists:users,id', 'status' => 'nullable|in:pending_payment,confirmed,expired,cancelled,completed,no_show', 'channel' => 'nullable|in:guest,user,secretary,phone,urgent', 'payment_status' => 'nullable|in:unpaid,paid,credited', 'attendance_status' => 'nullable|in:scheduled,arrived,completed,no_show', 'format' => 'nullable|in:pdf,xlsx'];
+        return ['kind' => 'required|in:appointments,finance', 'from' => 'required|string|max:10', 'to' => 'required|string|max:10', 'sort' => 'required|in:date,amount', 'direction' => 'required|in:asc,desc', 'service_id' => 'nullable|integer|exists:services,id', 'operator_id' => 'nullable|integer|exists:users,id', 'status' => 'nullable|in:pending_payment,confirmed,expired,cancelled,completed,no_show', 'channel' => 'nullable|in:guest,user,secretary,phone,urgent,bale', 'payment_status' => 'nullable|in:unpaid,paid,credited,card_pending,card_rejected,reconciliation_required', 'attendance_status' => 'nullable|in:scheduled,arrived,completed,no_show', 'format' => 'nullable|in:pdf,xlsx'];
     }
     public function filters(): array
     {

@@ -16,9 +16,9 @@ use Illuminate\Validation\ValidationException;
 
 final class DocumentService
 {
-    public function upload(User $actor, Patient $patient, UploadedFile $file, array $data): MedicalDocument
+    public function upload(User $actor, Patient $patient, UploadedFile $file, array $data, bool $incoming = false): MedicalDocument
     {
-        abort_unless(app(MedicalRecordPolicy::class)->administrative($actor), 403);
+        abort_unless(app(MedicalRecordPolicy::class)->administrative($actor) || ($incoming && $actor->hasPermission('medical.review')), 403);
         $mime = $file->getMimeType();
         if (!in_array($mime, config('medical-records.mime_types'), true) || $file->getSize() > config('medical-records.max_file_kb') * 1024) {
             throw ValidationException::withMessages(['file' => 'نوع یا حجم فایل معتبر نیست.']);
@@ -47,7 +47,7 @@ final class DocumentService
             // Validate decodability without recompressing clinical evidence. The encrypted
             // original is attachment-only; no untrusted image or PDF is rendered inline.
         }
-        $clinical = app(MedicalRecordPolicy::class)->clinical($actor);
+        $clinical = !$incoming && app(MedicalRecordPolicy::class)->clinical($actor);
         $metadata = $clinical ? array_intersect_key($data, array_flip(['title', 'category', 'source', 'description'])) : [];
         // Secretary uploads intentionally discard clinical titles, filenames and linkage input.
         if ($clinical && !empty($data['document_jalali'])) {

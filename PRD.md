@@ -215,3 +215,5 @@ FR-WEB: the existing homepage services section supports three administrator-sele
 ## Homepage contact models acceptance
 
 FR-WEB: the homepage contact/location section supports three administrator-selected responsive models, real saved contact details/map/social links, independently published image and an optional real guest message form. Messages use private encrypted storage and an authorized admin read/delete inbox, with validation, CSRF and abuse limits. No booking behavior changes. Scope, deployment migration and verification: docs/HOME-CONTACT-MODELS.md.
+
+افزوده تأییدشده بله: CARD-01..06، BALE-01..05، MED-01..03 و SEC-01/02 در [قرارداد بله](docs/BALE-INTEGRATION.md). استثنای رسمی FR-PAY-01: رسید به‌موقع کارت‌به‌کارت، رزرو را پیش از تأیید دستی وجه قطعی می‌کند. مدارک دریافتی پس از تأیید به EMR موجود اضافه می‌شوند. مدیر همان پزشک است؛ منشی مجاز می‌تواند صندوق ورودی را بررسی کند. [هشت قابلیت آینده](docs/BALE_BACKLOG.md).

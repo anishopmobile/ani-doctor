@@ -63,7 +63,7 @@ final class BookingService
                 'capacity_limit' => $slot['capacity_limit'],'local_date' => $date,'start_at' => $start,
                 'end_at' => $start->addMinutes($service->duration_minutes),'occupied_until' => $start->addMinutes($service->duration_minutes + $service->buffer_minutes),
                 'status' => 'pending_payment','payment_status' => 'unpaid','balance_due_irr' => $quote['net'],'hold_expires_at' => now()->addMinutes($settings->hold_minutes),
-                'channel' => $data['booking_kind'] ?? ($actor->staff() ? 'secretary' : ($actor->userId ? 'user' : 'guest')),
+                'channel' => $data['booking_kind'] ?? (($data['origin_channel'] ?? '') === 'bale' ? 'bale' : ($actor->staff() ? 'secretary' : ($actor->userId ? 'user' : 'guest'))),
                 'is_override' => !empty($data['override_capacity']),'override_reason' => $data['reason'] ?? null,'created_by' => $actor->userId,'version' => 1,
             ]);
             $discounts->reserve($appointment, $quote);

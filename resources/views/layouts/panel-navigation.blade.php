@@ -14,6 +14,9 @@
     @can('reports.appointments')<x-panel-link route="reports.index" icon="chart" active="reports.*">گزارش‌ها و خروجی</x-panel-link>@endcan
     @can('discounts.manage')<x-panel-link route="discounts.index" icon="wallet" active="discounts.*">تخفیف خدمات</x-panel-link>@endcan
     @can('payments.review')<x-panel-link route="finance" icon="wallet" active="finance">مدیریت مالی</x-panel-link>@endcan
+    @can('payments.settings')<x-panel-link route="card.settings" icon="wallet" active="card.settings">کارت مقصد</x-panel-link>@endcan
+    @can('payments.card_review')<x-panel-link route="card.inbox" icon="wallet" active="card.inbox">رسیدهای کارت‌به‌کارت</x-panel-link>@endcan
+    @can('medical.review')<x-panel-link route="medical.index" icon="file" active="medical.*">مدارک دریافتی بله</x-panel-link>@endcan
     @can('booking.settings')<x-panel-link route="booking.settings" icon="settings" active="booking.settings">سیاست رزرو</x-panel-link>@endcan
     @can('forms.manage')<x-panel-link route="forms.manage" icon="file" active="forms.*">فرم‌های خصوصی</x-panel-link>@endcan
     @can('notifications.manage')<x-panel-link route="notifications.manage" icon="file" active="notifications.*">اعلان‌های پیامکی</x-panel-link>@endcan

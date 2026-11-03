@@ -12,7 +12,7 @@ use Illuminate\Validation\ValidationException;
 final class ReportService
 {
     public const STATUS = ['pending_payment' => 'رزرو موقت', 'confirmed' => 'قطعی', 'expired' => 'منقضی', 'cancelled' => 'لغوشده', 'completed' => 'انجام‌شده', 'no_show' => 'عدم مراجعه'];
-    public const CHANNEL = ['guest' => 'مهمان', 'user' => 'کاربر', 'secretary' => 'منشی', 'phone' => 'تلفنی', 'urgent' => 'فوری'];
+    public const CHANNEL = ['guest' => 'مهمان', 'user' => 'کاربر', 'secretary' => 'منشی', 'phone' => 'تلفنی', 'urgent' => 'فوری', 'bale' => 'بله'];
     public function build(User $actor, array $filters, string $format = 'html'): array
     {
         abort_unless($actor->hasPermission($filters['kind'] === 'finance' ? 'reports.finance' : 'reports.appointments'), 403);

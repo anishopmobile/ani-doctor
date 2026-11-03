@@ -168,6 +168,9 @@ jobs:
           LOCAL_OTP_PREVIEW: 'false'
           LOCAL_PAYMENT_SIMULATOR: 'false'
           PANEL_SYNTHETIC_FIXTURE: '1'
+          BALE_ENABLED: 'true'
+          BALE_BOT_TOKEN: synthetic-browser-token
+          BALE_SAFIR_KEY: ''
         run: |
           set -euo pipefail
           touch "$DB_DATABASE"
@@ -197,6 +200,8 @@ jobs:
             node home-contact.mjs
             php ../Support/emr-browser-seed.php
             node medical-records.mjs
+            php ../Support/bale-browser-seed.php
+            PANEL_OUTPUT=results/bale node bale.mjs
 
       - name: Upload browser verification evidence
         if: always() && steps.detect.outputs.app == 'true'

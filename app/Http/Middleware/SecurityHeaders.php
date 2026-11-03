@@ -29,7 +29,11 @@ final class SecurityHeaders
         // Browsers may apply form-action to the gateway redirect after an on-site POST.
         $formAction = $request->routeIs('appointments.show', 'payments.initiate') ? "'self' https://payment.zarinpal.com https://sandbox.zarinpal.com" : "'self'";
         $response->headers->set('Content-Security-Policy', "default-src 'self'; object-src 'none'; frame-src 'none'; connect-src 'self'; style-src 'self'; font-src 'self'; script-src 'self'; img-src 'self' data:; frame-ancestors 'none'; base-uri 'self'; form-action ".$formAction);
-        if ($request->routeIs('emr.documents.download')) {
+        if ($request->routeIs('bale.index')) {
+            $response->headers->remove('X-Frame-Options');
+            $response->headers->set('Content-Security-Policy', "default-src 'self'; object-src 'none'; frame-src 'none'; connect-src 'self'; style-src 'self'; font-src 'self'; script-src 'self' https://tapi.bale.ai; img-src 'self' data:; frame-ancestors https://web.bale.ai https://*.bale.ai; base-uri 'self'; form-action 'self'");
+        }
+        if ($request->routeIs('emr.documents.download', 'medical.download', 'card.receipt')) {
             $response->headers->set('Content-Security-Policy', "sandbox; default-src 'none'; frame-ancestors 'none'");
         }
         return $response;

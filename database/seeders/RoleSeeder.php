@@ -17,6 +17,7 @@ final class RoleSeeder extends Seeder
                 default => [],
             });
             if (in_array($name, ['secretary', 'admin'], true)) {
+                $permissions = array_merge($permissions, ['payments.card_review', 'medical.review']);
                 $permissions = array_merge($permissions, ['desk.view', 'desk.book', 'appointments.urgent', 'attendance.manage', 'patients.manage']);
             }
             $role = Role::firstOrCreate(['name' => $name]);

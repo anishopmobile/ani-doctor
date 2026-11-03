@@ -13,6 +13,7 @@ final class P3MigrationTest extends TestCase
     public function test_rollback_of_p3_and_reapply_preserve_p1_and_p2_records(): void
     {
         $this->artisan('migrate:fresh', ['--force' => true])->assertSuccessful();
+        $this->artisan('migrate:rollback', ['--step' => 2, '--force' => true])->assertSuccessful(); // Empty Bale inbox and card transfers.
         $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful(); // Empty EMR schema.
         $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful(); // Homepage contact inbox.
         $this->assertFalse(\Illuminate\Support\Facades\Schema::hasTable('website_contact_messages'));

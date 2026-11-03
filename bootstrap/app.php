@@ -13,6 +13,9 @@ return Application::configure(basePath: dirname(__DIR__))
         web: __DIR__.'/../routes/web.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
+        then: function (): void {
+            require __DIR__.'/../routes/bale.php';
+        },
     )
     ->withMiddleware(function (Middleware $middleware): void {
         // Deny EMR access before resolving clinical IDs, so existence is not disclosed.
@@ -104,7 +107,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 return response()->json(['success' => false, 'data' => null, 'error' => ['code' => 'NOT_FOUND', 'message' => 'خدمت در دسترس نیست.'], 'meta' => (object) []], 404);
             }
         });
-        $exceptions->dontFlash(['code', 'mobile', 'Authority', 'Status', 'query', 'answers', 'schema', 'contact_sender', 'contact_mobile', 'contact_message']);
+        $exceptions->dontFlash(['code', 'mobile', 'Authority', 'Status', 'query', 'answers', 'schema', 'contact_sender', 'contact_mobile', 'contact_message', 'response', 'init_data']);
         $exceptions->dontReport([OtpFailure::class]);
         $exceptions->render(function (OtpFailure $error, Request $request) {
             $message = match ($error->errorCode) {
