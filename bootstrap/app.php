@@ -15,6 +15,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Deny EMR access before resolving clinical IDs, so existence is not disclosed.
+        $middleware->prependToPriorityList(\Illuminate\Routing\Middleware\SubstituteBindings::class, \App\Http\Middleware\MedicalRecordAccess::class);
         $middleware->prepend(SecurityHeaders::class);
         $middleware->web(replace: [\Illuminate\Foundation\Http\Middleware\PreventRequestForgery::class => \App\Http\Middleware\CsrfProtection::class, \Illuminate\Session\Middleware\StartSession::class => \App\Http\Middleware\UiSessionHistory::class]);
         $middleware->replace(\Illuminate\Http\Middleware\TrustProxies::class, \App\Http\Middleware\ConfiguredProxies::class);
@@ -37,6 +39,11 @@ return Application::configure(basePath: dirname(__DIR__))
             return false;
         });
         $exceptions->render(function (\Illuminate\Database\QueryException $error, Request $request) {
+            if ($request->is('management/medical-records*')) {
+                return $request->expectsJson()
+                    ? response()->json(['message' => 'پرونده فعلاً در دسترس نیست؛ درخواست را دوباره بررسی کنید.'], 503)
+                    : response()->view('errors.message', ['message' => 'پرونده فعلاً در دسترس نیست؛ درخواست را دوباره بررسی کنید.'], 503);
+            }
             if ($request->is('appointments*', 'api/v1/appointments*', 'payments*', 'api/v1/payments*', 'wallet*', 'admin/finance*', 'management/reports*', 'admin/discounts*', 'api/v1/discount-preview*', 'admin/forms*', 'admin/notifications*', 'private-forms*', 'management/desk*', 'management/bookings*', 'management/patients*', 'management/appointments*', 'secretary', 'admin', 'dashboard', 'patient')) {
                 $message = 'ثبت یا دریافت نوبت فعلاً انجام نشد. همان درخواست را دوباره بررسی کنید.';
                 if ($request->expectsJson() || $request->is('api/v1/*')) {

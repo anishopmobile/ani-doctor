@@ -1,4 +1,5 @@
 <nav class="app-navigation" aria-label="دسترسی بخش‌ها">
+    @if(auth()->user() && app(\App\Policies\MedicalRecordPolicy::class)->administrative(auth()->user()))<x-panel-link route="emr.index" icon="file" active="emr.*">پرونده بیماران</x-panel-link>@endif
     <span class="app-nav-caption">حساب و نوبت‌ها</span>
     <a href="{{ route('dashboard') }}" @class(['app-nav-link', 'active' => request()->routeIs('dashboard', 'panel.*')]) @if(request()->routeIs('dashboard', 'panel.*')) aria-current="page" @endif><x-ui-icon name="grid"/><span>نمای کلی حساب</span></a>
     <a href="{{ route('calendar') }}" @class(['app-nav-link', 'active' => request()->routeIs('calendar')])><x-ui-icon name="calendar"/><span>رزرو نوبت جدید</span></a>

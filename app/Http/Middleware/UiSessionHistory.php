@@ -9,9 +9,9 @@ final class UiSessionHistory extends StartSession
 {
     protected function storeCurrentUrl(Request $request, $session)
     {
-        // Asset requests are not navigation. In particular a private CSS preview
-        // must not change another tab's redirect()->back() destination.
-        if ($request->routeIs('website.theme.css', 'website.theme.preview-css', 'website.media.show')) {
+        // Assets and attachment downloads are not page navigation. They must not
+        // replace the form's back destination with a file response after validation.
+        if ($request->routeIs('website.theme.css', 'website.theme.preview-css', 'website.media.show', 'emr.documents.download')) {
             return;
         }
         parent::storeCurrentUrl($request, $session);

@@ -62,6 +62,11 @@ final class P8RecoveryTest extends TestCase
     protected function tearDown(): void
     {
         try {
+            // EMR fixtures belong only to this isolated recovery test; ordinary down() protects real history.
+            DB::table('emr_documents')->delete();
+            foreach (DB::table('emr_records')->orderByDesc('id')->pluck('id') as $id) {
+                DB::table('emr_records')->where('id', $id)->delete();
+            }
             $this->app->maintenanceMode()->deactivate();
             $this->app->useStoragePath($this->originalStorage);
             DB::purge('p8_restore');
@@ -88,6 +93,8 @@ final class P8RecoveryTest extends TestCase
         $active = $this->discounted(['start_at' => $appointment->start_at->addHour()->toIso8601String()]);
         app(\App\Modules\DynamicForms\Application\PrivateFormService::class)->submit($this->bookingActor($this->patient), $active, $form, ['version_id' => DB::table('form_versions')->sole()->id, 'expected_submission_id' => 0, 'idempotency_key' => (string) \Illuminate\Support\Str::uuid(), 'consent' => 1, 'answers' => ['note' => 'PRIVATE-RESTORE-SYNTHETIC-ی/ک']]);
         file_put_contents(storage_path('app/private/sample.txt'), 'PRIVATE-FILE-SYNTHETIC');
+        $emr = app(\App\Modules\MedicalRecords\Application\ClinicalService::class)->save($this->admin, $appointment->patient, 'visit', ['request_key' => (string) \Illuminate\Support\Str::uuid(), 'occurred_jalali' => '1405-08-08', 'occurred_time' => '10:00', 'payload' => ['complaint' => 'EMR-RESTORE-SYNTHETIC']]);
+        $emrDocument = app(\App\Modules\MedicalRecords\Application\DocumentService::class)->upload($this->admin, $appointment->patient, \Illuminate\Http\UploadedFile::fake()->image('synthetic.png'), ['request_key' => (string) \Illuminate\Support\Str::uuid(), 'visit_id' => $emr->id, 'title' => 'EMR-DOCUMENT-SYNTHETIC']);
         $before = app(\App\Modules\Reporting\Application\ReportService::class)->build($this->admin, $this->reportFilters())['reconciliation'];
         $backup = app(BackupService::class)->create(true);
         $path = $this->scratch.'/backups/'.$backup['file'];
@@ -95,8 +102,12 @@ final class P8RecoveryTest extends TestCase
         $this->assertStringNotContainsString('PRIVATE-', file_get_contents($path));
         $restored = app(BackupService::class)->restore($path, $this->target, $this->scratch.'/restored-private');
         $this->assertFalse($restored['promoted']);
-        $this->assertSame(1, $restored['private_files']);
+        $this->assertSame(2, $restored['private_files']);
         $db = DB::connection('p8_restore');
+        $restoredPayload = json_decode(Crypt::decryptString($db->table('emr_records')->where('id', $emr->id)->value('payload')), true);
+        $this->assertSame('EMR-RESTORE-SYNTHETIC', $restoredPayload['complaint']);
+        $this->assertSame($emrDocument->sha256, hash('sha256', Crypt::decryptString(file_get_contents($this->scratch.'/restored-private/emr/'.$emrDocument->path))));
+        $this->assertSame($emr->id, (int) $db->table('emr_documents')->where('id', $emrDocument->id)->value('visit_id'));
         $this->assertSame(800000, (int) $db->table('payments')->sum('amount_irr'));
         $this->assertSame(800000, (int) $db->table('wallet_entries')->sum('amount_irr'));
         $this->assertSame(2, $db->table('appointments')->count());

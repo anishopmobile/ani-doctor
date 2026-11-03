@@ -1,4 +1,6 @@
 # ARCHITECTURE — معماری فنی آنی دکتر
+
+MedicalRecords افزوده داخلی مجاز مالک است: بیمار موجود و file_number را بازاستفاده می‌کند. MedicalProfile / ClinicalRecord / MedicalDocument هویت تکمیلی، نسخه‌های بالینی و مدارک خصوصی‌اند؛ ClinicalSchema قرارداد فیلدها، ClinicalService مرز transaction/قفل/امضا/الحاقیه، ProfileService جستجو و هویت، DocumentService فایل رمزگذاری‌شده، MedicalRecordPolicy مجوز دو نقش موجود و MedicalAudit رویداد کمینه است. API عمومی و وابستگی UI جدید ندارد؛ [ERD، عملیات و مرزها](docs/patient-medical-records.md).
 **نسخه:** 1.0.0 · **مرجع قواعد محصول:** [PRD.md](PRD.md)
 
 ## 1. تصمیم معماری (ADR-001)

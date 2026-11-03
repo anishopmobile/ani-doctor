@@ -132,6 +132,7 @@ final class PublicArticlePagesTest extends TestCase
     public function test_author_migration_rollback_preserves_articles_and_booking_data(): void
     {
         $article = $this->article('migration');
+        $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful(); // Empty EMR schema.
         $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful(); // Homepage contact inbox.
         $this->assertFalse(\Illuminate\Support\Facades\Schema::hasTable('website_contact_messages'));
         $this->artisan('migrate:rollback', ['--step' => 1, '--force' => true])->assertSuccessful();
