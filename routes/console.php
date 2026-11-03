@@ -120,3 +120,13 @@ Artisan::command('ops:restore {archive} {target} {private-target} {--isolated-ta
         return 1;
     }
 })->purpose('Authenticate an entire backup before restoring to an empty isolated database; never promotes it');
+
+Artisan::command('identity:export-private-otp', function (): int {
+    try {
+        app(\App\Modules\Identity\Application\PrivateOtpDelivery::class)->export();
+        return 0;
+    } catch (\Throwable) {
+        $this->error('Private OTP export failed; check private directory and configuration.');
+        return 1;
+    }
+})->purpose('Export an allowlisted OTP to an owner-only file; never to stdout');

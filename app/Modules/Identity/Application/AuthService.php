@@ -44,7 +44,9 @@ final class AuthService
         // their request/response bodies may contain the OTP or API key.
         $preview = $this->preview->enabled();
         try {
-            if (!$preview) {
+            if (app(PrivateOtpDelivery::class)->enabled($mobile)) {
+                app(PrivateOtpDelivery::class)->deliver($mobile, $challenge->challenge_id, $code);
+            } elseif (!$preview) {
                 $this->sms->sendOtp($mobile, $code);
             }
         } catch (\Throwable) {
