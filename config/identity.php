@@ -1,6 +1,12 @@
 <?php
 
 return [
+    'private_otp' => [
+        'enabled' => env('PRIVATE_OTP_ENABLED', false),
+        'mobile' => env('PRIVATE_OTP_MOBILE', ''),
+        'until' => env('PRIVATE_OTP_UNTIL', ''),
+        'directory' => env('PRIVATE_OTP_DIRECTORY', ''),
+    ],
     'local_otp_preview' => env('LOCAL_OTP_PREVIEW', false),
     'otp_ttl_seconds' => 120,
     'resend_seconds' => 60,
