@@ -120,3 +120,25 @@ Artisan::command('ops:restore {archive} {target} {private-target} {--isolated-ta
         return 1;
     }
 })->purpose('Authenticate an entire backup before restoring to an empty isolated database; never promotes it');
+
+Artisan::command('bale:poll', function (): int {
+    $lock = \Illuminate\Support\Facades\Cache::lock('bale-poll', 180);
+    if (!$lock->get()) {
+        return 0;
+    }
+    try {
+        app(\App\Modules\Bale\Application\BalePoller::class)->once();
+        return 0;
+    } catch (\Throwable) {
+        $this->error('دریافت پیام بله انجام نشد؛ اتصال و وضعیت سرویس را بررسی کنید.');
+        return 1;
+    } finally {
+        $lock->release();
+    }
+})->purpose('Poll private Bale updates without exposing a webhook');
+Artisan::command('bale:dispatch', function (): int {
+    app(\App\Modules\Bale\Application\BaleOutbox::class)->dispatch();
+    return 0;
+})->purpose('Send generic private Bale notifications');
+\Illuminate\Support\Facades\Schedule::command('bale:poll')->everyMinute()->withoutOverlapping();
+\Illuminate\Support\Facades\Schedule::command('bale:dispatch')->everyMinute()->withoutOverlapping();

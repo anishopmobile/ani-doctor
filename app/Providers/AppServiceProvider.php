@@ -33,6 +33,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        foreach (['payments.card_review', 'medical.review'] as $permission) {
+            Gate::define($permission, fn (User $user) => $user->hasPermission($permission));
+        }
         RateLimiter::for('website-contact', fn (Request $request) => [Limit::perMinute(3)->by('contact-minute:'.$request->ip()), Limit::perDay(20)->by('contact-day:'.$request->ip())]);
         \Illuminate\Support\Facades\View::composer('website.home-sections.contact', function ($view): void {
             $theme = $view->getData()['websiteTheme'];

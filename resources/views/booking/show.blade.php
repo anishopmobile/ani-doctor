@@ -19,6 +19,7 @@
 @endif
 </section>
 @include('payments.appointment')
+@include('payments.card')
 <section class="ux-card"><h2 class="h4">برگه نوبت و فرم‌ها</h2><div class="ux-quick-links"><p><a href="{{ route('tickets.print', $appointment->reference) }}">برگه چاپ نوبت</a> · <a href="{{ route('tickets.pdf', $appointment->reference) }}">PDF نوبت</a></p>
 
 @if(!$actor->staff() || $actor->can('forms.answers.view'))<p><a href="{{ route('private-forms.index', $appointment->reference) }}">فرم‌های خصوصی این نوبت</a></p>@endif

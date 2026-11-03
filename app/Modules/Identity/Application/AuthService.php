@@ -19,7 +19,7 @@ final class AuthService
     }
 
     /** @return array{id: string, expires_at: string, retry_after: int, preview_code?: string} */
-    public function requestCode(string $mobile, string $purpose): array
+    public function requestCode(string $mobile, string $purpose, bool $allowPreview = true): array
     {
         if (!MobileNumber::isValid($mobile) || !in_array($purpose, ['login', 'guest'], true)) {
             throw new OtpFailure('VALIDATION_ERROR');
@@ -42,7 +42,7 @@ final class AuthService
 
         // Network calls stay outside database locks. Never report provider exceptions:
         // their request/response bodies may contain the OTP or API key.
-        $preview = $this->preview->enabled();
+        $preview = $allowPreview && $this->preview->enabled();
         try {
             if (!$preview) {
                 $this->sms->sendOtp($mobile, $code);

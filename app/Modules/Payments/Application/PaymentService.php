@@ -40,6 +40,9 @@ final class PaymentService
             if (!$this->booking->confirmable($appointment)) {
                 throw new BookingFailure('HOLD_EXPIRED');
             }
+            if (\App\Modules\Payments\Infrastructure\CardTransfer::where('appointment_id', $appointment->id)->whereIn('state', ['awaiting_receipt', 'pending_review', 'manager_review'])->exists()) {
+                throw new BookingFailure('PAYMENT_IN_PROGRESS');
+            }
             if (PaymentAttempt::where('appointment_id', $appointment->id)->whereIn('state', ['requesting', 'redirected', 'uncertain'])->lockForUpdate()->exists()) {
                 throw new BookingFailure('PAYMENT_IN_PROGRESS');
             }

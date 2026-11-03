@@ -183,3 +183,24 @@ Route::get('/patient', DashboardController::class)->middleware(['auth', 'can:pan
 foreach (['secretary', 'admin'] as $panel) {
     Route::get('/'.$panel, [\App\Http\Controllers\Secretary\DeskController::class, 'index'])->middleware(['auth', 'can:panel.'.$panel, \App\Http\Middleware\VerifiedBooker::class, 'can:desk.view', 'throttle:desk'])->name('panel.'.$panel);
 }
+
+Route::middleware(['auth', 'can:payments.settings'])->group(function (): void {
+    Route::get('/admin/card-settings', [\App\Http\Controllers\Web\CardTransferController::class, 'settings'])->name('card.settings');
+    Route::put('/admin/card-settings', [\App\Http\Controllers\Web\CardTransferController::class, 'configure'])->defaults('card_action', 'settings')->name('card.settings.update');
+});
+Route::middleware([\App\Http\Middleware\VerifiedBooker::class, 'throttle:booking'])->group(function (): void {
+    foreach (['begin', 'submit', 'review'] as $action) {
+        Route::post('/payments/{reference}/card/'.$action, [\App\Http\Controllers\Web\CardTransferController::class, 'mutate'])->defaults('card_action', $action)->name('card.'.$action);
+    }
+    Route::get('/payments/{reference}/card/receipt', [\App\Http\Controllers\Web\CardTransferController::class, 'receipt'])->name('card.receipt');
+});
+
+Route::get('/bale', [\App\Http\Controllers\Web\BaleController::class, 'index'])->name('bale.index');
+foreach (['me', 'otp', 'verify', 'days', 'book', 'receipt', 'document', 'responses'] as $action) {
+    Route::post('/bale/'.$action, [\App\Http\Controllers\Web\BaleController::class, 'handle'])->defaults('bale_action', $action)->middleware('throttle:60,1')->name('bale.'.$action);
+}
+Route::middleware(['auth', 'can:medical.review', 'throttle:booking'])->group(function (): void {
+    Route::get('/management/medical-inbox', [\App\Http\Controllers\Admin\MedicalInboxController::class, 'index'])->name('medical.index');
+    Route::get('/management/medical-inbox/{reference}/file', [\App\Http\Controllers\Admin\MedicalInboxController::class, 'download'])->name('medical.download');
+    Route::post('/management/medical-inbox/{reference}/review', [\App\Http\Controllers\Admin\MedicalInboxController::class, 'review'])->name('medical.review');
+});
